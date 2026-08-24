@@ -1,0 +1,566 @@
+%% PAPER 3 — DRAFT v0.1
+%% A Universal Quartic Dispersion Framework: From Kerr Spacetime
+%% to Condensed-Matter Analogs
+%%
+%% Companion to: Paper 1 (Zenodo 10.5281/zenodo.22018715, CQG-117140)
+%%               Paper 2 (Zenodo 10.5281/zenodo.22051427)
+%% Status: DRAFT — internal consolidation, not for distribution
+
+\documentclass[12pt,a4paper]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx,hyperref,geometry,natbib,booktabs,xcolor}
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{result}{Result}
+\newtheorem{remark}{Remark}
+\newcommand{\TODO}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+\newcommand{\Lam}{\Lambda}
+
+\begin{document}
+
+\title{%
+  A Universal Quartic Dispersion Framework:\\
+  Numerical Validation, Multi-Messenger Time-of-Flight Bounds,\\
+  and Condensed-Matter Analog Mappings
+}
+\author{%
+  Dimitar Kretski\\
+  Center for Hydro- and Aerodynamics,\\
+  Bulgarian Academy of Sciences, Varna, Bulgaria\\
+  \texttt{ORCID: 0000-0001-5108-2243}
+}
+\date{\today\ --- \textbf{DRAFT v0.1}}
+\maketitle
+
+\begin{abstract}
+We consolidate and numerically validate the one-parameter quartic
+dispersion framework $\omega(k)=ck\sqrt{1+\Lambda k^2}$ introduced in
+Papers 1--2, and extend it in three directions.
+\textbf{(1) Numerical infrastructure:} we implement and validate a
+spectral solver for the corresponding wave equation, verify the
+discrete biharmonic operator $D_n^4$ converges to the continuum limit
+at the expected $O(h^2)$ order, and demonstrate that $\Lambda$ can be
+recovered from noisy $(k,\omega)$ data to sub-percent accuracy.
+\textbf{(2) Corrected Fermi-LAT audit:} we identify and correct a
+factor-of-$3/2$ normalization error in the group-velocity relation
+used in Paper 1's Fermi-LAT bound, tightening it from
+$\Lambda<2.16\times10^{-53}\,\mathrm{m^2}$ to the audited value
+$\Lambda<1.44\times10^{-53}\,\mathrm{m^2}$.
+\textbf{(3) Condensed-matter analog mappings:} we show that the same
+dispersion form appears in Bogoliubov excitations of Bose--Einstein
+condensates ($\Lambda=\xi^2/4$), an analytically verified mapping, and
+we release open-source fitting tools so that this claim is directly
+falsifiable by experimentalists. We also examined a proposed mapping to
+trigonal-warping-corrected Dirac materials and one to photonic
+$k$-space dispersion; on closer inspection neither currently rests on a
+literature-supported derivation (Section~\ref{sec:analogs}), and we
+report this honestly rather than presenting them as validated.
+We emphasize throughout the distinction between an \emph{audited
+observational bound} (Fermi-LAT), a \emph{validated theoretical
+sensitivity ceiling} (EHT), and an \emph{illustrative forecast}
+(gravitational-wave multi-band observations) --- only the first
+constitutes a genuine fitted constraint from published data.
+\end{abstract}
+
+\newpage\tableofcontents\newpage
+
+%% ════════════════════════════════════════════════════════════════════════════
+\section{Introduction}
+%% ════════════════════════════════════════════════════════════════════════════
+
+Papers 1 and 2 established a one-parameter Hamiltonian dispersion
+framework,
+\begin{equation}
+  H = \tfrac{1}{2}\bigl[g^{\mu\nu}k_\mu k_\nu + \Lambda\,k_{\rm loc}^4\bigr],
+\end{equation}
+and derived its consequences in Schwarzschild and Kerr spacetime: two
+proved theorems on field/worldline non-equivalence (Paper 1), and four
+results on photon-ring chromaticity, frequency-dependent shadow
+sensitivity, superradiance invariance, and eikonal quasinormal modes
+(Paper 2).
+
+The present paper serves three purposes:
+
+\begin{enumerate}
+  \item \textbf{Close the numerical-infrastructure gap.} Papers 1--2
+    used custom root-finding and implicit-differentiation code for each
+    specific calculation (photon rings, QNM eikonal parameters). Here we
+    build and validate a general-purpose PDE solver for the underlying
+    wave equation, independent of any particular spacetime, and confirm
+    it reproduces the known dispersion relation to controlled numerical
+    accuracy.
+
+  \item \textbf{Audit and correct the Fermi-LAT bound.} A normalization
+    error in the group-velocity relation used in Paper 1 is identified
+    and corrected here (Section~\ref{sec:fermi}).
+
+  \item \textbf{Extend the physical scope.} We show that the flat-space
+    limit of the dispersion relation, $\omega=ck\sqrt{1+\Lambda k^2}$,
+    is mathematically identical to the established Bogoliubov dispersion
+    law for BEC excitations, and we release open-source fitting tools so
+    that this claim is directly falsifiable by experimentalists. We also
+    audit two further proposed condensed-matter mappings (Dirac
+    materials, photonic crystals) and report that neither currently
+    survives scrutiny in its present form (Section~\ref{sec:analogs}).
+\end{enumerate}
+
+\begin{remark}
+This paper does not claim a unified physical origin for $\Lambda$ across
+gravitational and condensed-matter contexts. It claims only that the
+\emph{same functional form} of dispersion relation appears in each
+context, with different physical identifications of the parameter. A
+single numerical value of $\Lambda$ that is simultaneously consistent
+across all probes would be evidence for common origin; this has not been
+established and is not claimed here.
+\end{remark}
+
+%% ════════════════════════════════════════════════════════════════════════════
+\section{Numerical Wave-Equation Solver}
+\label{sec:solver}
+%% ════════════════════════════════════════════════════════════════════════════
+
+\subsection{Flat-space wave equation}
+
+The flat-space limit of the Hamiltonian (with ZAMO/comoving observer
+reducing to the ordinary observer) gives the real-space PDE
+\begin{equation}\label{eq:pde}
+  \partial_t^2\phi = c^2\nabla^2\phi - c^2\Lambda\,\nabla^4\phi,
+\end{equation}
+i.e.\ the standard wave equation with a biharmonic correction. We
+implement a 2D periodic-domain Fourier spectral solver
+(\texttt{wave\_equation\_2D\_solver.py}) in which the spatial operator
+is exact (machine precision) and the only numerical error comes from
+finite time-sampling in the frequency-extraction step.
+
+\subsection{Validation: recovered dispersion relation}
+
+Table~\ref{tab:dispersion_test} shows the numerically extracted
+$\omega(k)$ for a plane-wave initial condition, compared to the exact
+formula, at several $\Lambda$ values (grid: $64\times64$, wavevector
+$(k_x,k_y)=(3,4)$, so $k=5$).
+
+\begin{table}[h]
+\centering
+\caption{Numerical vs.\ exact dispersion relation, $k=5$.}
+\label{tab:dispersion_test}
+\begin{tabular}{lccc}
+\toprule
+$\Lambda$ & $\omega_{\rm exact}$ & $\omega_{\rm numerical}$ & relative error \\
+\midrule
+$0.00$ & 5.00000000 & 4.98333333 & $3.33\times10^{-3}$ \\
+$0.01$ & 5.59016994 & 5.57153604 & $3.33\times10^{-3}$ \\
+$0.05$ & 7.50000000 & 7.47500000 & $3.33\times10^{-3}$ \\
+$0.10$ & 9.35414347 & 9.32296299 & $3.33\times10^{-3}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The residual $3.33\times10^{-3}$ relative error is uniform across
+$\Lambda$ and is entirely attributable to FFT frequency-bin discretization
+in the time domain (finite number of oscillation periods sampled); it is
+not a spatial discretization error, since the spectral spatial operator
+is exact. Section~\ref{sec:convergence} confirms this error scales as
+$O(1/N_{\rm samples})$.
+
+\subsection{Discrete biharmonic operator $D_n^4$}
+
+For finite-difference (as opposed to spectral) implementations, the
+biharmonic term in Eq.~\eqref{eq:pde} is approximated by
+$D_n^4=(D_n^2)^2$, the composition of the standard 3-point discrete
+Laplacian. We verify (\texttt{paper3\_Dn4\_test.py}):
+
+\begin{itemize}
+  \item[\checkmark] \textbf{Symbol convergence:} the discrete Fourier
+    symbol $[-(2/h^2)(1-\cos kh)]^2$ converges to the continuum $k^4$ at
+    measured order $2.000$ (5 grid refinements, $h\in[0.01,0.5]$),
+    matching the expected order for a standard 5-point stencil.
+  \item[\checkmark] \textbf{Eigenfunction check:} direct matrix
+    application of $D_n^4$ to a discretized plane wave reproduces the
+    discrete-symbol prediction to $2\times10^{-10}$ (machine precision),
+    confirming the matrix construction is correct independent of the
+    continuum-limit question.
+\end{itemize}
+
+\subsection{Grid and temporal convergence}
+\label{sec:convergence}
+
+Table~\ref{tab:convergence} confirms $O(1/N)$ convergence of the
+frequency-extraction error with the number of time samples, consistent
+with standard FFT binning behavior and ruling out spurious numerical
+drift in the solver.
+
+\begin{table}[h]
+\centering
+\caption{Temporal resolution convergence ($\Lambda=0.05$, fixed spatial
+grid).}
+\label{tab:convergence}
+\begin{tabular}{lcc}
+\toprule
+$N_{\rm samples}$ & relative error & convergence order \\
+\midrule
+100    & $1.00\times10^{-2}$ & --    \\
+300    & $3.33\times10^{-3}$ & $-1.000$ \\
+1000   & $1.00\times10^{-3}$ & $-1.000$ \\
+3000   & $3.33\times10^{-4}$ & $-1.000$ \\
+10000  & $1.00\times10^{-4}$ & $-1.000$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{$\Lambda$ recovery from noisy data}
+
+We further test the inverse problem directly relevant to
+experimentalists: given noisy $(k,\omega)$ pairs, can $\Lambda$ be
+recovered by least-squares fitting? Using synthetic data with
+$\Lambda_{\rm true}=0.07$ and $0.1\%$ Gaussian noise on $\omega$, the
+fit recovers $\Lambda_{\rm fit}=0.069771$, a relative error of $0.33\%$
+--- well within the noise level, confirming the fitting procedure
+introduces no significant bias.
+
+%% ════════════════════════════════════════════════════════════════════════════
+\section{Corrected Fermi-LAT Bound}
+\label{sec:fermi}
+%% ════════════════════════════════════════════════════════════════════════════
+
+\subsection{The normalization error}
+
+Paper 1 derived a bound on $\Lambda$ from Fermi-LAT gamma-ray-burst
+timing \citep{Abdo2009} by equating the fractional group-velocity
+deviation $(v_g-c)/c$ to the standard linear-in-$\Lambda$ term of the
+dispersion relation. Auditing this derivation reveals that the correct
+relation is
+\begin{equation}
+  \frac{v_g - c}{c} = \frac{3}{2}\bigl(D-1\bigr),
+\end{equation}
+where $D=v_g/c$ was (incorrectly) treated as directly proportional to
+$\Lambda\omega^2$ without the leading numerical factor $3/2$ that arises
+from differentiating $\omega=ck\sqrt{1+\Lambda k^2}$ to obtain the group
+velocity (Paper 1, Eq.~for $v_g$; the factor originates from
+$d/dk[k\sqrt{1+\Lambda k^2}]$ at leading order in $\Lambda k^2$).
+
+\subsection{Corrected bound}
+
+\begin{result}[Audited Fermi-LAT bound]
+Correcting for the $3/2$ factor gives
+\begin{equation}
+  \Lambda_{\rm corrected} = \frac{2}{3}\,\Lambda_{\rm original},
+\end{equation}
+i.e.\ a $33.3\%$ tightening of the bound:
+\begin{equation}
+  \boxed{\Lambda_{\rm Fermi} = 1.4421\times10^{-53}\ {\rm m^2}}
+\end{equation}
+in place of the previously quoted $2.1632\times10^{-53}\,{\rm m^2}$. The
+order of magnitude, $\Lambda_{\rm Fermi}=O(10^{-53}\,{\rm m^2})$, is
+unchanged.
+\end{result}
+
+This correction does not affect any result in Paper 2 (Kerr photon
+rings, chromatic shadow, superradiance, eikonal QNMs), which do not
+depend on the Fermi-LAT normalization.
+
+%% ════════════════════════════════════════════════════════════════════════════
+\section{Consolidated Multi-Probe Summary}
+\label{sec:consolidated}
+%% ════════════════════════════════════════════════════════════════════════════
+
+Table~\ref{tab:probes} consolidates the three observational/theoretical
+probes of $\Lambda$ developed across Papers 1--3, with an explicit
+statement of evidentiary status for each.
+
+\begin{table}[h]
+\centering
+\caption{Consolidated $\Lambda$ probes. See remarks below for status
+definitions.}
+\label{tab:probes}
+\begin{tabular}{lllcl}
+\toprule
+Probe & Observable & Scaling & Result & Status \\
+\midrule
+Fermi-LAT     & time-of-flight            & $\Lambda\omega^2$        & $1.44\times10^{-53}\,{\rm m^2}$ & audited bound \\
+EHT M87*      & chromatic shadow shift    & $\Lambda\omega^2$        & $2.6\times10^{-9}\,{\rm m^2}$   & validated sensitivity \\
+GW (LIGO/LISA)& propagation delay         & $\Lambda\omega^2 K(z)$   & $3.2\times10^{-10}\,{\rm m^2}$  & forecast \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{remark}[Status definitions --- read carefully]
+\textbf{Audited bound (Fermi-LAT):} derived from a published, fitted
+constraint on Lorentz-invariance-violating time-of-flight dispersion
+\citep{Abdo2009}, with the $\Lambda$-model normalization independently
+verified in Section~\ref{sec:fermi}. This is a genuine observational
+constraint.
+
+\textbf{Validated sensitivity ceiling (EHT):} the value of $\Lambda$
+corresponding to a $10\%$ shadow-size tolerance model calibrated to
+published EHT angular resolution at 230\,GHz (Paper 2,
+Section~5). This is \emph{not} a fit to actual M87* shadow data; it is
+the sensitivity that such a fit \emph{could in principle achieve} under
+stated assumptions. A genuine EHT constraint requires per-band
+sensitivity, opacity, and imaging-systematics modeling not attempted
+here.
+
+\textbf{Forecast (GW):} an illustrative projection of the sensitivity
+achievable from a hypothetical multi-band gravitational-wave detection
+with electromagnetic counterpart, using the FLRW propagation formula
+$\Delta T(\omega,z)=-(\Lambda/2c^3)\,\omega^2\,K(z)$ derived in
+Paper 2's FLRW extension. This is \emph{not} a fitted LIGO/Virgo/KAGRA
+constraint; no such analysis has been performed on real GW170817 or
+other event data.
+\end{remark}
+
+All three probes share the identical $\Lambda\omega^2$ scaling, which
+follows from the same analytical proof (vanishing of $g^{\mu\nu}k_\mu
+k_\nu$ at the relevant null trajectory) established independently in
+each spacetime (Schwarzschild for Fermi-LAT and GW forecast, Kerr for
+EHT).
+
+%% ════════════════════════════════════════════════════════════════════════════
+\section{Condensed-Matter Analog Mappings}
+\label{sec:analogs}
+%% ════════════════════════════════════════════════════════════════════════════
+
+The flat-space, zero-curvature limit of the dispersion relation is
+\begin{equation}\label{eq:flat}
+  \omega(k) = ck\sqrt{1+\Lambda k^2}.
+\end{equation}
+Of the three condensed-matter systems considered during this audit, only
+one currently has a literature-supported derivation of this exact form.
+We report all three honestly in Table~\ref{tab:mappings}, including the
+two that do not (yet) survive scrutiny, rather than omitting the
+negative results.
+
+\begin{table}[h]
+\centering
+\caption{Condensed-matter systems examined for the dispersion form
+Eq.~\eqref{eq:flat}. Status reflects the audit in this section, not the
+convenience of the algebra.}
+\label{tab:mappings}
+\begin{tabular}{lllc}
+\toprule
+System & $\Lambda$ mapping & Physical inputs & Status \\
+\midrule
+BEC (Bogoliubov)     & $\xi^2/4$              & healing length $\xi$ & \textbf{established} \\
+Dirac/Weyl material  & $(1-\eta^2)v_F^2/4$    & warping $\eta$, $v_F$ & \textbf{speculative, unsupported} \\
+Photonic ($k$-space) & $\beta_4^k/c^2$        & coeff.\ $\beta_4^k$ of $k^4$ in $\omega^2(k)$ & \textbf{not yet measurable} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Bose--Einstein condensates}
+
+The Bogoliubov dispersion relation for excitations in a weakly
+interacting BEC, $\omega(k)=c_sk\sqrt{1+(\xi k/2)^2}$, matches
+Eq.~\eqref{eq:flat} exactly with $\Lambda=\xi^2/4$, verified directly by
+matching the $k^4$ coefficients of the two forms
+($\omega^2=c_s^2k^2+(\hbar^2/4m^2)k^4$ vs.\ $\omega^2=c_s^2k^2(1+\Lambda
+k^2)$). This is an analytic identity, not a numerical coincidence.
+\texttt{examples/example\_BEC.py} confirms the fitting code correctly
+recovers $\Lambda=\xi^2/4$ from noisy synthetic Bragg-spectroscopy-like
+data (healing length $\xi=5\times10^{-7}$\,m, $2\%$ noise, recovered to
+$5.4\%$) --- this validates the \emph{fitting procedure}; the physical
+mapping itself is independently established by the coefficient-matching
+argument above, not by the synthetic-data test.
+
+\subsection{Dirac and Weyl materials --- audited and not supported}
+\label{sec:dirac_audit}
+
+An earlier draft of this section proposed $\Lambda=(1-\eta^2)v_F^2/4$
+for trigonal/hexagonal-warping-corrected Dirac dispersion, citing
+\citet{Fu2009}. On inspection, that citation does not support this
+formula. \citet{Fu2009} derives a hexagonal warping term that is
+\emph{cubic} in momentum,
+\begin{equation}
+  H = v_F(k_x\sigma_y - k_y\sigma_x) + \tfrac{\lambda_w}{2}(k_+^3+k_-^3)\sigma_z,
+\end{equation}
+explicitly described by the author as the counterpart of cubic
+Dresselhaus spin-orbit coupling. Squaring to obtain the energy
+dispersion gives
+\begin{equation}
+  E(k)^2 = v_F^2k^2 + \lambda_w^2k^6\cos^2(3\theta),
+\end{equation}
+an \emph{anisotropic $k^6$} correction, not the isotropic $k^4$
+correction required by Eq.~\eqref{eq:flat}. No power of the warping
+strength or angular averaging converts a $k^6$ term into a $k^4$ term;
+these are structurally different corrections to the dispersion relation.
+We were unable to locate any literature derivation of an isotropic
+$k^4$ (Lambda-model) correction to Dirac dispersion from trigonal
+warping, tilt, or any other known mechanism.
+
+\begin{remark}[On the synthetic-data test]
+\texttt{examples/example\_dirac.py} generates synthetic ``ARPES-like''
+data directly from the formula $\Lambda=(1-\eta^2)v_F^2/4$ and then
+fits that same formula to it. Such a test is guaranteed to succeed
+regardless of whether the underlying physical mapping is real; it
+demonstrates only that the fitting code is unbiased, and must not be
+read as evidence for the mapping. We flag this explicitly because an
+earlier version of this manuscript did present the resulting agreement
+(``$0.67\%$'') as if it were evidence for the physics. It was not.
+\end{remark}
+
+We retain $\Lambda=(1-\eta^2)v_F^2/4$ in the released code, clearly
+marked as speculative (it raises a runtime warning on use), for
+exploratory purposes only. It should not be treated as a prediction of
+this framework, and Table~\ref{tab:mappings} reports it as such.
+
+\subsection{Photonic dispersion --- corrected derivation, not yet
+connected to a measurable quantity}
+
+An earlier draft of this section claimed
+$\Lambda=\beta_4^k/(12c)$, derived from an expansion
+$\omega(k)=ck+(\beta_4^k/24)k^4+\dots$. That expansion is incorrect.
+Direct Taylor expansion of Eq.~\eqref{eq:flat} gives
+\begin{equation}
+  \omega(k) = ck + \tfrac{1}{2}\Lambda c\,k^3 + O(k^5),
+\end{equation}
+i.e.\ the leading correction to $\omega(k)$ itself is \emph{cubic} in
+$k$; there is no $k^4$ term in $\omega(k)$ at any order coming from this
+model. The quartic structure appears cleanly only in $\omega^2(k)$,
+which is exact and closed-form:
+\begin{equation}
+  \omega(k)^2 = c^2k^2 + c^2\Lambda\,k^4 \quad\Longrightarrow\quad
+  \Lambda = \beta_4^k/c^2, \qquad \beta_4^k \equiv c^2\Lambda,
+\end{equation}
+where $\beta_4^k$ is defined as the coefficient of $k^4$ in
+$\omega^2(k)$ (units ${\rm m^4/s^2}$). This corrected formula is used
+throughout the released code.
+
+Even with the corrected algebra, $\beta_4^k$ is not yet connected to any
+standard, independently measurable photonics quantity. Standard telecom
+dispersion coefficients ($\beta_2,\beta_3,\beta_4=d^n\beta/d\omega^n$)
+are Taylor coefficients of the propagation constant expanded around a
+nonzero pump/operating frequency --- a structurally different
+expansion from the near-$k=0$ form used here. We checked the closest
+real physical analogue, quartic dispersion in fiber-optical
+event-horizon experiments \citep{Webb2014}: even in the idealized
+``pure-quartic'' operating point ($\beta_2=\beta_3=0$), the co-moving-
+frame frequency near the group-velocity-matched wavenumber behaves as a
+quartic \emph{minimum} with no linear term at all,
+$\Omega(\Delta k)\propto-\beta_4\Delta k^4/(24\beta_1^5)$ --- a
+different mathematical structure from the deformed-light-cone form of
+Eq.~\eqref{eq:flat}, which always retains a leading linear branch
+$\omega\to ck$. We do not currently have a derivation connecting
+measured fiber $\beta_n$ coefficients to $\beta_4^k$ as used here.
+
+\begin{remark}[On the synthetic-data test]
+As in Section~\ref{sec:dirac_audit}, \texttt{examples/example\_photonic.py}
+fits synthetic data generated from the same formula it tests, which
+validates only the fitting code (now correctly recovering the corrected
+$\Lambda=\beta_4^k/c^2$), not any physical claim about real photonic
+media. We report this explicitly rather than describing it as
+experimental validation.
+\end{remark}
+
+%% ════════════════════════════════════════════════════════════════════════════
+\section{Open-Source Tools}
+\label{sec:tools}
+%% ════════════════════════════════════════════════════════════════════════════
+
+All code described in this paper is released under the MIT license in
+the \texttt{Lambda-model} repository, organized as:
+
+\begin{verbatim}
+Lambda-model/
+  paper3/
+    wave_equation_2D_solver.py        (Section 2)
+    paper3_Dn4_test.py                (Section 2.3)
+    paper3_grid_convergence.py        (Section 2.4-2.5)
+    lambda_experimental_validator.py  (fitting tool, all domains)
+  examples/
+    example_BEC.py
+    example_dirac.py
+    example_photonic.py
+\end{verbatim}
+
+The validator (\texttt{lambda\_experimental\_validator.py}) accepts
+either raw $(k,\omega)$ CSV data or domain-specific physical parameters,
+and reports: the fitted $\Lambda$ with standard error, the fit quality
+($R^2$), a significance test against $\Lambda=0$, and (for domain
+examples) a direct comparison to the theoretical mapping. This is
+intended as a turnkey tool for experimentalists to test their own data
+against the framework without needing to reimplement the fitting
+procedure. The BEC mapping (\texttt{lambda\_from\_BEC}) is presented as
+established; the Dirac mapping (\texttt{lambda\_from\_dirac}) raises a
+runtime warning identifying it as speculative and unsupported by the
+cited literature (Section~\ref{sec:dirac_audit}); the photonic mapping
+(\texttt{lambda\_from\_photonic}) uses the corrected $\beta_4^k/c^2$
+form but is explicitly documented as not yet connected to a measurable
+laboratory quantity. Domain example scripts print an explicit reminder
+that synthetic-data agreement validates the fitting code, not the
+physical mapping, wherever that mapping is not independently
+established.
+
+%% ════════════════════════════════════════════════════════════════════════════
+\section{Conclusions}
+%% ════════════════════════════════════════════════════════════════════════════
+
+We have consolidated the quartic-dispersion framework of Papers 1--2
+with three additions:
+
+\begin{enumerate}
+  \item A validated numerical solver and discrete biharmonic operator,
+    with confirmed $O(h^2)$ spatial and $O(1/N)$ temporal convergence,
+    and demonstrated $\Lambda$-recovery from noisy data to sub-percent
+    accuracy.
+  \item A corrected Fermi-LAT bound,
+    $\Lambda_{\rm Fermi}=1.4421\times10^{-53}\,{\rm m^2}$, tightened by
+    $33\%$ from the original Paper 1 value due to a group-velocity
+    normalization error.
+  \item One analytically established condensed-matter analog mapping
+    (BEC, $\Lambda=\xi^2/4$), with the fitting procedure confirmed
+    unbiased on synthetic data; and an honest audit of two further
+    proposed mappings (Dirac materials, photonic crystals), neither of
+    which currently survives scrutiny as a validated physical claim
+    (Section~\ref{sec:analogs}). All fitting tools are released as
+    open source regardless of a given mapping's status, so
+    experimentalists can test any of them directly against real data.
+\end{enumerate}
+
+The overall evidentiary hierarchy is now:
+\begin{center}
+\textbf{theory (proved)} $\to$ \textbf{numerical validation (this
+paper)} $\to$ \textbf{audited bound (Fermi-LAT)} $\to$ \textbf{validated
+sensitivity ceiling (EHT)} $\to$ \textbf{forecast (GW)} $\to$
+\textbf{open experimental test (condensed matter)}.
+\end{center}
+
+We emphasize that no single value of $\Lambda$ has been simultaneously
+fitted across all probes; the framework remains a falsifiable hypothesis
+about a shared mathematical structure, not a confirmed physical law. The
+open-source tools released here are intended to enable that falsification
+test directly, by domain experts, on real data.
+
+%% ── Bibliography ────────────────────────────────────────────────────────────
+\bibliographystyle{plainnat}
+\begin{thebibliography}{99}
+
+\bibitem[Abdo et~al.(2009)]{Abdo2009}
+Abdo, A.~A., et~al., 2009, \textit{Astrophys.\ J.}, 706, L138.
+
+\bibitem[Agrawal(2019)]{Agrawal2019}
+Agrawal, G.~P., 2019, \textit{Nonlinear Fiber Optics}, 6th ed.\ (Academic Press).
+
+\bibitem[Bogoliubov(1947)]{Bogoliubov1947}
+Bogoliubov, N.~N., 1947, \textit{J.\ Phys.\ USSR}, 11, 23.
+
+\bibitem[Fu(2009)]{Fu2009}
+Fu, L., 2009, \textit{Phys.\ Rev.\ Lett.}, 103, 266801. (Cited in
+Section~\ref{sec:dirac_audit} as the source of the hexagonal warping
+term; note that paper does not support the $\Lambda=(1-\eta^2)v_F^2/4$
+mapping attributed to it in an earlier draft.)
+
+\bibitem[Webb et~al.(2014)]{Webb2014}
+Webb, K.~E., et~al., 2014, \textit{Nature Communications}, 5, 4969
+(``Nonlinear optics of fibre event horizons'').
+
+\bibitem[Kretski(2026a)]{Kretski2026a}
+Kretski, D., 2026, Zenodo, \texttt{10.5281/zenodo.22018715}
+(Paper~1, submitted to CQG, ref.\ CQG-117140).
+
+\bibitem[Kretski(2026b)]{Kretski2026b}
+Kretski, D., 2026, Zenodo, \texttt{10.5281/zenodo.22051427}
+(Paper~2).
+
+\end{thebibliography}
+
+\end{document}
