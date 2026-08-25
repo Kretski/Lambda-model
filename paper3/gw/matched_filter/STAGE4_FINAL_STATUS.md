@@ -23,14 +23,15 @@ staged-gating discipline as Stage 3.
 
 ### Mode 4D — coherent injection/recovery
 
-All six injected Λ values (0, 0.01, 0.05, 0.1, 0.5, 1.0) recovered
-exactly. **PASS.**
+All six injected Λ values (0, 0.01, 0.05, 0.1, 0.5, 1.0) recovered the
+injected values exactly on the tested grid. **PASS.**
 
 *Caveat:* scatter=0.0000 across realizations confirms the estimator
 recovers Λ when injection and recovery share the same 0PN waveform
-structure. It does **not** yet establish realistic statistical
-uncertainty under waveform-model variation — that is precisely what
-Modes 4E/4F expose next.
+structure — it does not represent realistic statistical precision.
+It does **not** yet establish realistic statistical uncertainty under
+waveform-model variation — that is precisely what Modes 4E/4F expose
+next.
 
 ### Modes 4E/4F — GW150914 exploratory, waveform-systematics check
 
@@ -60,8 +61,9 @@ degenerate with unmodeled PN structure.
 ## What this does NOT mean
 
 This does **not** invalidate the matched-filter architecture itself.
-Modes 4C and 4D confirm the joint H1+L1 estimator is statistically
-sound: it passes off-source null trials and recovers known injected
+Modes 4C and 4D pass the tested coherent null and matched-structure
+injection/recovery checks: the joint H1+L1 estimator shows no spurious
+Λ preference from pure off-source noise, and recovers known injected
 Λ accurately when the injection and recovery waveforms match
 structurally. The problem is specifically **waveform-model systematic
 error**, isolated and quantified for the first time in this pipeline
