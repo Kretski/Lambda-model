@@ -57,7 +57,8 @@ is consistent with this form.
 | $\Lambda$-recovery from noisy data          | ✅ Validated, sub-percent accuracy (analytic $\omega(k)$ input; see above for recovery from actual simulated/integrated fields)           |
 | Fermi-LAT bound                             | ✅ Audited: $\Lambda < 1.4421\times10^{-53}\,\mathrm{m^2}$ (corrected from a $3/2$ normalization error)                                    |
 | EHT sensitivity ceiling                     | ⚠️ Validated as a *sensitivity estimate*, not a fit to real M87\* data                                                                    |
-| GW forecast                                 | ⚠️ Illustrative projection, not a fitted LIGO/Virgo/KAGRA constraint                                                                      |
+| GW forecast                                 | ⚠️ Illustrative projection, not a fitted LIGO/Virgo/KAGRA constraint. Superseded by the matched-filter pipeline below.                    |
+| GW matched-filter pipeline (Stages 1–4)     | ✅ Validated architecture — Stage 4 (coherent H1+L1) passes off-source null trials and injection/recovery on real strain. ⚠️ **Physical inference currently blocked by a dominant waveform-model (PN-order) systematic**: the GW150914 exploratory point estimate shifts from Λ=+6.57 (0PN) to Λ=−1.27 (1PN), a 65× larger swing than either statistical error bar. No physical result is claimed. See `paper3/gw/matched_filter/STAGE4_FINAL_STATUS.md`. **Stage 5 (cross-waveform-family injection/recovery with validated waveform models) is required before any further real-event interpretation.** |
 | BEC mapping ($\Lambda=\xi^2/4$)             | ✅ Physically established (exact Bogoliubov coefficient match)                                                                             |
 | Dirac mapping ($\Lambda=(1-\eta^2)v_F^2/4$) | ❌ **Speculative, not supported** by the cited literature (Fu 2009 describes an anisotropic $k^6$ effect, not this isotropic $k^4$ form)   |
 | Photonic mapping ($\Lambda=\beta_4^k/c^2$)  | ⚠️ Dimensionally correct and properly derived, but $\beta_4^k$ is **not yet connected** to any standard measurable dispersion coefficient |
@@ -85,6 +86,22 @@ Lambda-model/
 │   ├── lambda_experimental_validator.py # Fits Lambda from (k, omega) data; domain mappings
 │   ├── paper3_final.tex / .pdf          # Full writeup, including the honesty audit
 │   ├── dispersion/                      # Extended validation module (fiber structural test, real-data pipeline)
+│   ├── gw/                              # Gravitational-wave dispersion tests
+│   │   ├── gwosc_chirp_dispersion_test.py       # legacy/invalidated — Hilbert extraction, 51.9σ bias
+│   │   ├── gwosc_injection_recovery_test.py     # diagnostic — proved pipeline bias (Λ=0→Λ_fit=-1.91)
+│   │   ├── gwosc_extraction_ablation.py         # diagnostic — localized bias to Hilbert-transform math
+│   │   ├── gwosc_frequency_extraction_comparison.py  # diagnostic — tested 5 extraction methods
+│   │   ├── gwosc_zero_crossing_injection_recovery_v2.py  # diagnostic — zero-crossing also unstable
+│   │   └── matched_filter/              # VALIDATED phase-domain approach (Stages 1-4)
+│   │       ├── waveform.py              # GR + Lambda phase-domain waveform model
+│   │       ├── likelihood.py            # matched-filter likelihood, grid search
+│   │       ├── synthetic_injection.py   # frequency-domain injection generator
+│   │       ├── recovery_test.py         # Stage 1 — synthetic noise — PASS
+│   │       ├── stage2_real_noise_recovery.py       # Stage 2 — real PSD, Gaussian noise — PASS
+│   │       ├── stage3_real_strain_validation.py    # Stage 3 — real H1 strain — PASS (A+B,C); GW150914 exploratory
+│   │       ├── stage4_coherent_h1l1_validation.py  # Stage 4 — coherent H1+L1 — PASS (4C,4D); PN-systematic found
+│   │       ├── STAGE3_FINAL_STATUS.md   # Full Stage 3 audit trail
+│   │       └── STAGE4_FINAL_STATUS.md   # Full Stage 4 audit trail
 │   └── figures/                         # Generated plots
 │
 └── examples/
@@ -112,6 +129,13 @@ python paper3/paper3_h_convergence_test.py
 
 # Test whether YOUR data is consistent with the Lambda-model
 python paper3/lambda_experimental_validator.py --omega data_omega.csv --k data_k.csv
+
+# Gravitational-wave matched-filter pipeline (Stages 1-4, phase-domain
+# approach validated after legacy time-domain methods were found biased)
+python paper3/gw/matched_filter/recovery_test.py                    # Stage 1: synthetic
+python paper3/gw/matched_filter/stage2_real_noise_recovery.py       # Stage 2: real PSD
+python paper3/gw/matched_filter/stage3_real_strain_validation.py --h1 <H1.hdf5> --event GW150914
+python paper3/gw/matched_filter/stage4_coherent_h1l1_validation.py --h1 <H1.hdf5> --l1 <L1.hdf5> --event GW150914
 
 # Worked examples (each prints its own validity status)
 python examples/example_BEC.py         # established mapping
