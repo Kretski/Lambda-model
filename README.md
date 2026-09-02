@@ -58,7 +58,11 @@ is consistent with this form.
 | Fermi-LAT bound                             | ✅ Audited: $\Lambda < 1.4421\times10^{-53}\,\mathrm{m^2}$ (corrected from a $3/2$ normalization error)                                    |
 | EHT sensitivity ceiling                     | ⚠️ Validated as a *sensitivity estimate*, not a fit to real M87\* data                                                                    |
 | GW forecast                                 | ⚠️ Illustrative projection, not a fitted LIGO/Virgo/KAGRA constraint. Superseded by the matched-filter pipeline below.                    |
-| GW matched-filter pipeline (Stages 1–4)     | ✅ Validated architecture — Stage 4 (coherent H1+L1) passes off-source null trials and injection/recovery on real strain. ⚠️ **Physical inference currently blocked by a dominant waveform-model (PN-order) systematic**: the GW150914 exploratory point estimate shifts from Λ=+6.57 (0PN) to Λ=−1.27 (1PN), a 65× larger swing than either statistical error bar. No physical result is claimed. See `paper3/gw/matched_filter/STAGE4_FINAL_STATUS.md`. **Stage 5 (cross-waveform-family injection/recovery with validated waveform models) is required before any further real-event interpretation.** |
+| GW matched-filter pipeline (Stages 1–4)     | ✅ Validated architecture — Stage 4 (coherent H1+L1) passes off-source null trials and injection/recovery on real strain. The PN-order systematic reported here (Λ shifting from +6.57 at 0PN to −1.27 at 1PN) was later traced to a missing frequency-domain conditioning step (no highpass/Tukey window before PSD estimation and matched filtering — see Stage 6+ below), not a waveform-family issue per se. See `paper3/gw/matched_filter/STAGE4_FINAL_STATUS.md` for the original diagnosis. |
+| GW propagation-dispersion pipeline (Stage 6+, `stage6E3H-R_v2.py`) | ✅ **Physically-conditioned pipeline.** Adds explicit highpass (0.9×f_low) + Tukey windowing before PSD/matched-filter (root cause of the earlier PN-order artifact — unconditioned strain gave noise-only matched-filter scores ~450–500, i.e. dominated by unfiltered low-frequency content, not the injected signal). Also fixes a Λ-grid phase-aliasing bug (grid must stay within ±half the aliasing period, ≈±0.57 for this band/redshift; the original ±20 grid wrapped ~35 times). Injection-recovery correlation on the corrected pipeline: 0.81 (n=50, real O1 noise). **GW150914 result:** Λ_on=−0.72, off-source null μ=+0.22, σ=2.21 (n=60 real off-source epochs), **z=−0.43σ — consistent with GR, no significant deviation.** This supersedes the Stage 3/4 exploratory point estimates above. Full status: `paper3/PAPER3_VALIDATION_STATUS.md`. |
+| Near-horizon photon-ring solver, generalized to arbitrary dispersion power *n* | ✅ `A1v3_zamo_v04.py` / `A2_chromatic_shadow_generalized.py` generalize the Paper 2 quartic Hamiltonian (H=½[g^μν k_μk_ν+Λk_loc⁴], the *n*=1 case) to H_n=½[g^μν k_μk_ν+Λ_n k_loc^(2n+2)]. Regression-tested: *n*=1 reproduces Paper 2's published photon-ring coefficients (C_pro=0.6230, C_ret=11.495) to 4 significant figures. Derived and numerically confirmed: δb ∝ Λ_n·E^(2n) for each *n* (1–4 tested, exact match to predicted exponent). **Not yet applied to real observational data** — EHT radio-band (230 GHz) shown to give an uninformative bound for Sgr A* (photon energy E≈2×10⁻⁷⁶ in this framework's units, suppressing the Λ_n correction by ~150 orders of magnitude); a gamma-ray-band channel would be needed for a meaningful near-horizon constraint. |
+| External cross-check: LVK GWTC-4.0 α=4 modified-dispersion-relation bound | ✅ The propagation phase ΔΨ(f,Λ)=−4π³ΛK(z)f³/c³ is mathematically identical to the standard LVK α=4 MDR parametrization (Mirshekari–Yunes–Will, E²=p²c²+A_αp^αc^α), routinely tested in every GWTC catalog. Exact conversion derived and verified numerically (D₄=c·K(z)/(1+z)³ to machine precision): Λ=h²c³/(4π²)·A₄. Applying the published GWTC-4.0 combined bound (83 events, arXiv:2603.19020, Table 5) gives Λ∈[−7.2×10⁻³, +2.2×10⁻³] m³/s (90% CI) — consistent with Λ=0, and far more statistically powerful than the single-event test above. |
+| **Critical scope note** | Λ_NH (near-horizon, Paper 2, dimension **[L²]**) and Λ_GW (propagation, Paper 3, dimension **[L³/T]**) are **dimensionally incompatible** — confirmed by direct analysis of both phase formulas. No derivation connecting them currently exists. The GW150914/LVK results above constrain Λ_GW only; they say nothing about Λ_NH or Paper 2's photon-ring/QNM predictions. See `paper3/PAPER3_VALIDATION_STATUS.md` for the full separation. |
 | BEC mapping ($\Lambda=\xi^2/4$)             | ✅ Physically established (exact Bogoliubov coefficient match)                                                                             |
 | Dirac mapping ($\Lambda=(1-\eta^2)v_F^2/4$) | ❌ **Speculative, not supported** by the cited literature (Fu 2009 describes an anisotropic $k^6$ effect, not this isotropic $k^4$ form)   |
 | Photonic mapping ($\Lambda=\beta_4^k/c^2$)  | ⚠️ Dimensionally correct and properly derived, but $\beta_4^k$ is **not yet connected** to any standard measurable dispersion coefficient |
@@ -101,8 +105,18 @@ Lambda-model/
 │   │       ├── stage3_real_strain_validation.py    # Stage 3 — real H1 strain — PASS (A+B,C); GW150914 exploratory
 │   │       ├── stage4_coherent_h1l1_validation.py  # Stage 4 — coherent H1+L1 — PASS (4C,4D); PN-systematic found
 │   │       ├── STAGE3_FINAL_STATUS.md   # Full Stage 3 audit trail
-│   │       └── STAGE4_FINAL_STATUS.md   # Full Stage 4 audit trail
+│   │       ├── STAGE4_FINAL_STATUS.md   # Full Stage 4 audit trail
+│   │       ├── stage6E3H-R_v2.py        # Stage 6+ — highpass/Tukey conditioning + alias-safe Λ grid (fixes the Stage 4 PN-systematic root cause)
+│   │       ├── gw150914_lambda_onsource_test.py  # GW150914 propagation-Λ test: z=-0.43σ vs off-source null
+│   │       ├── A1v3_zamo_v04.py         # Near-horizon photon-ring solver (Paper 2 quartic Hamiltonian)
+│   │       ├── A2_chromatic_shadow_generalized.py  # Photon-ring solver generalized to dispersion power n=1..4
+│   │       ├── gr_vs_lambda_search_auc.py  # GR-only vs Λ-search matched-filter AUC comparison (look-elsewhere cost)
+│   │       ├── triaxis_analyzer_v4.py / triaxis_analyzer_v5.py  # Template-free H1/L1 cross-correlation detector (separate Zenodo deposit)
+│   │       └── injection_recovery_lambda.py  # Λ-deformed signal injection through the TriAxis detector
 │   └── figures/                         # Generated plots
+│
+│   PAPER3_VALIDATION_STATUS.md          # Independently re-verified status of every test suite above,
+│                                         # including the Λ_NH vs Λ_GW dimensional scope separation
 │
 └── examples/
     ├── example_BEC.py                   # Lambda = xi^2/4 — established mapping
@@ -136,6 +150,15 @@ python paper3/gw/matched_filter/recovery_test.py                    # Stage 1: s
 python paper3/gw/matched_filter/stage2_real_noise_recovery.py       # Stage 2: real PSD
 python paper3/gw/matched_filter/stage3_real_strain_validation.py --h1 <H1.hdf5> --event GW150914
 python paper3/gw/matched_filter/stage4_coherent_h1l1_validation.py --h1 <H1.hdf5> --l1 <L1.hdf5> --event GW150914
+
+# Stage 6+: physically-conditioned propagation-Λ test (fixes the Stage 4
+# PN-order artifact; see PAPER3_VALIDATION_STATUS.md)
+python paper3/gw/matched_filter/gw150914_lambda_onsource_test.py \
+    --data <H1.hdf5> --n-null 60 --out gw150914_lambda_result.json
+
+# Near-horizon photon-ring solver, generalized dispersion power n=1..4
+# (n=1 regression-tests against Paper 2's published coefficients)
+python paper3/gw/matched_filter/A2_chromatic_shadow_generalized.py --n 1 --n 2 --n 3 --n 4
 
 # Worked examples (each prints its own validity status)
 python examples/example_BEC.py         # established mapping
