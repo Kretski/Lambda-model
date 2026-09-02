@@ -1,0 +1,114 @@
+{
+  "events": {
+    "GW150914": {
+      "type": "BBH",
+      "triaxis_score": 1.0,
+      "max_corr": 0.3375329992405399,
+      "delay_ms": 8.056640625,
+      "width_ms": 7.32421875,
+      "delay_weight": 1.0,
+      "v4_legacy": 0.5881785644189289,
+      "best_offset_ms": -100
+    },
+    "GW151012": {
+      "type": "BBH",
+      "triaxis_score": 0.5633955279151518,
+      "max_corr": 0.1877985093050506,
+      "delay_ms": 0.732421875,
+      "width_ms": 20.99609375,
+      "delay_weight": 1.0,
+      "v4_legacy": 0.4892308640764599,
+      "best_offset_ms": -100
+    },
+    "GW151226": {
+      "type": "BBH",
+      "triaxis_score": 0.5883486274357012,
+      "max_corr": 0.19611620914523373,
+      "delay_ms": 5.126953125,
+      "width_ms": 25.634765625,
+      "delay_weight": 1.0,
+      "v4_legacy": 0.49644154291345277,
+      "best_offset_ms": -75
+    },
+    "GW170104": {
+      "type": "BBH",
+      "triaxis_score": 0.9193734473931298,
+      "max_corr": 0.3064578157977099,
+      "delay_ms": -2.9296875,
+      "width_ms": 6.103515625,
+      "delay_weight": 1.0,
+      "v4_legacy": 0.5750100925483392,
+      "best_offset_ms": -50
+    },
+    "GW170608": {
+      "type": "BBH",
+      "triaxis_score": 0.8567470174080409,
+      "max_corr": 0.3168324109157941,
+      "delay_ms": -10.986328125,
+      "width_ms": 8.30078125,
+      "delay_weight": 0.9013671875,
+      "v4_legacy": 0.3500533225771747,
+      "best_offset_ms": -75
+    },
+    "GW170729": {
+      "type": "BBH",
+      "triaxis_score": 0.874622191243245,
+      "max_corr": 0.29154073041441503,
+      "delay_ms": 1.708984375,
+      "width_ms": 5.615234375,
+      "delay_weight": 1.0,
+      "v4_legacy": 0.5634208430585895,
+      "best_offset_ms": 50
+    },
+    "GW170809": {
+      "type": "BBH",
+      "triaxis_score": 0.7840339147368214,
+      "max_corr": 0.2613446382456071,
+      "delay_ms": 9.521484375,
+      "width_ms": 6.8359375,
+      "delay_weight": 1.0,
+      "v4_legacy": 0.543049992100741,
+      "best_offset_ms": -50
+    },
+    "GW170814": {
+      "type": "BBH",
+      "triaxis_score": 1.0,
+      "max_corr": 0.3403516039005957,
+      "delay_ms": 8.056640625,
+      "width_ms": 3.41796875,
+      "delay_weight": 1.0,
+      "v4_legacy": 0.5913246668956256,
+      "best_offset_ms": -75
+    },
+    "GW170817": {
+      "type": "BNS",
+      "triaxis_score": 0.6924417199533328,
+      "max_corr": 0.23081390665111096,
+      "delay_ms": 3.173828125,
+      "width_ms": 12.451171875,
+      "delay_weight": 1.0,
+      "v4_legacy": 0.5210707037054121,
+      "best_offset_ms": -100
+    },
+    "GW170818": {
+      "type": "BBH",
+      "triaxis_score": 0.7805358039318093,
+      "max_corr": 0.2601786013106031,
+      "delay_ms": 4.39453125,
+      "width_ms": 11.71875,
+      "delay_weight": 1.0,
+      "v4_legacy": 0.5388958310697258,
+      "best_offset_ms": 75
+    },
+    "GW170823": {
+      "type": "BBH",
+      "triaxis_score": 0.769132484768472,
+      "max_corr": 0.25637749492282397,
+      "delay_ms": -0.732421875,
+      "width_ms": 10.009765625,
+      "delay_weight": 1.0,
+      "v4_legacy": 0.5333689789880427,
+      "best_offset_ms": -25
+    }
+  }
+}

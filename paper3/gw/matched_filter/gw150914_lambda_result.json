@@ -1,0 +1,16 @@
+{
+  "on_source_lambda": -0.5,
+  "on_source_score": 10.752070389374754,
+  "on_source_at_grid_edge": true,
+  "null_mean": -0.016166666666666236,
+  "null_std": 0.4158368737324239,
+  "null_n": 60,
+  "null_frac_at_grid_edge": 0.5,
+  "z_score": -1.1635171479397548,
+  "percentile": 25.0,
+  "lambda_grid": [
+    -0.5,
+    0.5,
+    0.01
+  ]
+}

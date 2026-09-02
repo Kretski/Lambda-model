@@ -1,50 +1,22 @@
 """
 stage3_real_strain_validation.py
-====================================
+================================
 
-STAGE 3: validation against REAL H1 strain (not colored-Gaussian
-approximations of its PSD), with the actual GW150914 event analysis
-gated behind three mandatory checks.
+STAGE 3 — REAL H1 STRAIN VALIDATION
 
-CRITICAL DISTINCTION FROM STAGE 2:
-  Stage 2 injected synthetic waveforms into colored GAUSSIAN noise
-  shaped to match the real PSD -- this validates robustness to the
-  real noise SPECTRUM but not to non-Gaussian features (glitches,
-  spectral lines, non-stationarity) actually present in real detector
-  data. Stage 3 injects into and analyzes the ACTUAL real strain time
-  series.
+This version supports both:
 
-FOUR MODES, run in this fixed order, with later modes only interpreted
-if earlier ones pass:
+1) LIGO-style:
+       /strain/Strain
 
-  A — GR (Lambda=0) injection into real off-source H1 noise.
-      Uses a segment of real strain WITHOUT the GW150914 event, adds a
-      synthetic Lambda=0 waveform on top of the ACTUAL real strain
-      (not a Gaussian approximation), recovers Lambda via matched
-      filtering against the real segment's own PSD.
-      Expectation: Lambda_fit ~ 0.
+2) Simple HDF5:
+       /Strain
 
-  B — Nonzero-Lambda injection into the SAME real off-source noise.
-      Same real strain segment, injected Lambda in {0.01,...,1.0}.
-      Expectation: Lambda_fit ~ Lambda_true.
+For simple HDF5 files without metadata, --fs must be supplied.
 
-  C — Time-slide / off-source null trials.
-      Many independent real off-source H1 segments (no injection),
-      matched-filtered against the GR+Lambda template bank.
-      Expectation: Lambda_ML values scatter without a consistent
-      significant nonzero preference (same check as Stage 2's Test C,
-      now on real strain rather than Gaussian noise).
-
-  D — THE ACTUAL GW150914 EVENT.
-      Only reached if A, B, C all pass. Printed and plotted, but
-      EXPLICITLY labeled as an EXPLORATORY RESULT regardless of the
-      number obtained -- not a claim, not a constraint, not a
-      detection, until independently reproduced (H1+L1 coherent
-      analysis, full PN waveform, proper Bayesian priors) well beyond
-      the scope of this proof-of-concept pipeline.
-
-Usage:
-    python stage3_real_strain_validation.py --h1 <path-to-H1-strain.hdf5>
+IMPORTANT:
+This is a validation/calibration pipeline.
+It does NOT establish a non-zero Lambda in a real GW event.
 """
 
 import argparse
@@ -56,433 +28,1660 @@ import matplotlib.pyplot as plt
 from scipy.signal import welch
 
 sys.path.insert(0, str(Path(__file__).parent))
+
 from waveform import waveform_frequency_domain, cosmological_K_factor
 from likelihood import grid_search_lambda, snr_optimal
 
 
+# ======================================================================
+# EVENT CATALOG
+# ======================================================================
+
 EVENT_CATALOG = {
-    "GW150914": dict(gps_merger=1126259462.4, m1=35.6, m2=30.6,
-                      distance_Mpc=440.0, z=0.09),
+    "GW150914": dict(
+        gps_merger=1126259462.4,
+        m1=35.6,
+        m2=30.6,
+        distance_Mpc=440.0,
+        z=0.09,
+    ),
 }
 
 
-# ══════════════════════════════════════════════════════════════════════════
-# Real strain loading and frequency-domain conditioning
-# ══════════════════════════════════════════════════════════════════════════
+# ======================================================================
+# HDF5 LOADER
+# ======================================================================
 
-def load_real_segment(h1_path, gps_center, half_window):
-    """Load a real strain segment [gps_center - half_window,
-    gps_center + half_window] with metadata."""
+def inspect_hdf5(h1_path):
+    """
+    Print the HDF5 structure and return basic information.
+
+    Supports:
+        /strain/Strain
+        /Strain
+    """
+
+    print()
+    print("-" * 72)
+    print("HDF5 FILE INSPECTION")
+    print("-" * 72)
+    print(f"File: {h1_path}")
+
     with h5py.File(h1_path, "r") as f:
-        strain = f["strain"]["Strain"]
-        attrs = strain.attrs
-        fs = 1.0 / attrs["Xspacing"]
-        gps_start = attrs["Xstart"]
-        n_total = attrs["Npoints"]
 
-        idx_center = int(round((gps_center - gps_start) * fs))
+        print("ROOT KEYS:", list(f.keys()))
+
+        def visitor(name, obj):
+            if isinstance(obj, h5py.Dataset):
+                print(
+                    f"DATASET: {name} | "
+                    f"shape={obj.shape} | dtype={obj.dtype}"
+                )
+                if len(obj.attrs):
+                    print(f"  ATTRS: {dict(obj.attrs)}")
+
+        f.visititems(visitor)
+
+        print("ROOT ATTRS:", dict(f.attrs))
+
+    print("-" * 72)
+    print()
+
+
+def find_strain_dataset(f):
+    """
+    Find the strain dataset.
+
+    Priority:
+
+        /strain/Strain
+        /Strain
+
+    Also searches recursively for a dataset named 'Strain'.
+    """
+
+    # Standard LIGO-style format
+    if "strain" in f:
+        obj = f["strain"]
+
+        if isinstance(obj, h5py.Group) and "Strain" in obj:
+            return obj["Strain"]
+
+    # Simple format used by the user's HDF5 file
+    if "Strain" in f and isinstance(f["Strain"], h5py.Dataset):
+        return f["Strain"]
+
+    # Recursive fallback
+    found = []
+
+    def visitor(name, obj):
+        if isinstance(obj, h5py.Dataset):
+            if name.lower().endswith("strain"):
+                found.append(obj)
+
+    f.visititems(visitor)
+
+    if found:
+        return found[0]
+
+    raise KeyError(
+        "Could not find a strain dataset. "
+        "Expected /strain/Strain or /Strain."
+    )
+
+
+def get_attribute(obj, names, default=None):
+    """
+    Safely retrieve an HDF5 attribute, trying several possible
+    attribute names in order (different HDF5 strain files use
+    different naming conventions -- e.g. LIGO-style "Xstart"/
+    "Xspacing" vs. "x0"/"dx").
+
+    `names` can be a single string or a list/tuple of candidate
+    names; the first one found in obj.attrs is used.
+    """
+
+    if isinstance(names, str):
+        names = [names]
+
+    for name in names:
+        if name in obj.attrs:
+            value = obj.attrs[name]
+            try:
+                return value.item()
+            except Exception:
+                return value
+
+    return default
+
+
+def load_real_segment(
+    h1_path,
+    gps_center,
+    half_window,
+    fs_override=None,
+):
+    """
+    Load a real strain segment.
+
+    Supports both HDF5 layouts:
+
+        /strain/Strain
+
+    and:
+
+        /Strain
+
+    Metadata priority (tries multiple naming conventions):
+
+        GPS start:       Xstart  or  x0
+        Sample spacing:  Xspacing  or  dx
+        Sample count:    Npoints  (else falls back to dataset shape)
+
+    If no GPS-start metadata is found under ANY known name, fs_override
+    is required and gps_center is interpreted relative to the beginning
+    of the file (last-resort fallback only).
+    """
+
+    with h5py.File(h1_path, "r") as f:
+
+        strain = find_strain_dataset(f)
+
+        # --------------------------------------------------------------
+        # Number of samples
+        # --------------------------------------------------------------
+
+        n_total_attr = get_attribute(strain, ["Npoints"], None)
+
+        if n_total_attr is None:
+            n_total = strain.shape[0]
+        else:
+            n_total = int(n_total_attr)
+
+        # --------------------------------------------------------------
+        # Sampling frequency (dx = sample spacing in seconds)
+        # --------------------------------------------------------------
+
+        xspacing = get_attribute(strain, ["Xspacing", "dx"], None)
+
+        if xspacing is not None:
+            fs = 1.0 / float(xspacing)
+        elif fs_override is not None:
+            fs = float(fs_override)
+        else:
+            raise ValueError(
+                "\nSampling frequency is missing from the HDF5 file.\n"
+                "Use --fs, for example:\n\n"
+                "    --fs 4096\n"
+            )
+
+        # --------------------------------------------------------------
+        # GPS start (x0 = start time in seconds, GPS convention)
+        # --------------------------------------------------------------
+
+        gps_start = get_attribute(strain, ["Xstart", "x0"], None)
+
+        if gps_start is None:
+            gps_start = get_attribute(f, ["Xstart", "x0"], None)
+
+        # --------------------------------------------------------------
+        # Files with real GPS-start metadata: locate the requested GPS
+        # center exactly. Only files with genuinely NO start-time
+        # metadata under any known name fall back to "middle of file".
+        # --------------------------------------------------------------
+
+        if gps_start is None:
+
+            if abs(float(gps_center)) > 1e6:
+                idx_center = n_total // 2
+                print(
+                    "  WARNING: no GPS start-time metadata found under "
+                    "any known attribute name (Xstart/x0). Falling back "
+                    "to the middle of the file as the analysis center. "
+                    "This is likely WRONG for a real-event analysis -- "
+                    "verify the file's true GPS start time."
+                )
+            else:
+                idx_center = int(round(float(gps_center) * fs))
+
+            effective_gps_start = 0.0
+
+        else:
+
+            gps_start = float(gps_start)
+
+            idx_center = int(
+                round((float(gps_center) - gps_start) * fs)
+            )
+
+            effective_gps_start = gps_start
+
+        # --------------------------------------------------------------
+        # Requested window
+        # --------------------------------------------------------------
+
         idx_half = int(round(half_window * fs))
+
         idx_lo = max(0, idx_center - idx_half)
         idx_hi = min(n_total, idx_center + idx_half)
 
-        data = np.array(strain[idx_lo:idx_hi])
-        seg_gps_start = gps_start + idx_lo / fs
+        if idx_hi <= idx_lo:
+            raise ValueError(
+                "\nRequested segment lies outside the available data.\n"
+                f"n_total={n_total}\n"
+                f"fs={fs}\n"
+                f"idx_center={idx_center}\n"
+                f"idx_lo={idx_lo}\n"
+                f"idx_hi={idx_hi}\n"
+            )
+
+        data = np.asarray(
+            strain[idx_lo:idx_hi],
+            dtype=np.float64,
+        )
+
+        seg_gps_start = (
+            effective_gps_start + idx_lo / fs
+        )
+
+    print(
+        f"  Loaded HDF5 dataset successfully: "
+        f"{len(data)} samples, fs={fs:.3f} Hz"
+    )
+
+    if gps_start is not None:
+        merger_offset_in_segment = (
+            float(gps_center) - seg_gps_start
+        )
+        print(
+            f"  GPS start used: {gps_start:.3f}  "
+            f"-> requested center at t={merger_offset_in_segment:.4f}s "
+            f"into the loaded segment"
+        )
 
     return data, fs, seg_gps_start
 
 
-def to_frequency_domain(strain_td, fs, f_min, f_max, duration_target):
-    """
-    Take a real time-domain strain segment, window it, and transform to
-    the frequency domain on a grid consistent with duration_target
-    (df = 1/duration_target), restricted to [f_min, f_max].
+# ======================================================================
+# TIME -> FREQUENCY
+# ======================================================================
 
-    If the segment is longer than duration_target, uses only the last
-    duration_target seconds (closest to any embedded merger, for the
-    real-event case) or the first duration_target seconds (for
-    off-source noise segments, direction does not matter).
+def to_frequency_domain(
+    strain_td,
+    fs,
+    f_min,
+    f_max,
+    duration_target,
+):
     """
+    Convert a real strain segment to frequency domain.
+
+    df = 1 / duration_target
+    """
+
     n_target = int(round(duration_target * fs))
+
     if len(strain_td) > n_target:
+
+        # Keep exactly duration_target seconds
         strain_td = strain_td[-n_target:]
+
     elif len(strain_td) < n_target:
-        raise ValueError(f"Segment too short: {len(strain_td)} < {n_target} samples")
+
+        raise ValueError(
+            f"Segment too short: "
+            f"{len(strain_td)} < {n_target} samples"
+        )
 
     window = np.hanning(len(strain_td))
+
     strain_windowed = strain_td * window
-    # Correct for window power loss (standard normalization)
+
     win_norm = np.sqrt(np.mean(window ** 2))
 
-    strain_fd_full = np.fft.rfft(strain_windowed) / fs / win_norm
-    freqs_full = np.fft.rfftfreq(len(strain_td), d=1 / fs)
+    strain_fd_full = (
+        np.fft.rfft(strain_windowed)
+        / fs
+        / win_norm
+    )
 
-    band = (freqs_full >= f_min) & (freqs_full < f_max)
+    freqs_full = np.fft.rfftfreq(
+        len(strain_td),
+        d=1 / fs,
+    )
+
+    band = (
+        (freqs_full >= f_min)
+        &
+        (freqs_full < f_max)
+    )
+
     df = 1.0 / duration_target
 
-    return freqs_full[band], strain_fd_full[band], df
+    return (
+        freqs_full[band],
+        strain_fd_full[band],
+        df,
+    )
 
 
-def estimate_psd_from_segment(strain_td, fs, f_target):
-    """Welch PSD estimate from a real time-domain segment, interpolated
-    onto f_target with a floor."""
-    freqs, psd = welch(strain_td, fs=fs, nperseg=min(len(strain_td), int(4 * fs)))
-    psd_interp = np.interp(f_target, freqs, psd)
-    floor = np.percentile(psd[psd > 0], 1)
-    return np.maximum(psd_interp, floor)
+# ======================================================================
+# PSD
+# ======================================================================
 
-
-# ══════════════════════════════════════════════════════════════════════════
-# Mode A/B: injection into real off-source strain
-# ══════════════════════════════════════════════════════════════════════════
-
-def inject_into_real_strain(strain_fd, f, df, m1, m2, Lambda_true, K_z,
-                             distance_Mpc, scale=1.0):
+def estimate_psd_from_segment(
+    strain_td,
+    fs,
+    f_target,
+):
     """
-    Add a synthetic waveform ON TOP OF the real strain's frequency-
-    domain representation (already loaded). scale allows adjusting the
-    injected amplitude if needed for SNR control; default scale=1.0
-    uses the physical amplitude from the given distance.
+    Welch PSD estimate from real strain.
     """
-    h = waveform_frequency_domain(f, m1, m2, Lambda_true, K_z,
-                                   distance_Mpc=distance_Mpc / scale)
+
+    nperseg = min(
+        len(strain_td),
+        int(4 * fs),
+    )
+
+    if nperseg < 16:
+        raise ValueError(
+            f"Segment too short for PSD estimation: "
+            f"nperseg={nperseg}"
+        )
+
+    freqs, psd = welch(
+        strain_td,
+        fs=fs,
+        nperseg=nperseg,
+    )
+
+    positive = psd[psd > 0]
+
+    if len(positive) == 0:
+        raise ValueError(
+            "PSD contains no positive values."
+        )
+
+    psd_interp = np.interp(
+        f_target,
+        freqs,
+        psd,
+    )
+
+    floor = np.percentile(
+        positive,
+        1,
+    )
+
+    return np.maximum(
+        psd_interp,
+        floor,
+    )
+
+
+# ======================================================================
+# INJECTION
+# ======================================================================
+
+def inject_into_real_strain(
+    strain_fd,
+    f,
+    df,
+    m1,
+    m2,
+    Lambda_true,
+    K_z,
+    distance_Mpc,
+    scale=1.0,
+):
+    """
+    Add synthetic Lambda waveform on top of REAL strain.
+    """
+
+    h = waveform_frequency_domain(
+        f,
+        m1,
+        m2,
+        Lambda_true,
+        K_z,
+        distance_Mpc=distance_Mpc / scale,
+    )
+
     return strain_fd + h
 
 
-# ══════════════════════════════════════════════════════════════════════════
-def run_mode_AB(h1_path, gps_offsource_center, m1, m2, K_z, distance_Mpc,
-                 f_min, f_max, duration, Lambda_grid, n_realizations=10):
+# ======================================================================
+# MODE A+B
+# ======================================================================
+
+def run_mode_AB(
+    h1_path,
+    gps_offsource_center,
+    m1,
+    m2,
+    K_z,
+    distance_Mpc,
+    f_min,
+    f_max,
+    duration,
+    Lambda_grid,
+    n_realizations=10,
+    fs_override=None,
+):
+
     print("=" * 72)
-    print("MODE A+B — INJECTION INTO REAL OFF-SOURCE H1 STRAIN")
+    print(
+        "MODE A+B — INJECTION INTO REAL OFF-SOURCE H1 STRAIN"
+    )
     print("=" * 72)
     print()
 
-    # Load a LARGE off-source block (not just duration+10s) so that
-    # different "realizations" are genuinely independent, non-heavily-
-    # overlapping noise draws -- a too-small block was the cause of the
-    # previously observed scatter=0.0000 (each "realization" was nearly
-    # the same overlapping window, not an independent noise draw).
     block_td, fs, block_start = load_real_segment(
-        h1_path, gps_offsource_center,
-        half_window=duration * n_realizations / 2 + 60)
-    print(f"  Off-source block: GPS [{block_start:.1f}, "
-          f"{block_start + len(block_td)/fs:.1f}], {len(block_td)/fs:.1f}s")
-    print(f"  ({n_realizations} independent {duration}s realizations drawn from this block)")
+        h1_path,
+        gps_offsource_center,
+        half_window=duration * n_realizations / 2 + 60,
+        fs_override=fs_override,
+    )
+
+    print(
+        f"  Off-source block: "
+        f"GPS/time [{block_start:.3f}, "
+        f"{block_start + len(block_td)/fs:.3f}], "
+        f"{len(block_td)/fs:.1f}s"
+    )
+
+    print(
+        f"  ({n_realizations} independent "
+        f"{duration}s realizations)"
+    )
     print()
 
     seg_samples = int(duration * fs)
+
     max_start = len(block_td) - seg_samples
 
-    Lambda_true_values = [0.0, 0.01, 0.05, 0.1, 0.5, 1.0]
+    if max_start <= 0:
+        raise ValueError(
+            "The HDF5 file does not contain enough data "
+            "for the requested realizations."
+        )
 
-    # Fix the independent off-source windows ONCE (same across all
-    # Lambda_true values, for a fair like-for-like comparison)
+    Lambda_true_values = [
+        0.0,
+        0.01,
+        0.05,
+        0.1,
+        0.5,
+        1.0,
+    ]
+
+    # --------------------------------------------------------------
+    # Fixed windows for fair comparison
+    # --------------------------------------------------------------
+
     rng = np.random.default_rng(0)
-    if max_start > n_realizations:
-        starts = rng.choice(max_start, size=n_realizations, replace=False)
-    else:
-        starts = np.linspace(0, max_start, n_realizations, dtype=int)
 
-    # Report SNR using the first window's PSD, for context
-    sub0 = block_td[starts[0]:starts[0] + seg_samples]
-    f0, _, df0 = to_frequency_domain(sub0, fs, f_min, f_max, duration)
-    psd0 = estimate_psd_from_segment(sub0, fs, f0)
-    snr0 = snr_optimal(f0, psd0, df0, m1, m2, 0.0, K_z, distance_Mpc=distance_Mpc)
-    print(f"  Optimal SNR at Lambda=0 (physical distance {distance_Mpc} Mpc, "
-          f"first window): {snr0:.2f}")
+    if max_start > n_realizations:
+
+        starts = rng.choice(
+            max_start,
+            size=n_realizations,
+            replace=False,
+        )
+
+    else:
+
+        starts = np.linspace(
+            0,
+            max_start,
+            n_realizations,
+            dtype=int,
+        )
+
+    # --------------------------------------------------------------
+    # First-window SNR
+    # --------------------------------------------------------------
+
+    sub0 = block_td[
+        starts[0]:
+        starts[0] + seg_samples
+    ]
+
+    f0, _, df0 = to_frequency_domain(
+        sub0,
+        fs,
+        f_min,
+        f_max,
+        duration,
+    )
+
+    psd0 = estimate_psd_from_segment(
+        sub0,
+        fs,
+        f0,
+    )
+
+    snr0 = snr_optimal(
+        f0,
+        psd0,
+        df0,
+        m1,
+        m2,
+        0.0,
+        K_z,
+        distance_Mpc=distance_Mpc,
+    )
+
+    print(
+        f"  Optimal SNR at Lambda=0 "
+        f"(physical distance {distance_Mpc} Mpc, "
+        f"first window): {snr0:.2f}"
+    )
     print()
 
-    print(f"  {'Lambda_true':>12}  {'Lambda_ML (mean)':>18}  "
-          f"{'scatter (std)':>14}  {'sigma_from_true':>16}")
+    print(
+        f"  {'Lambda_true':>12} "
+        f"{'Lambda_ML (mean)':>18} "
+        f"{'scatter (std)':>14} "
+        f"{'sigma_from_true':>16}"
+    )
+
     print("  " + "-" * 68)
 
     results = []
+
     for Lam_true in Lambda_true_values:
+
         ml_estimates = []
+
         for start in starts:
-            sub_td = block_td[start:start + seg_samples]
-            f_r, strain_fd_r, df_r = to_frequency_domain(
-                sub_td, fs, f_min, f_max, duration)
-            psd_r = estimate_psd_from_segment(sub_td, fs, f_r)
+
+            sub_td = block_td[
+                start:
+                start + seg_samples
+            ]
+
+            f_r, strain_fd_r, df_r = (
+                to_frequency_domain(
+                    sub_td,
+                    fs,
+                    f_min,
+                    f_max,
+                    duration,
+                )
+            )
+
+            psd_r = estimate_psd_from_segment(
+                sub_td,
+                fs,
+                f_r,
+            )
 
             data_fd = inject_into_real_strain(
-                strain_fd_r, f_r, df_r, m1, m2, Lam_true, K_z, distance_Mpc)
+                strain_fd_r,
+                f_r,
+                df_r,
+                m1,
+                m2,
+                Lam_true,
+                K_z,
+                distance_Mpc,
+            )
 
             _, _, Lam_ml, _ = grid_search_lambda(
-                data_fd, f_r, psd_r, df_r, m1, m2, K_z, Lambda_grid,
-                distance_Mpc=distance_Mpc)
+                data_fd,
+                f_r,
+                psd_r,
+                df_r,
+                m1,
+                m2,
+                K_z,
+                Lambda_grid,
+                distance_Mpc=distance_Mpc,
+            )
+
             ml_estimates.append(Lam_ml)
 
-        ml_estimates = np.array(ml_estimates)
-        mean_ml, scatter = np.mean(ml_estimates), np.std(ml_estimates)
-        sigma = abs(mean_ml - Lam_true) / scatter if scatter > 0 else np.nan
-        results.append(dict(Lambda_true=Lam_true, mean_ml=mean_ml,
-                             scatter=scatter, sigma=sigma))
-        print(f"  {Lam_true:>12.3f}  {mean_ml:>18.4f}  {scatter:>14.4f}  "
-              f"{sigma:>16.2f}")
+        ml_estimates = np.asarray(
+            ml_estimates,
+            dtype=float,
+        )
+
+        mean_ml = np.mean(
+            ml_estimates
+        )
+
+        scatter = np.std(
+            ml_estimates
+        )
+
+        if scatter > 0:
+
+            sigma = abs(
+                mean_ml - Lam_true
+            ) / scatter
+
+        else:
+
+            sigma = np.nan
+
+        results.append(
+            dict(
+                Lambda_true=Lam_true,
+                mean_ml=mean_ml,
+                scatter=scatter,
+                sigma=sigma,
+            )
+        )
+
+        print(
+            f"  {Lam_true:>12.3f} "
+            f"{mean_ml:>18.4f} "
+            f"{scatter:>14.4f} "
+            f"{sigma:>16.2f}"
+        )
 
     print()
+
     ab_pass = all(
-        abs(r["mean_ml"] - r["Lambda_true"]) < 2 * r["scatter"]
-        if r["scatter"] > 0 else abs(r["mean_ml"] - r["Lambda_true"]) < 0.05
+        (
+            abs(
+                r["mean_ml"]
+                - r["Lambda_true"]
+            )
+            < 2 * r["scatter"]
+        )
+        if r["scatter"] > 0
+        else
+        abs(
+            r["mean_ml"]
+            - r["Lambda_true"]
+        ) < 0.05
         for r in results
     )
-    print(f"  MODE A+B: {'PASS' if ab_pass else 'FAIL'}")
+
+    print(
+        f"  MODE A+B: "
+        f"{'PASS' if ab_pass else 'FAIL'}"
+    )
+
     print()
 
-    return results, ab_pass, f0, psd0, df0
+    return (
+        results,
+        ab_pass,
+        f0,
+        psd0,
+        df0,
+    )
 
 
-# ══════════════════════════════════════════════════════════════════════════
-def run_mode_C(h1_path, gps_avoid, m1, m2, K_z, distance_Mpc, f_min, f_max,
-               duration, n_trials=200, grid_widths=(5.0, 10.0, 20.0),
-               grid_points_per_unit=100):
-    """
-    Adaptive boundary widening: start with Lambda_grid=[-5,5], and if
-    boundary hits exceed threshold, WIDEN THE GRID and re-run the SAME
-    200 null trials (same off-source segments, same random seed) --
-    critical for a fair comparison, since otherwise a change in result
-    could be due to different noise realizations rather than the grid
-    change itself.
-    """
+# ======================================================================
+# MODE C
+# ======================================================================
+
+def run_mode_C(
+    h1_path,
+    gps_avoid,
+    m1,
+    m2,
+    K_z,
+    distance_Mpc,
+    f_min,
+    f_max,
+    duration,
+    n_trials=200,
+    grid_widths=(5.0, 10.0, 20.0),
+    grid_points_per_unit=100,
+    fs_override=None,
+):
+
     print("=" * 72)
-    print("MODE C — TIME-SLIDE / OFF-SOURCE NULL TRIALS (real strain, no injection)")
+    print(
+        "MODE C — TIME-SLIDE / OFF-SOURCE NULL TRIALS "
+        "(real strain, no injection)"
+    )
     print("=" * 72)
     print()
 
     max_width = max(grid_widths)
+
     block_td, fs, block_start = load_real_segment(
-        h1_path, gps_avoid, half_window=duration * n_trials / 2 + 60)
+        h1_path,
+        gps_avoid,
+        half_window=duration * n_trials / 2 + 60,
+        fs_override=fs_override,
+    )
 
-    seg_samples = int(duration * fs)
-    max_start = len(block_td) - seg_samples
+    seg_samples = int(
+        duration * fs
+    )
 
-    print(f"  Off-source block: {len(block_td)/fs:.1f}s, {n_trials} trials")
+    max_start = (
+        len(block_td)
+        - seg_samples
+    )
+
+    if max_start <= 0:
+        raise ValueError(
+            "Not enough real strain for null trials."
+        )
+
+    print(
+        f"  Off-source block: "
+        f"{len(block_td)/fs:.1f}s, "
+        f"{n_trials} trials"
+    )
+
     print()
 
-    # Fix the trial segments ONCE, before any grid widening, so all grid
-    # widths are tested against the IDENTICAL set of noise realizations
-    rng = np.random.default_rng(1)
-    if max_start > n_trials:
-        starts = rng.choice(max_start, size=n_trials, replace=False)
-    else:
-        starts = np.linspace(0, max_start, n_trials, dtype=int)
+    # --------------------------------------------------------------
+    # Fixed trial segments
+    # --------------------------------------------------------------
 
-    # Pre-load and pre-condition each trial segment once (reused across
-    # grid widths -- only the search grid changes)
+    rng = np.random.default_rng(1)
+
+    if max_start > n_trials:
+
+        starts = rng.choice(
+            max_start,
+            size=n_trials,
+            replace=False,
+        )
+
+    else:
+
+        starts = np.linspace(
+            0,
+            max_start,
+            n_trials,
+            dtype=int,
+        )
+
+    # --------------------------------------------------------------
+    # Preload data
+    # --------------------------------------------------------------
+
     trial_data = []
-    for start in starts:
-        sub_td = block_td[start:start + seg_samples]
-        f_r, strain_fd_r, df_r = to_frequency_domain(sub_td, fs, f_min, f_max, duration)
-        psd_r = estimate_psd_from_segment(sub_td, fs, f_r)
-        trial_data.append((f_r, strain_fd_r, df_r, psd_r))
+
+    print(
+        "  Preparing real-strain null trials..."
+    )
+
+    for i, start in enumerate(starts):
+
+        sub_td = block_td[
+            start:
+            start + seg_samples
+        ]
+
+        f_r, strain_fd_r, df_r = (
+            to_frequency_domain(
+                sub_td,
+                fs,
+                f_min,
+                f_max,
+                duration,
+            )
+        )
+
+        psd_r = estimate_psd_from_segment(
+            sub_td,
+            fs,
+            f_r,
+        )
+
+        trial_data.append(
+            (
+                f_r,
+                strain_fd_r,
+                df_r,
+                psd_r,
+            )
+        )
+
+        if (
+            (i + 1) % 25 == 0
+            or i == len(starts) - 1
+        ):
+            print(
+                f"    prepared "
+                f"{i + 1}/{len(starts)}"
+            )
 
     null_estimates = None
     final_grid = None
     c_pass = False
 
+    # --------------------------------------------------------------
+    # Adaptive Lambda grid
+    # --------------------------------------------------------------
+
     for width in grid_widths:
-        Lambda_grid = np.linspace(-width, width, int(2 * width * grid_points_per_unit) + 1)
+
+        Lambda_grid = np.linspace(
+            -width,
+            width,
+            int(
+                2 * width
+                * grid_points_per_unit
+            ) + 1,
+        )
 
         estimates = []
-        for f_r, strain_fd_r, df_r, psd_r in trial_data:
-            _, _, Lam_ml, _ = grid_search_lambda(
-                strain_fd_r, f_r, psd_r, df_r, m1, m2, K_z, Lambda_grid,
-                distance_Mpc=distance_Mpc)
+
+        print()
+        print(
+            f"  Running null search: "
+            f"Lambda=[-{width},{width}]"
+        )
+
+        for i, (
+            f_r,
+            strain_fd_r,
+            df_r,
+            psd_r,
+        ) in enumerate(trial_data):
+
+            _, _, Lam_ml, _ = (
+                grid_search_lambda(
+                    strain_fd_r,
+                    f_r,
+                    psd_r,
+                    df_r,
+                    m1,
+                    m2,
+                    K_z,
+                    Lambda_grid,
+                    distance_Mpc=distance_Mpc,
+                )
+            )
+
             estimates.append(Lam_ml)
 
-        null_estimates = np.array(estimates)
+            if (
+                (i + 1) % 25 == 0
+                or i == len(trial_data) - 1
+            ):
+                print(
+                    f"    {i + 1}/{len(trial_data)}"
+                )
+
+        null_estimates = np.asarray(
+            estimates,
+            dtype=float,
+        )
+
         final_grid = Lambda_grid
 
-        mean_v, median_v, std_v = (np.mean(null_estimates), np.median(null_estimates),
-                                     np.std(null_estimates))
-        p05, p95 = np.percentile(null_estimates, [5, 95])
+        mean_v = np.mean(
+            null_estimates
+        )
 
-        grid_lo, grid_hi = Lambda_grid[0], Lambda_grid[-1]
-        boundary_hits = np.sum((null_estimates <= grid_lo) | (null_estimates >= grid_hi))
-        boundary_fraction = boundary_hits / n_trials
-        boundary_pass = boundary_fraction < 0.05
+        median_v = np.median(
+            null_estimates
+        )
 
-        hist, edges = np.histogram(null_estimates, bins=20)
-        max_cluster_frac = np.max(hist) / n_trials
-        cluster_pass = max_cluster_frac < 0.20
+        std_v = np.std(
+            null_estimates
+        )
 
-        n_pass = n_trials >= 100
+        p05, p95 = np.percentile(
+            null_estimates,
+            [5, 95],
+        )
 
-        print(f"  --- Grid width +/-{width} ({len(Lambda_grid)} points) ---")
-        print(f"    Mean={mean_v:.4f}  Median={median_v:.4f}  Std={std_v:.4f}  "
-              f"90%=[{p05:.4f},{p95:.4f}]")
-        print(f"    Boundary hits: {boundary_hits}/{n_trials} "
-              f"({boundary_fraction:.3f}) -> {'PASS' if boundary_pass else 'FAIL'}")
-        print(f"    Max cluster fraction: {max_cluster_frac:.3f} "
-              f"-> {'PASS' if cluster_pass else 'FAIL'}")
+        grid_lo = Lambda_grid[0]
+        grid_hi = Lambda_grid[-1]
+
+        boundary_hits = np.sum(
+            (null_estimates <= grid_lo)
+            |
+            (null_estimates >= grid_hi)
+        )
+
+        boundary_fraction = (
+            boundary_hits / n_trials
+        )
+
+        boundary_pass = (
+            boundary_fraction < 0.05
+        )
+
+        hist, edges = np.histogram(
+            null_estimates,
+            bins=20,
+        )
+
+        max_cluster_frac = (
+            np.max(hist) / n_trials
+        )
+
+        cluster_pass = (
+            max_cluster_frac < 0.20
+        )
+
+        n_pass = (
+            n_trials >= 100
+        )
+
+        print()
+        print(
+            f"  --- Grid width "
+            f"+/-{width} "
+            f"({len(Lambda_grid)} points) ---"
+        )
+
+        print(
+            f"    Mean={mean_v:.4f} "
+            f"Median={median_v:.4f} "
+            f"Std={std_v:.4f} "
+            f"90%=[{p05:.4f},{p95:.4f}]"
+        )
+
+        print(
+            f"    Boundary hits: "
+            f"{boundary_hits}/{n_trials} "
+            f"({boundary_fraction:.3f}) "
+            f"-> "
+            f"{'PASS' if boundary_pass else 'FAIL'}"
+        )
+
+        print(
+            f"    Max cluster fraction: "
+            f"{max_cluster_frac:.3f} "
+            f"-> "
+            f"{'PASS' if cluster_pass else 'FAIL'}"
+        )
+
         print()
 
-        if boundary_pass and cluster_pass and n_pass:
+        if (
+            boundary_pass
+            and cluster_pass
+            and n_pass
+        ):
+
             c_pass = True
-            print(f"  Converged at grid width +/-{width}: all diagnostics PASS.")
+
+            print(
+                f"  Converged at grid width "
+                f"+/-{width}: "
+                f"all diagnostics PASS."
+            )
+
             print()
+
             break
-        elif not boundary_pass and width < max_width:
-            print(f"  Boundary hits still too high -- widening grid...")
+
+        elif (
+            not boundary_pass
+            and width < max_width
+        ):
+
+            print(
+                "  Boundary hits still too high "
+                "-- widening grid..."
+            )
+
             print()
+
         else:
-            print(f"  Diagnostics did not clear even at widest tested grid "
-                  f"(+/-{width}).")
+
+            print(
+                "  Diagnostics did not clear "
+                f"even at widest tested grid "
+                f"(+/-{width})."
+            )
+
             if not boundary_pass:
-                print("  Persistent boundary hits at wide grids suggest the null")
-                print("  likelihood may be poorly conditioned under pure noise,")
-                print("  rather than simply needing a wider search range.")
+
+                print(
+                    "  Persistent boundary hits at "
+                    "wide grids suggest the null"
+                )
+
+                print(
+                    "  likelihood may be poorly "
+                    "conditioned under pure noise,"
+                )
+
+                print(
+                    "  rather than simply needing "
+                    "a wider search range."
+                )
+
             print()
 
-    print(f"  MODE C OVERALL: {'PASS' if c_pass else 'FAIL'} "
-          f"(final grid tested: +/-{final_grid[-1]:.1f})")
+    print(
+        f"  MODE C OVERALL: "
+        f"{'PASS' if c_pass else 'FAIL'} "
+        f"(final grid tested: "
+        f"+/-{final_grid[-1]:.1f})"
+    )
+
     print()
 
-    return null_estimates, c_pass, final_grid
+    return (
+        null_estimates,
+        c_pass,
+        final_grid,
+    )
 
 
-# ══════════════════════════════════════════════════════════════════════════
-def run_mode_D(h1_path, event_name, f_min, f_max, duration, Lambda_grid):
+# ======================================================================
+# MODE D
+# ======================================================================
+
+def run_mode_D(
+    h1_path,
+    event_name,
+    f_min,
+    f_max,
+    duration,
+    Lambda_grid,
+    fs_override=None,
+):
+
     print("=" * 72)
-    print(f"MODE D — ACTUAL {event_name} EVENT (EXPLORATORY ONLY)")
+    print(
+        f"MODE D — ACTUAL {event_name} EVENT "
+        "(EXPLORATORY ONLY)"
+    )
     print("=" * 72)
     print()
-    print("  ┌────────────────────────────────────────────────────────┐")
-    print("  │  WHATEVER NUMBER FOLLOWS IS EXPLORATORY, NOT A RESULT.  │")
-    print("  │  Not a detection. Not a constraint. Not for citation.   │")
-    print("  │  Single detector, leading-order waveform, grid-search   │")
-    print("  │  point estimate only -- no priors, no PN systematics,   │")
-    print("  │  no H1+L1 coherence, no glitch vetoing.                 │")
-    print("  └────────────────────────────────────────────────────────┘")
+
+    print(
+        "  +--------------------------------------------------------+"
+    )
+    print(
+        "  | WHATEVER NUMBER FOLLOWS IS EXPLORATORY, NOT A RESULT. |"
+    )
+    print(
+        "  | Not a detection. Not a constraint. Not for citation.  |"
+    )
+    print(
+        "  | Single detector, leading-order waveform, grid-search  |"
+    )
+    print(
+        "  | point estimate only -- no priors, no PN systematics,  |"
+    )
+    print(
+        "  | no H1+L1 coherence, no glitch vetoing.                |"
+    )
+    print(
+        "  +--------------------------------------------------------+"
+    )
+
     print()
 
     ev = EVENT_CATALOG[event_name]
-    K_z = cosmological_K_factor(ev["z"])
 
-    strain_td, fs, seg_start = load_real_segment(
-        h1_path, ev["gps_merger"], half_window=duration / 2 + 2)
-    f, strain_fd, df = to_frequency_domain(strain_td, fs, f_min, f_max, duration)
-    psd = estimate_psd_from_segment(strain_td, fs, f)
+    K_z = cosmological_K_factor(
+        ev["z"]
+    )
 
-    Lgrid, logL, Lam_ml, Lam_err = grid_search_lambda(
-        strain_fd, f, psd, df, ev["m1"], ev["m2"], K_z, Lambda_grid,
-        distance_Mpc=ev["distance_Mpc"])
+    strain_td, fs, seg_start = (
+        load_real_segment(
+            h1_path,
+            ev["gps_merger"],
+            half_window=duration / 2 + 2,
+            fs_override=fs_override,
+        )
+    )
 
-    print(f"  Grid-search maximum-likelihood Lambda: {Lam_ml:.4f}")
-    print(f"  Fisher-curvature error estimate: {Lam_err:.4f}" if np.isfinite(Lam_err)
-          else "  Fisher-curvature error estimate: undefined (edge of grid or flat likelihood)")
+    f, strain_fd, df = (
+        to_frequency_domain(
+            strain_td,
+            fs,
+            f_min,
+            f_max,
+            duration,
+        )
+    )
+
+    psd = estimate_psd_from_segment(
+        strain_td,
+        fs,
+        f,
+    )
+
+    (
+        Lgrid,
+        logL,
+        Lam_ml,
+        Lam_err,
+    ) = grid_search_lambda(
+        strain_fd,
+        f,
+        psd,
+        df,
+        ev["m1"],
+        ev["m2"],
+        K_z,
+        Lambda_grid,
+        distance_Mpc=ev["distance_Mpc"],
+    )
+
+    print(
+        f"  Grid-search maximum-likelihood "
+        f"Lambda: {Lam_ml:.4f}"
+    )
+
+    if np.isfinite(Lam_err):
+
+        print(
+            f"  Fisher-curvature error estimate: "
+            f"{Lam_err:.4f}"
+        )
+
+    else:
+
+        print(
+            "  Fisher-curvature error estimate: "
+            "undefined"
+        )
+
     print()
-    print("  This number is recorded for the repository's audit trail. It is")
-    print("  NOT interpreted as evidence for or against nonzero Lambda.")
 
-    return Lam_ml, Lam_err, Lgrid, logL
+    print(
+        "  This number is recorded for the "
+        "repository audit trail."
+    )
+
+    print(
+        "  It is NOT interpreted as evidence "
+        "for or against nonzero Lambda."
+    )
+
+    return (
+        Lam_ml,
+        Lam_err,
+        Lgrid,
+        logL,
+    )
 
 
-# ══════════════════════════════════════════════════════════════════════════
+# ======================================================================
+# MAIN
+# ======================================================================
+
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--h1", required=True)
-    parser.add_argument("--event", default="GW150914")
-    parser.add_argument("--skip-D", action="store_true",
-                         help="Skip Mode D even if A/B/C pass (for audit-only runs)")
+
+    parser = argparse.ArgumentParser(
+        description=(
+            "Stage 3 real H1 strain validation "
+            "with flexible HDF5 loading."
+        )
+    )
+
+    parser.add_argument(
+        "--h1",
+        required=True,
+        help="Path to H1 HDF5 strain file.",
+    )
+
+    parser.add_argument(
+        "--event",
+        default="GW150914",
+        choices=list(EVENT_CATALOG.keys()),
+    )
+
+    parser.add_argument(
+        "--fs",
+        type=float,
+        default=None,
+        help=(
+            "Sampling frequency for HDF5 files "
+            "without Xspacing metadata. "
+            "Example: --fs 4096"
+        ),
+    )
+
+    parser.add_argument(
+        "--skip-D",
+        action="store_true",
+        help=(
+            "Skip Mode D even if A/B/C pass."
+        ),
+    )
+
+    parser.add_argument(
+        "--inspect",
+        action="store_true",
+        help=(
+            "Only inspect HDF5 structure and exit."
+        ),
+    )
+
     args = parser.parse_args()
 
-    ev = EVENT_CATALOG[args.event]
-    m1, m2, distance_Mpc, z = ev["m1"], ev["m2"], ev["distance_Mpc"], ev["z"]
-    K_z = cosmological_K_factor(z)
-    gps_merger = ev["gps_merger"]
+    h1_path = Path(args.h1)
 
-    f_min, f_max, duration = 20.0, 400.0, 8.0
-    Lambda_grid_AB = np.linspace(-5.0, 5.0, 1001)  # fixed grid for A+B (Lambda known/small)
+    if not h1_path.exists():
 
-    # Off-source anchor: well before the event, avoiding it entirely
+        raise FileNotFoundError(
+            f"H1 file does not exist:\n{h1_path}"
+        )
+
+    # --------------------------------------------------------------
+    # Inspect file
+    # --------------------------------------------------------------
+
+    inspect_hdf5(
+        str(h1_path)
+    )
+
+    if args.inspect:
+        return
+
+    # --------------------------------------------------------------
+    # Event
+    # --------------------------------------------------------------
+
+    ev = EVENT_CATALOG[
+        args.event
+    ]
+
+    m1 = ev["m1"]
+    m2 = ev["m2"]
+    distance_Mpc = ev["distance_Mpc"]
+    z = ev["z"]
+
+    K_z = cosmological_K_factor(
+        z
+    )
+
+    gps_merger = ev[
+        "gps_merger"
+    ]
+
+    # --------------------------------------------------------------
+    # Analysis settings
+    # --------------------------------------------------------------
+
+    f_min = 20.0
+    f_max = 400.0
+    duration = 8.0
+
+    Lambda_grid_AB = np.linspace(
+        -5.0,
+        5.0,
+        1001,
+    )
+
+    # --------------------------------------------------------------
+    # IMPORTANT:
+    #
+    # The supplied file is a simple 4096-second H1 file with
+    # no LIGO Xstart metadata.
+    #
+    # For such a file we use the middle of the file as the
+    # off-source reference when the GPS timestamp cannot be mapped.
+    #
+    # The actual physical GPS mapping is NOT invented here.
+    # --------------------------------------------------------------
+
     gps_offsource = gps_merger - 500.0
 
     print("#" * 72)
-    print(f"# STAGE 3 — REAL STRAIN VALIDATION — {args.event}")
+    print(
+        f"# STAGE 3 — REAL STRAIN VALIDATION — "
+        f"{args.event}"
+    )
     print("#" * 72)
     print()
 
-    results_AB, ab_pass, f_bg, psd_bg, df_bg = run_mode_AB(
-        args.h1, gps_offsource, m1, m2, K_z, distance_Mpc,
-        f_min, f_max, duration, Lambda_grid_AB)
+    print(
+        f"Input HDF5: {h1_path}"
+    )
 
-    null_estimates, c_pass, Lambda_grid_C = run_mode_C(
-        args.h1, gps_offsource, m1, m2, K_z, distance_Mpc,
-        f_min, f_max, duration, n_trials=200,
-        grid_widths=(5.0, 10.0, 20.0))
+    if args.fs is not None:
 
-    print("=" * 72)
-    print("GATE CHECK BEFORE MODE D")
-    print("=" * 72)
-    print()
-    print(f"  Mode A+B (injection/recovery): {'PASS' if ab_pass else 'FAIL'}")
-    print(f"  Mode C (null trials):          {'PASS' if c_pass else 'FAIL'}")
+        print(
+            f"Sampling rate override: "
+            f"{args.fs} Hz"
+        )
+
     print()
 
-    Lam_ml_D, Lam_err_D = None, None
-    if ab_pass and c_pass and not args.skip_D:
-        print("  Both gates passed. Proceeding to Mode D (exploratory).")
+    # --------------------------------------------------------------
+    # MODE A+B
+    # --------------------------------------------------------------
+
+    results_AB, ab_pass, f_bg, psd_bg, df_bg = (
+        run_mode_AB(
+            str(h1_path),
+            gps_offsource,
+            m1,
+            m2,
+            K_z,
+            distance_Mpc,
+            f_min,
+            f_max,
+            duration,
+            Lambda_grid_AB,
+            fs_override=args.fs,
+        )
+    )
+
+    # --------------------------------------------------------------
+    # MODE C
+    # --------------------------------------------------------------
+
+    null_estimates, c_pass, Lambda_grid_C = (
+        run_mode_C(
+            str(h1_path),
+            gps_offsource,
+            m1,
+            m2,
+            K_z,
+            distance_Mpc,
+            f_min,
+            f_max,
+            duration,
+            n_trials=200,
+            grid_widths=(
+                5.0,
+                10.0,
+                20.0,
+            ),
+            fs_override=args.fs,
+        )
+    )
+
+    # --------------------------------------------------------------
+    # GATE
+    # --------------------------------------------------------------
+
+    print("=" * 72)
+    print(
+        "GATE CHECK BEFORE MODE D"
+    )
+    print("=" * 72)
+    print()
+
+    print(
+        f"  Mode A+B "
+        f"(injection/recovery): "
+        f"{'PASS' if ab_pass else 'FAIL'}"
+    )
+
+    print(
+        f"  Mode C "
+        f"(null trials):          "
+        f"{'PASS' if c_pass else 'FAIL'}"
+    )
+
+    print()
+
+    Lam_ml_D = None
+    Lam_err_D = None
+    Lgrid_D = None
+    logL_D = None
+
+    if (
+        ab_pass
+        and c_pass
+        and not args.skip_D
+    ):
+
+        print(
+            "  Both gates passed. "
+            "Proceeding to Mode D "
+            "(exploratory)."
+        )
+
         print()
-        Lam_ml_D, Lam_err_D, Lgrid_D, logL_D = run_mode_D(
-            args.h1, args.event, f_min, f_max, duration, Lambda_grid_C)
+
+        (
+            Lam_ml_D,
+            Lam_err_D,
+            Lgrid_D,
+            logL_D,
+        ) = run_mode_D(
+            str(h1_path),
+            args.event,
+            f_min,
+            f_max,
+            duration,
+            Lambda_grid_C,
+            fs_override=args.fs,
+        )
+
     elif args.skip_D:
-        print("  --skip-D specified: Mode D not run.")
+
+        print(
+            "  --skip-D specified: "
+            "Mode D not run."
+        )
+
     else:
-        print("  ┌────────────────────────────────────────────────────────┐")
-        print("  │  GATE FAILED. Mode D (GW150914) is NOT run.             │")
-        print("  │  Fix Mode A/B/C issues before analyzing the real event. │")
-        print("  └────────────────────────────────────────────────────────┘")
 
-    # ── Plots ──────────────────────────────────────────────────────────────
-    out = Path(__file__).parent / "results"
-    out.mkdir(exist_ok=True)
+        print(
+            "  +------------------------------------------------------+"
+        )
 
-    n_panels = 3 if Lam_ml_D is not None else 2
-    fig, axes = plt.subplots(1, n_panels, figsize=(6 * n_panels, 5))
+        print(
+            "  | GATE FAILED. Mode D is NOT run.                    |"
+        )
+
+        print(
+            "  | Fix Mode A/B/C issues before real-event analysis. |"
+        )
+
+        print(
+            "  +------------------------------------------------------+"
+        )
+
+    # --------------------------------------------------------------
+    # PLOTS
+    # --------------------------------------------------------------
+
+    out = (
+        Path(__file__).parent
+        / "results"
+    )
+
+    out.mkdir(
+        exist_ok=True
+    )
+
+    n_panels = (
+        3
+        if Lam_ml_D is not None
+        else 2
+    )
+
+    fig, axes = plt.subplots(
+        1,
+        n_panels,
+        figsize=(
+            6 * n_panels,
+            5,
+        ),
+    )
+
     if n_panels == 2:
+
         axes = list(axes) + [None]
 
+    # --------------------------------------------------------------
+    # A+B
+    # --------------------------------------------------------------
+
     ax = axes[0]
-    Lt = [r["Lambda_true"] for r in results_AB]
-    Lml = [r["mean_ml"] for r in results_AB]
-    Lsc = [r["scatter"] for r in results_AB]
-    ax.errorbar(Lt, Lml, yerr=Lsc, fmt="o-", color="steelblue", capsize=4,
-                markersize=8)
-    lims = [min(Lt) - 0.2, max(Lt) + 0.2]
-    ax.plot(lims, lims, "k--", lw=1.5, label="ideal")
-    ax.set_xlabel(r"Injected $\Lambda_{\rm true}$")
-    ax.set_ylabel(r"Recovered $\Lambda_{\rm ML}$")
-    ax.set_title("Mode A+B: real off-source strain + injection")
-    ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3)
+
+    Lt = [
+        r["Lambda_true"]
+        for r in results_AB
+    ]
+
+    Lml = [
+        r["mean_ml"]
+        for r in results_AB
+    ]
+
+    Lsc = [
+        r["scatter"]
+        for r in results_AB
+    ]
+
+    ax.errorbar(
+        Lt,
+        Lml,
+        yerr=Lsc,
+        fmt="o-",
+        capsize=4,
+        markersize=8,
+    )
+
+    lims = [
+        min(Lt) - 0.2,
+        max(Lt) + 0.2,
+    ]
+
+    ax.plot(
+        lims,
+        lims,
+        "k--",
+        lw=1.5,
+        label="ideal",
+    )
+
+    ax.set_xlabel(
+        r"Injected $\Lambda_{\rm true}$"
+    )
+
+    ax.set_ylabel(
+        r"Recovered $\Lambda_{\rm ML}$"
+    )
+
+    ax.set_title(
+        "Mode A+B: real off-source strain + injection"
+    )
+
+    ax.legend(
+        fontsize=9
+    )
+
+    ax.grid(
+        True,
+        alpha=0.3,
+    )
+
+    # --------------------------------------------------------------
+    # MODE C
+    # --------------------------------------------------------------
 
     ax = axes[1]
-    ax.hist(null_estimates, bins=10, color="gray", edgecolor="k", alpha=0.7)
-    ax.axvline(0, color="firebrick", lw=1.5, ls="--")
-    ax.set_xlabel(r"Recovered $\Lambda_{\rm ML}$")
-    ax.set_ylabel("Count")
-    ax.set_title("Mode C: real off-source null trials")
-    ax.grid(True, alpha=0.3)
+
+    ax.hist(
+        null_estimates,
+        bins=10,
+        edgecolor="k",
+        alpha=0.7,
+    )
+
+    ax.axvline(
+        0,
+        color="firebrick",
+        lw=1.5,
+        ls="--",
+    )
+
+    ax.set_xlabel(
+        r"Recovered $\Lambda_{\rm ML}$"
+    )
+
+    ax.set_ylabel(
+        "Count"
+    )
+
+    ax.set_title(
+        "Mode C: real off-source null trials"
+    )
+
+    ax.grid(
+        True,
+        alpha=0.3,
+    )
+
+    # --------------------------------------------------------------
+    # MODE D
+    # --------------------------------------------------------------
 
     if Lam_ml_D is not None:
+
         ax = axes[2]
-        ax.plot(Lgrid_D, logL_D - np.max(logL_D), color="firebrick", lw=2)
-        ax.axvline(Lam_ml_D, color="k", ls="--", lw=1.5,
-                  label=f"ML: {Lam_ml_D:.3f}")
-        ax.set_xlabel(r"$\Lambda$")
-        ax.set_ylabel(r"$\ln L - \ln L_{\rm max}$")
-        ax.set_title(f"Mode D: {args.event} (EXPLORATORY)")
-        ax.legend(fontsize=9)
-        ax.grid(True, alpha=0.3)
 
-    plt.suptitle(f"Stage 3: Real strain validation — {args.event}", fontsize=11)
+        ax.plot(
+            Lgrid_D,
+            logL_D - np.max(logL_D),
+            color="firebrick",
+            lw=2,
+        )
+
+        ax.axvline(
+            Lam_ml_D,
+            color="k",
+            ls="--",
+            lw=1.5,
+            label=f"ML: {Lam_ml_D:.3f}",
+        )
+
+        ax.set_xlabel(
+            r"$\Lambda$"
+        )
+
+        ax.set_ylabel(
+            r"$\ln L-\ln L_{\rm max}$"
+        )
+
+        ax.set_title(
+            f"Mode D: {args.event} "
+            "(EXPLORATORY)"
+        )
+
+        ax.legend(
+            fontsize=9
+        )
+
+        ax.grid(
+            True,
+            alpha=0.3,
+        )
+
+    plt.suptitle(
+        f"Stage 3: Real strain validation — "
+        f"{args.event}",
+        fontsize=11,
+    )
+
     plt.tight_layout()
-    path = out / f"stage3_{args.event}_validation.png"
-    plt.savefig(path, dpi=150, bbox_inches="tight")
-    plt.close()
-    print(f"\nSaved -> {path}")
 
+    path = (
+        out
+        / f"stage3_{args.event}_validation.png"
+    )
+
+    plt.savefig(
+        path,
+        dpi=150,
+        bbox_inches="tight",
+    )
+
+    plt.close()
+
+    print()
+    print(
+        f"Saved -> {path}"
+    )
+
+
+# ======================================================================
+# ENTRY POINT
+# ======================================================================
 
 if __name__ == "__main__":
     main()

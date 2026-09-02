@@ -5,3 +5,24 @@
 *.log
 *.out
 *.toc
+
+# GW matched-filter: генерирани данни, логове, тежки HDF5, __pycache__
+paper3/gw/matched_filter/*.hdf5
+paper3/gw/matched_filter/*.log
+paper3/gw/matched_filter/__pycache__/
+paper3/gw/matched_filter/inj_*.jsonl
+paper3/gw/matched_filter/injections*.jsonl
+paper3/gw/matched_filter/global_background_v3.jsonl
+paper3/gw/matched_filter/segments_cache.json
+paper3/gw/matched_filter/*.png
+paper3/gw/matched_filter/*.pdf
+paper3/gw/matched_filter/A2_generalized_results/
+paper3/gw/matched_filter/test_v2_*/
+paper3/gw/matched_filter/lambda_results/
+paper3/gw/matched_filter/results/
+paper3/gw/matched_filter/sterile_results/
+paper3/gw/matched_filter/stage6E3H_realistic_results/
+paper3/gw/matched_filter/unbiased_ligo_results/
+paper3/gw/matched_filter/wtwin_input/
+paper3/gw/matched_filter/Z/
+paper3/gw/matched_filter/_archive/
