@@ -45,7 +45,13 @@ is consistent with this form.
    (`lambda_from_<domain>(...)`) plus a CLI entry; the fitting, error
    reporting, and significance-testing machinery is already there and
    does not need to be reimplemented.
+## New here? Start with the one-line summary
 
+- **If you have (k,ω) dispersion data**: run `lambda_experimental_validator.py` on it — see Quick start.
+- **If you want the current honest bottom line**: `paper3/PAPER3_VALIDATION_STATUS.md` is the single most
+  up-to-date status document — start there, not the full table below.
+- **If you're reviewing the GW/LIGO work specifically**: the GWTC-4.0 cross-check result
+  (Λ∈[-7.2×10⁻³,+2.2×10⁻³] m³/s, consistent with GR) is the most statistically robust result in the repo.
 ## Status of results — read before citing
 
 | Component                                   | Status                                                                                                                                    |
