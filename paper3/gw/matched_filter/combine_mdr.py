@@ -143,10 +143,20 @@ def main():
             print("  -> no interior maxima; upper limit only")
 
         if edges:
-            tightest = min(e["sigma"] * Z90 for e in edges)
-            entry["upper_limit_from_flat"] = float(tightest)
-            print(f"  -> flat profiles ({len(edges)}): |B| < {tightest:.4e} "
-                  f"(90%, tightest)")
+            # These are NOT bounds. When the profile is flat the spread
+            # of the off-source B_hat values is set by the width of the
+            # scan grid, not by the noise: scanning two alias periods
+            # instead of one would double the number without a single
+            # datum changing. The injection campaign confirmed this --
+            # unit transfer slope at every alpha, but no resolvable
+            # maximum except at alpha = 0, and only far above anything
+            # the real events contain. Report unconstrained; quote the
+            # grid width as context, never as a limit.
+            widths = [e["sigma"] * Z90 for e in edges]
+            entry["grid_scale_not_a_limit"] = float(min(widths))
+            print(f"  -> {len(edges)} flat/edge profiles: B UNCONSTRAINED.")
+            print(f"     (grid scale {min(widths):.4e} -- reflects the scan")
+            print(f"     width, not the data; do not quote as a bound)")
         print()
         combined[a] = entry
 
