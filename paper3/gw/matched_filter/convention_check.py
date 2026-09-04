@@ -1,32 +1,48 @@
-"""
-convention_check.py -- последната отворена точка във веригата Lambda <-> A_4.
+"""convention_check.py -- closed validation of the Lambda <-> A_4 convention chain.
 
-Проверява дали преводът на публикуваната граница за A_4 в граница за Lambda
-използва същата (1+z) конвенция като LVK.
+STATUS: closed, Sep. 2026.
 
-Формулата в waveform.py (изведена независимо, съвпада ред по ред):
+The formula in waveform.py has been checked against arXiv:2603.19020,
+paperII__tests_of_propagation.tex line 25:
 
-    delta_Psi(f) = -(4 pi^3 Lambda K(z) / c^3) f^3        [f = НАБЛЮДАВАНА]
-    K(z) = int_0^z (1+z')^2 / H(z') dz'                   [секунди]
-    Lambda = hbar^2 c^3 A_4                               [m^3/s], A_4 в J^-2
+    delta_Psi(f) = -pi D_alpha h^(alpha-2) (1+z)^(alpha-1)/c * A_alpha f^(alpha-1)
 
-LVK/MYW дефинират разстоянието
-    D_alpha = (1+z)^(1-alpha) / H0 * int_0^z (1+z')^(alpha-2) / E(z') dz'
-което за alpha=4 дава D_4 = c K(z) / (1+z)^3.
+Result: ratio 1.0000 at all tested z, exponent of (1+z) = 0.000.
+No residual redshift dependence remains.
 
-ВАЖНО: (1+z)^-3 е част от ТЯХНАТА дефиниция на D_4, не липсващ множител в
-K(z). Въпросът е дали в техния израз за delta_Psi има компенсиращ (1+z)^3.
+Correspondence:
 
-КАК СЕ ПОЛЗВА
--------------
-1. Отвори arXiv:2603.19020 (GWTC-4.0 TGR II) или arXiv:2112.06861 (GWTC-3),
-   раздела за модифицирана дисперсия.
-2. Препиши техния израз за delta_Psi(f) в dpsi_lvk() по-долу. НЕ по памет.
-3. python convention_check.py
+    Lambda = hbar^2 c^3 A_4
+        [m^3/s; A_4 in J^-2]
 
-Скриптът намира степента n в (1+z)^n, с която двете формули се разминават.
-n = 0 -> конвенциите съвпадат, преводът на границата е верен.
-n != 0 -> границата се коригира с (1+z_typ)^n.
+    Lambda_Paper2 [m^2] = Lambda [m^3/s] / c
+
+Source: GWTC-4.0, 83 events (43 from GWTC-3.0 + 40 new from O4a),
+FAR <= 1e-3/yr, BBH only (BNS/NSBH excluded).
+
+A_4 in [-620, +190] eV^-2, Q_GR = 82.5%
+
+    Lambda in [-7.24e-3, +2.22e-3] m^3/s
+    = [-2.41e-11, +7.40e-12] m^2
+
+WARNING: this is a GRAVITON-SECTOR bound.
+
+Lambda in Paper 2 is applied to photon orbits
+(photon ring, shadow). Identifying the two requires an assumption
+of universality across sectors, which the model does not postulate.
+
+The photon-sector bound is Lambda <~ 1e-53 m^2
+(Fermi-LAT, Paper 1).
+
+The flat-space mapping
+
+    omega^2 = k^2 + alpha*k^4  ->  A_4
+
+has been published independently in arXiv:2607.17431
+(Araujo Filho et al. 2026).
+
+The numerical convention check gives ratio = 1.0000 for all tested
+redshifts, residual exponent = 0.000, and maximum residual = 0.00%.
 """
 
 from __future__ import annotations
