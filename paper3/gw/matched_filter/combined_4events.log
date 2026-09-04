@@ -1,0 +1,57 @@
+Loaded 4 event(s): ['GW150914', 'GW170104', 'GW170814', 'GW170823']
+
+alpha = 0.0
+  event                B_hat        sigma       z     SNR   dSNR2  profile
+  GW150914       -1.5257e+01   5.6135e+01   -0.22   19.64    1.66  interior
+  GW170104       -3.2693e+01   5.7807e+01   -0.70    8.76    1.82  interior
+  GW170814       +4.5770e+01   5.5047e+01   +0.90    9.11    2.70  interior
+  GW170823       +1.3077e+01   5.5350e+01   +0.22    6.83    0.10  interior
+  -> combined (4 interior): B = +3.7301e+00 +/- 4.6105e+01  (90% CI)
+
+alpha = 2.5
+  event                B_hat        sigma       z     SNR   dSNR2  profile
+  GW150914       -2.7328e-04   2.6233e-04   -0.96   19.64    0.94  flat/edge
+  GW170104       -2.7328e-04   2.6574e-04   -1.00    8.76    0.72  flat/edge
+  GW170814       +2.7328e-04   2.5545e-04   +1.08    9.11    0.63  flat/edge
+  GW170823       +2.7328e-04   2.6144e-04   +0.89    6.83    0.03  flat/edge
+  -> no interior maxima; upper limit only
+  -> flat profiles (4): |B| < 4.2021e-04 (90%, tightest)
+
+alpha = 3.0
+  event                B_hat        sigma       z     SNR   dSNR2  profile
+  GW150914       -1.2003e-05   1.1648e-05   -0.93   19.64    0.89  flat/edge
+  GW170104       -1.2003e-05   1.1585e-05   -1.03    8.76    0.90  flat/edge
+  GW170814       +1.2003e-05   1.1301e-05   +1.09    9.11    0.61  flat/edge
+  GW170823       +6.0013e-06   1.1457e-05   +0.34    6.83    0.01  interior
+  -> combined (1 interior): B = +6.0013e-06 +/- 1.8848e-05  (90% CI)
+     WARNING: GW170823 carries 100% of the weight. The combined result is essentially that one event.
+  -> flat profiles (3): |B| < 1.8591e-05 (90%, tightest)
+
+alpha = 3.5
+  event                B_hat        sigma       z     SNR   dSNR2  profile
+  GW150914       -4.2383e-07   5.1199e-07   -0.71   19.64    0.73  interior
+  GW170104       -4.9447e-07   5.0636e-07   -1.02    8.76    0.74  interior
+  GW170814       +4.4149e-07   4.9823e-07   +0.92    9.11    0.42  interior
+  GW170823       -3.5320e-08   5.0497e-07   -0.26    6.83    0.00  interior
+  -> combined (4 interior): B = -1.2163e-07 +/- 4.1562e-07  (90% CI)
+
+alpha = 4.0
+  event                B_hat        sigma       z     SNR   dSNR2  profile
+  GW150914       -2.3408e-08   2.2506e-08   -0.84   19.64    0.56  flat/edge
+  GW170104       -2.3408e-08   2.2798e-08   -1.12    8.76    0.78  flat/edge
+  GW170814       +2.3408e-08   2.2059e-08   +1.08    9.11    0.31  flat/edge
+  GW170823       -3.9013e-09   2.2346e-08   -0.38    6.83    0.00  interior
+  -> combined (1 interior): B = -3.9013e-09 +/- 3.6758e-08  (90% CI)
+     WARNING: GW170823 carries 100% of the weight. The combined result is essentially that one event.
+  -> flat profiles (3): |B| < 3.6288e-08 (90%, tightest)
+
+======================================================================
+SCALING CHECK -- sigma_B should go as 1/SNR
+======================================================================
+  events: ['GW150914', 'GW170104', 'GW170814', 'GW170823']
+  fitted d(log sigma)/d(log SNR) = +0.00  (expected -1.00)
+  >> Departs from 1/SNR. Something other than SNR is
+     setting the error: template mismatch, PSD quality,
+     or the alias period capping the profile.
+
+written: mdr_combined.json
