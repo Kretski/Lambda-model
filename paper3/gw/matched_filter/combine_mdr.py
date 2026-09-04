@@ -23,11 +23,16 @@ will bias the combined result toward the grid edges.
 So this script splits the events:
 
   interior maxima  -> inverse-variance combination, quoted as B +/- CI
-  boundary hits    -> no central value; quoted only as |B| < CI as an
-                      upper limit, and combined by taking the tightest
+  boundary hits    -> UNCONSTRAINED. No central value and no upper
+                      limit either: when the profile is flat, the
+                      spread of the off-source B_hat values is set by
+                      the width of the scan grid, so a "limit" derived
+                      from it would double if the grid did, without a
+                      single datum changing. The injection campaign
+                      confirmed this directly.
 
-If an alpha has no interior-maximum events at all, only an upper limit
-is reported for it. That is an honest result, not a failure.
+If an alpha has no interior-maximum events at all, it is reported as
+unconstrained. That is an honest result, not a failure.
 
 Usage:
     python3 combine_mdr.py
@@ -140,7 +145,7 @@ def main():
                       f"{100*frac[k]:.0f}% of the weight. The combined "
                       f"result is essentially that one event.")
         else:
-            print("  -> no interior maxima; upper limit only")
+            print("  -> no interior maxima")
 
         if edges:
             # These are NOT bounds. When the profile is flat the spread
