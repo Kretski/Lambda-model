@@ -1,0 +1,62 @@
+{
+  "event_gps": 1126259462.428,
+  "template": [
+    36.0,
+    36.0,
+    0.0,
+    0.0
+  ],
+  "f_low": 20.0,
+  "f_high": 512.0,
+  "optimal_snr": 16456.796195838597,
+  "rows": [
+    {
+      "alpha": 0.0,
+      "retained": 0.08341008852983345,
+      "sigma_ratio": 3.462507389538159,
+      "observed_drho2": 24.88
+    },
+    {
+      "alpha": 0.5,
+      "retained": 0.015242672684467648,
+      "sigma_ratio": 8.099709408585325,
+      "observed_drho2": null
+    },
+    {
+      "alpha": 1.5,
+      "retained": 0.0014302757605646112,
+      "sigma_ratio": 26.441744883129633,
+      "observed_drho2": null
+    },
+    {
+      "alpha": 2.0,
+      "retained": 4.5161674225649615e-35,
+      "sigma_ratio": 1.4880412935947738e+17,
+      "observed_drho2": null
+    },
+    {
+      "alpha": 2.5,
+      "retained": 0.005879512464916283,
+      "sigma_ratio": 13.041553949689208,
+      "observed_drho2": 1.68
+    },
+    {
+      "alpha": 3.0,
+      "retained": 0.027144086800332652,
+      "sigma_ratio": 6.069632301433501,
+      "observed_drho2": 2.28
+    },
+    {
+      "alpha": 3.5,
+      "retained": 0.06286714509124695,
+      "sigma_ratio": 3.9883028664682785,
+      "observed_drho2": 1.67
+    },
+    {
+      "alpha": 4.0,
+      "retained": 0.1085483588108382,
+      "sigma_ratio": 3.0352073779350714,
+      "observed_drho2": -0.06
+    }
+  ]
+}

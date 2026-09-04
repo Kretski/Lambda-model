@@ -1,0 +1,42 @@
+PyCBC.libutils: pkg-config call failed, setting NO_PKGCONFIG=1
+==========================================================================
+INJECTION RECOVERY -- WIDE SCAN -- alpha = 2.5
+==========================================================================
+  alias period   : 5.465638e-04
+  physical grid  : +/-2.7328e-04  (unchanged in mdr_search)
+  diagnostic grid: +/-1.6397e-03  (247 points, 3 periods each side)
+  template       : (36.0, 36.0)   event 1126259462.428
+
+  null spread over 15 off-source segments...
+  null sigma     : 2.3329e-04
+  null at edge   : 60% of segments
+  >> Most null segments land on the edge: on the physical
+     grid this sigma measures the grid, not the noise.
+
+          B_inj        B_glob        B_near  off/period  nmax   d_rho2
+    +0.0000e+00   -3.7326e-04   -3.7326e-04      -0.683     0    +0.00
+    +2.7328e-05   -3.4660e-04   -3.4660e-04      -0.684     0    +0.04
+    +6.8320e-05   -3.0661e-04   -3.0661e-04      -0.686     0    +0.04
+    +1.3664e-04   -2.3995e-04   -2.3995e-04      -0.689     0    +0.10
+    +2.0496e-04   -1.5997e-04   -1.5997e-04      -0.668     0    -0.65
+    -6.8320e-05   -4.3992e-04   -4.3992e-04      -0.680     0    +0.47
+    -1.3664e-04   -5.0657e-04   -5.0657e-04      -0.677     0    +1.45
+    -2.0496e-04   -5.7323e-04   -5.7323e-04      -0.674     0    +1.68
+
+==========================================================================
+FITS   B_hat = a + b * B_injected
+==========================================================================
+  global maximum : b = +0.9961   a = -3.7167e-04  (-0.680 periods)
+  nearest maximum: b = +0.9961   a = -3.7167e-04  (-0.680 periods)
+
+==========================================================================
+VERDICT
+==========================================================================
+  Slope is ~1 but the offset (-0.680 periods) is
+  not an integer multiple of the alias period.
+  => GENUINE BIAS in profile_b(). Do not quote any interval
+     until this is found.
+
+  profile prefers B_inj over 0 in 86% of non-zero injections
+
+  written: injection_alpha2.5_wide.json

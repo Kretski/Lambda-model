@@ -43,6 +43,15 @@ IN_GLOB = "events/*_results.json"
 OUT_JSON = "mdr_combined.json"
 Z90 = 1.645  # CI90 = Z90 * sigma
 
+# A profile only counts as a measurement if the deformation actually
+# improved the fit. Position of the maximum is not enough: a completely
+# flat profile can land inside the grid by chance rather than on an
+# edge, which made GW170823 (dSNR^2 = 0.00 and 0.01) look like the sole
+# "interior" event for alpha = 3.0 and 4.0 and carry 100% of the weight
+# in an otherwise unconstrained combination. One free parameter buys
+# dSNR^2 ~ 1 from noise alone, so require meaningfully more than that.
+DSNR2_MIN = 4.0
+
 
 def load_all():
     recs = []
@@ -93,12 +102,19 @@ def main():
         print(f"  {'event':<12} {'B_hat':>13} {'sigma':>12} {'z':>7} "
               f"{'SNR':>7} {'dSNR2':>7}  profile")
         for w in rows:
-            tag = "flat/edge" if w["edge"] else "interior"
+            if w["edge"]:
+                tag = "edge"
+            elif w["dsnr2"] < DSNR2_MIN:
+                tag = "flat"
+            else:
+                tag = "interior"
             print(f"  {w['name']:<12} {w['B']:>+13.4e} {w['sigma']:>12.4e} "
                   f"{w['z']:>+7.2f} {w['snr']:>7.2f} {w['dsnr2']:>7.2f}  {tag}")
 
-        interior = [w for w in rows if not w["edge"]]
-        edges = [w for w in rows if w["edge"]]
+        interior = [w for w in rows
+                    if not w["edge"] and w["dsnr2"] >= DSNR2_MIN]
+        edges = [w for w in rows
+                 if w["edge"] or w["dsnr2"] < DSNR2_MIN]
 
         entry = dict(n_events=len(rows), n_interior=len(interior))
 

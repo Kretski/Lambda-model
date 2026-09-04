@@ -1,0 +1,45 @@
+PyCBC.libutils: pkg-config call failed, setting NO_PKGCONFIG=1
+==========================================================================
+INJECTION RECOVERY -- WIDE SCAN -- alpha = 4.0
+==========================================================================
+  alias period   : 4.681617e-08
+  physical grid  : +/-2.3408e-08  (unchanged in mdr_search)
+  diagnostic grid: +/-1.4045e-07  (247 points, 3 periods each side)
+  template       : (36.0, 36.0)   event 1126259462.428
+
+  null spread over 15 off-source segments...
+  null sigma     : 2.1603e-08
+  null at edge   : 93% of segments
+  >> Most null segments land on the edge: on the physical
+     grid this sigma measures the grid, not the noise.
+
+          B_inj        B_glob        B_near  off/period  nmax   d_rho2
+    +0.0000e+00   -2.6263e-08   -2.6263e-08      -0.561     0    +0.00
+    +2.3408e-09   -2.3979e-08   -2.3979e-08      -0.562     0    -0.13
+    +5.8520e-09   -2.0553e-08   -2.0553e-08      -0.564     0    -0.19
+    +1.1704e-08   -1.4844e-08   -1.4844e-08      -0.567     0    +0.10
+    +1.7556e-08   -9.1349e-09   -9.1349e-09      -0.570     0    -0.06
+    -5.8520e-09   -3.1972e-08   -3.1972e-08      -0.558     0    +0.66
+    -1.1704e-08   -3.7681e-08   -3.7681e-08      -0.555     0    +1.54
+    -1.7556e-08   -4.3391e-08   -4.3391e-08      -0.552     0    +1.45
+
+==========================================================================
+FITS   B_hat = a + b * B_injected
+==========================================================================
+  global maximum : b = +0.9756   a = -2.6263e-08  (-0.561 periods)
+  nearest maximum: b = +0.9756   a = -2.6263e-08  (-0.561 periods)
+
+==========================================================================
+VERDICT
+==========================================================================
+  Slope is ~1 but the offset (-0.561 periods) is
+  not an integer multiple of the alias period.
+  => GENUINE BIAS in profile_b(). Do not quote any interval
+     until this is found.
+
+  profile prefers B_inj over 0 in 57% of non-zero injections
+  >> The likelihood barely distinguishes the injected value
+     from zero. At this chirp mass and band the f^(a-1)
+     phase is largely absorbed by t_c and phi_c.
+
+  written: injection_alpha4_wide.json

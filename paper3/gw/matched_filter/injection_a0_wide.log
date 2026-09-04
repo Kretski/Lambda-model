@@ -1,0 +1,52 @@
+PyCBC.libutils: pkg-config call failed, setting NO_PKGCONFIG=1
+==========================================================================
+INJECTION RECOVERY -- WIDE SCAN -- alpha = 0.0
+==========================================================================
+  alias period   : 1.307720e+02
+  physical grid  : +/-6.5386e+01  (unchanged in mdr_search)
+  diagnostic grid: +/-3.9232e+02  (247 points, 3 periods each side)
+  template       : (36.0, 36.0)   event 1126259462.428
+
+  null spread over 15 off-source segments...
+  null sigma     : 5.5745e+01
+  null at edge   : 53% of segments
+  >> Most null segments land on the edge: on the physical
+     grid this sigma measures the grid, not the noise.
+
+          B_inj        B_glob        B_near  off/period  nmax   d_rho2
+    +0.0000e+00   -1.2758e+01   -3.1896e+00      -0.098     3    +0.00
+    +6.5386e+00   -6.3791e+00   +3.1896e+00      -0.099     3    -0.25
+    +1.6346e+01   +3.1896e+00   +3.1896e+00      -0.101     2    -1.51
+    +3.2693e+01   +1.9137e+01   +1.9137e+01      -0.104     2    +0.45
+    +4.9039e+01   +3.5085e+01   +3.5085e+01      -0.107     2    +5.77
+    -1.6346e+01   -3.1896e+01   -1.9137e+01      -0.119     3    +5.00
+    -3.2693e+01   -4.7843e+01   -3.5085e+01      -0.116     3   +13.37
+    -4.9039e+01   -6.3791e+01   -6.3791e+01      -0.113     2   +24.88
+
+==========================================================================
+FITS   B_hat = a + b * B_injected
+==========================================================================
+  global maximum : b = +1.0183   a = -1.3989e+01  (-0.107 periods)
+  nearest maximum: b = +0.9385   a = -8.3423e+00  (-0.064 periods)
+
+==========================================================================
+VERDICT
+==========================================================================
+  Unwrapped recovery is unbiased: the nearest local maximum
+  tracks the injection with unit slope and no offset.
+  Global-maximum offsets are near-integer multiples of the
+  alias period, and multiple maxima are present.
+
+  => ALIAS WRAPPING, not a bug. B is identifiable only
+     modulo the alias period. Keep the physical scan at
+     one period and state this limitation explicitly:
+     the quoted intervals are modulo-period, and where
+     the profile is flat they reflect the grid, not the
+     data.
+
+  profile prefers B_inj over 0 in 71% of non-zero injections
+  >> The likelihood barely distinguishes the injected value
+     from zero. At this chirp mass and band the f^(a-1)
+     phase is largely absorbed by t_c and phi_c.
+
+  written: injection_alpha0_wide.json

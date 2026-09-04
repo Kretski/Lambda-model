@@ -1,0 +1,34 @@
+PyCBC.libutils: pkg-config call failed, setting NO_PKGCONFIG=1
+========================================================================
+FISHER INFORMATION ON B AFTER PROJECTING OUT t_c AND phi_c
+========================================================================
+  band        : 20-512 Hz
+  template    : (36.0, 36.0)
+  optimal SNR : 16456.80
+
+   alpha   retained  sigma ratio   observed dRho2
+     0.0      8.34%          3.5           +24.88
+     0.5      1.52%          8.1                -
+     1.5      0.14%         26.4                -
+     2.0      0.00% 148804129359477376.0                -
+     2.5      0.59%         13.0            +1.68
+     3.0      2.71%          6.1            +2.28
+     3.5      6.29%          4.0            +1.67
+     4.0     10.85%          3.0            -0.06
+
+========================================================================
+READING
+========================================================================
+  alpha = 0 keeps 8.3% of the information on B;
+  alpha = 4 keeps 10.85%.
+  Ratio: 1x more information at alpha = 0.
+
+  Correlation between retained information and the
+  measured injection discrimination: +0.283
+
+  Note: retained information depends on the band. A lower
+  F_LOW lengthens the inspiral and helps low alpha; raising
+  F_HIGH helps high alpha only if the signal still has cycles
+  there, which a 31 solar-mass chirp mass largely does not.
+
+  written: fisher_alpha.json
