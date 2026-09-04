@@ -79,23 +79,16 @@ def dpsi_kretski(f, A4_J, z):
 # ----------------------------------------------------------------------
 
 def dpsi_lvk(f, A4_J, z, alpha=4):
-    """Изразът на LVK за delta_Psi при alpha=4.
+    """GWTC-4.0 (arXiv:2603.19020), paperII__tests_of_propagation.tex, ред 25:
 
-    ЗАМЕНИ ТЯЛОТО с точния израз от статията. Долното е ЕДИН ВЪЗМОЖЕН
-    вариант на общата форма, поставен само за да върви скриптът --
-    НЕ го приемай за верен, докато не го сверил с текста.
+        delta_Psi(f) = -pi D_alpha h^(alpha-2) (1+z)^(alpha-1) / c
+                       * A_alpha f^(alpha-1)
 
-    Типична обща форма:
-        delta_Psi = sign(A) * pi * D_alpha / lambda_A^(2-alpha)
-                    * (f/(1+z))^(alpha-1) / (alpha-1)
-    Внимавай за: множителя 1/(alpha-1), дали f е наблюдавана или в
-    източниковата рамка, и дали има допълнителен (1+z).
+    с D_alpha = c(1+z)^(1-alpha)/H0 * int (1+z')^(alpha-2)/E(z') dz'  (ред 29)
     """
     D = D_alpha(z, alpha)
-    lam = lambda_A(A4_J)
-    sgn = np.sign(A4_J) if A4_J != 0 else 1.0
-    return sgn * np.pi * D * lam ** (alpha - 2) \
-        * (f / (1 + z)) ** (alpha - 1) / (alpha - 1)
+    return -(np.pi * D * h ** (alpha - 2) * (1 + z) ** (alpha - 1) / c) \
+        * A4_J * f ** (alpha - 1)
 
 
 # ----------------------------------------------------------------------
