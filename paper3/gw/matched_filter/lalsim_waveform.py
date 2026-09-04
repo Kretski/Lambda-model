@@ -34,6 +34,7 @@ systematics from Lambda-model systematics.
 """
 
 import numpy as np
+from waveform import lambda_phase_correction
 
 try:
     import lal
@@ -200,8 +201,8 @@ def waveform_lalsim_with_lambda(f, m1_msun, m2_msun, Lambda, K_z,
     extra_phase = 2 * np.pi * f * tc - phi_c
     h_gr = h_gr * np.exp(1j * extra_phase)
 
-    # Lambda dispersion phase, identical formula to waveform.py
-    Delta_Psi = -(4.0 * np.pi ** 3 * Lambda * K_z / C_SI ** 3) * f ** 3
+    # Lambda dispersion phase -- canonical implementation in waveform.py
+    Delta_Psi = lambda_phase_correction(f, Lambda, K_z)
     h_total = h_gr * np.exp(1j * Delta_Psi)
 
     return h_total
