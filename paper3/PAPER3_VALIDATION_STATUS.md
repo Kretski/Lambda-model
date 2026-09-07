@@ -31,6 +31,22 @@ re-run and verified against actual test output before being recorded here
 
 No explicit derivation connecting Λ_NH → Λ_GW currently exists in either paper. **The GW150914 propagation test above constrains Λ_GW only — it does not constrain, confirm, or test the near-horizon Λ_NH or any of Paper 2's photon-ring/QNM predictions.**
 
+**Update (convention_check.py, committed separately):** a *dimensional*
+bridge has been proposed, Λ_NH = Λ_GW/c (verified: [L³/T]/[L/T]=[L²],
+consistent). Applying it to the GWTC-4.0-derived Λ_GW bound gives a
+graviton-sector bound Λ_NH ≲ 7.4×10⁻¹² m². **This is dimensional
+consistency, not a physical derivation** — no equation has been shown
+connecting the near-horizon Hamiltonian mechanism (k_loc⁴ correction
+near a Kerr photon-ring) to the FLRW propagation mechanism (K(z)f³
+phase) that would justify this specific factor of 1/c over any other
+dimensionally-valid conversion. Treat as an untested hypothesis, not a
+closed result. Note also the resulting bound (~7×10⁻¹² m², graviton
+sector) is ~41 orders of magnitude weaker than the Fermi-LAT
+photon-sector bound (Λ≲10⁻⁵³ m², Paper 1) — expected under a
+universality assumption given the vastly different photon (GeV) vs.
+graviton (~10⁻¹² eV) energy scales involved, but this gap is not
+itself evidence the two sectors are related.
+
 ## External cross-check (LVK GWTC-4.0)
 
 Λ_GW's phase form is mathematically identical to the standard LVK α=4 modified-dispersion-relation (MDR) test (Mirshekari-Yunes-Will parametrization, `E²=p²c²+A_αp^αc^α`), routinely applied by the LVK collaboration to every GWTC catalog. Direct comparison of the two phase formulas gives an exact conversion (verified numerically to match D₄=c·K(z)/(1+z)³ to machine precision):
