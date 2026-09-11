@@ -198,7 +198,39 @@ python examples/example_photonic.py    # corrected, not yet measurable
 
 ## What researchers in each field can do
 
-| Group                                      | What you can do                                                                                                                                                                                                                                                                                                                                 |
+ Group       ## ⚡ Computational Acceleration & Hardware Readiness (W-Twin Engine)
+
+### 1. Accelerating Bayesian & MCMC Inference
+Modified dispersion and residual phase-shift evaluations ($\Delta\Psi(f)$) across parameter spaces are computationally demanding when using traditional MCMC or Nested Sampling algorithms. 
+
+To overcome this bottleneck, the repository incorporates the **W-Twin predictive engine** (evaluating dynamic entropy bounds and vitality metrics $W = Q \cdot D - T$):
+* **Early Candidate Filtering:** Performs rapid analytical rejection on >95% of non-viable parameter spaces prior to triggering full numerical waveform/PDE simulations.
+* **Analytical Residual Diagnostics:** Replaces heavy point-by-point differential solvers with lightweight entropy/vitality indicators, enabling fast, real-time scanning of large observational datasets (e.g., LIGO/Virgo strains or QNM resonances).
+
+---
+
+### 2. Parameter-Agnostic Model & Hardware Readiness Assessment
+Because the underlying residual diagnostic operates independently of specific domain models, it doubles as an **automated Hardware & Model Readiness Engine**:
+* **Edge AI & MCU Deployment Assessment:** Evaluates whether arbitrary neural or physical models are ready for deployment on resource-constrained targets (STM32 microcontrollers, edge NPUs, or DSPs).
+* **Entropy Degradation Profiling:** Calculates information entropy degradation and precision loss under quantization (INT8/FP16) in seconds without requiring full hardware emulation.
+* **Structural Anomaly Detection:** Acts as a generic *null-test* diagnostic to isolate true physical/systemic signals from device-level thermal drifts or instrumental noise.
+                             ## ⚡ Computational Acceleration & Hardware Readiness (W-Twin Engine)
+
+### 1. Accelerating Bayesian & MCMC Inference
+Modified dispersion and residual phase-shift evaluations ($\Delta\Psi(f)$) across parameter spaces are computationally demanding when using traditional MCMC or Nested Sampling algorithms. 
+
+To overcome this bottleneck, the repository incorporates the **W-Twin predictive engine** (evaluating dynamic entropy bounds and vitality metrics $W = Q \cdot D - T$):
+* **Early Candidate Filtering:** Performs rapid analytical rejection on >95% of non-viable parameter spaces prior to triggering full numerical waveform/PDE simulations.
+* **Analytical Residual Diagnostics:** Replaces heavy point-by-point differential solvers with lightweight entropy/vitality indicators, enabling fast, real-time scanning of large observational datasets (e.g., LIGO/Virgo strains or QNM resonances).
+
+---
+
+### 2. Parameter-Agnostic Model & Hardware Readiness Assessment
+Because the underlying residual diagnostic operates independently of specific domain models, it doubles as an **automated Hardware & Model Readiness Engine**:
+* **Edge AI & MCU Deployment Assessment:** Evaluates whether arbitrary neural or physical models are ready for deployment on resource-constrained targets (STM32 microcontrollers, edge NPUs, or DSPs).
+* **Entropy Degradation Profiling:** Calculates information entropy degradation and precision loss under quantization (INT8/FP16) in seconds without requiring full hardware emulation.
+* **Structural Anomaly Detection:** Acts as a generic *null-test* diagnostic to isolate true physical/systemic signals from device-level thermal drifts or instrumental noise.
+   What you can do                                                                                                                                                                                                                                                                                                                                 |
 | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Anyone with $(k,\omega)$ data**          | Run `lambda_experimental_validator.py` directly — no domain assumptions needed, just numbers.                                                                                                                                                                                                                                                   |
 | **Theorists**                              | Inspect the covariant derivation in `paper3_final.tex`, verify the wave equation, propose new metric mappings.                                                                                                                                                                                                                                  |
