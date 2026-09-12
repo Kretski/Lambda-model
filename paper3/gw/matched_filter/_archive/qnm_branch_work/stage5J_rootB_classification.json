@@ -1,0 +1,15 @@
+{
+  "verdict": "NUMERICAL_BREAKDOWN + NO_ROOT_AT_TARGET",
+  "reasoning": {
+    "sigma_min_window": [
+      10.34838711478638,
+      10.348590908285013,
+      10.348794694729074,
+      10.348998474616941,
+      10.35839101973333
+    ],
+    "prior_median": 10.347775690021049,
+    "monotonic_decreasing": false
+  },
+  "no_root_at_target": true
+}
