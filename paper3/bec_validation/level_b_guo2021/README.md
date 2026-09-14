@@ -1,60 +1,269 @@
-# Level-B BEC Validation — Guo et al. 2021
+# Level-B Phenomenological Quartic-Curvature Test — Guo et al. 2021
 
 ## What this is
 
-A phenomenological quartic-curvature test against real, independentlymeasured Bose-Einstein condensate collective-mode dispersion data.
+A phenomenological quartic-curvature test using real, independently measured cavity-QED collective-mode dispersion data from a Bose-Einstein condensate system.
 
-**This is explicitly a Level-B / negative-result control module. It isnot a Λ-model validation.**
+**This is explicitly a Level-B / negative-result control module. It is not a Λ-model validation.**
+
+The purpose of this module is to test whether the measured dispersion data show statistically significant curvature compatible with an additional cubic term in the frequency parameterization,
+
+$$
+\omega(k)=ak+bk^3,
+$$
+
+relative to a linear baseline,
+
+$$
+\omega(k)=ak.
+$$
+
+No identification of the fitted curvature coefficient with the Paper 3 parameter \(\Lambda\) is made.
+
+---
 
 ## Data
 
-* Source: Guo, Y., Kroeze, R. M., Marsh, B. P., Gopalakrishnan, S.,Keeling, J. & Lev, B. L., "An optical lattice with sound," Nature 599,211 (2021). arXiv:2104.13922.
-* Dataset: Harvard Dataverse, DOI:10.7910/DVN/LGT5O6, CC0 1.0 (publicdomain).
-* File used: `Fig4_dispersion.tab` (above-threshold Goldstone/phonondispersion of density-wave polaritons in a BEC-confocal-cavity system,pump strength η²/η²_th = 1.25). Reproduced here as `Fig4_dispersion.csv`.
+* **Source:** Guo, Y., Kroeze, R. M., Marsh, B. P., Gopalakrishnan, S., Keeling, J. & Lev, B. L., "An optical lattice with sound," *Nature* **599**, 211 (2021). arXiv:2104.13922.
+* **Dataset:** Harvard Dataverse, DOI: 10.7910/DVN/LGT5O6, CC0 1.0 (public domain).
+* **File used:** `Fig4_dispersion.tab`, containing the above-threshold Goldstone/phonon dispersion of density-wave polaritons in a BEC-confocal-cavity system at pump strength \(\eta^2/\eta_{\rm th}^2=1.25\).
+* The archived data are reproduced here as `Fig4_dispersion.csv` for reproducibility of the analysis.
 
-**Physical caveat.** This is a cavity-mediated density-wave polaritonmode, not a free homogeneous-BEC phonon. It has its own characteristicmomentum scale ζ = 1/ξ (ξ ≈ 5 μm, set by the confocal cavity's modestructure), and the source paper's own theory predicts flattening towarda Debye-like frequency at large k_⊥ — a mechanism structurally differentfrom a Λk⁴ correction. Any curvature found here cannot be attributed tothe Λ-model without further justification. This module tests onlywhether the data show detectable curvature of the tested functional form,nothing more.
+---
+
+## Physical caveat
+
+This is **not** a free homogeneous-BEC phonon dispersion measurement.
+
+The measured excitation is a cavity-mediated density-wave polariton mode in a BEC-confocal-cavity system. The system has its own characteristic momentum scale,
+
+$$
+\zeta = \frac{1}{\xi},
+$$
+
+with approximately \(\xi\approx5\,\mu{\rm m}\), set by the confocal cavity mode structure.
+
+The source paper's theoretical description predicts flattening toward a Debye-like frequency at larger \(k_\perp\). This mechanism is structurally different from the quartic-dispersion correction considered in Paper 3.
+
+Therefore, any curvature detected in these data **cannot be attributed to the Paper 3 \(\Lambda\) model without additional physical justification**.
+
+This module tests only whether the measured data exhibit statistically detectable curvature under the phenomenological functional form used below.
+
+---
 
 ## Method
 
-Six (k, ω, σ_ω) points, used exactly as archived — no re-binning,re-weighting, or exclusion. Two nested models fit directly to ω(k) (notω², to avoid distorting the reported Gaussian uncertainties under anonlinear transform):
+Six \((k,\omega,\sigma_\omega)\) points are used exactly as archived, with no re-binning, re-weighting, or selective exclusion.
 
-    M0: ω = a k                     (pure linear baseline)
-    M1: ω = a k + b k³               (equivalent, to leading order, to
-                                       ω² = A k² + B k⁴)
+The models are fitted directly to \(\omega(k)\), rather than first transforming the measurements to \(\omega^2\). This avoids introducing a nonlinear transformation of the reported frequency uncertainties.
 
-See `fit_quartic.py` for the exact implementation (weighted χ², AIC, BIC,F-test, k=0 sensitivity check).
+### Model \(M_0\): linear baseline
 
-## Results (summary — full numbers in results.csv and provenance.md)
+$$
+M_0:\qquad \omega = ak.
+$$
 
-| Quantity | M0 (ω=ak) | M1 (ω=ak+bk³) |
-| --- | --- | --- |
-| a   | 202.79 ± 7.85 | 232.22 ± 20.04 |
-| b   | —   | (−3.54 ± 2.22) × 10⁵ |
-| χ² (dof) | 29.13 (5) | 26.59 (4) |
-| reduced χ² | 5.83 | 6.65 |
-| AIC | 31.13 | 30.59 |
-| BIC | 30.93 | 30.17 |
+### Model \(M_1\): phenomenological quartic-curvature parameterization
 
-* **b significance: −1.60σ** (below conventional 2σ threshold)
-* **ΔAIC (M1−M0) = −0.55, ΔBIC (M1−M0) = −0.76** (both below theconventional |Δ|>2 "notable preference" threshold)
-* **F-test: F=0.38, p≈0.57** (does not reject M0)
-* **Result robust to removal of k=0** (identical qualitative conclusion)
-* **χ²_ν(M0) ≈ 5.8** — the reported uncertainties do not fully accountfor the point-to-point scatter; standardized residuals are non-monotonicin k, consistent with scatter rather than coherent curvature
+$$
+M_1:\qquad \omega = ak+bk^3.
+$$
+
+For small curvature, this corresponds to the leading-order form of a quartic dispersion in \(\omega^2\),
+
+$$
+\omega^2 = Ak^2+Bk^4+\mathcal{O}(k^6),
+$$
+
+with
+
+$$
+A=a^2,\qquad B=2ab.
+$$
+
+The \(b^2k^6\) term generated by exact squaring of \(ak+bk^3\) is higher order and is not part of the leading-order comparison.
+
+The analysis uses:
+
+* uncertainty-weighted least squares;
+* \(\chi^2\);
+* reduced \(\chi^2\);
+* AIC;
+* BIC;
+* nested-model F-test;
+* coefficient significance;
+* sensitivity to removal of the \(k=0\) point.
+
+See `fit_quartic.py` for the exact implementation.
+
+---
+
+## Results
+
+Full numerical output is provided in `results.csv`, with provenance and interpretation recorded in `provenance.md`.
+
+| Quantity           | \(M_0\) (\(\omega=ak\)) | \(M_1\) (\(\omega=ak+bk^3\)) |
+| ------------------ | ----------------------: | ---------------------------: |
+| \(a\)              |       \(202.79\pm7.85\) |           \(232.22\pm20.04\) |
+| \(b\)              |                       — | \((-3.54\pm2.22)\times10^5\) |
+| \(\chi^2\) (dof)   |               29.13 (5) |                    26.59 (4) |
+| reduced \(\chi^2\) |                    5.83 |                         6.65 |
+| AIC                |                   31.13 |                        30.59 |
+| BIC                |                   30.93 |                        30.17 |
+
+Additional comparisons:
+
+* **Quartic coefficient significance:** \(b/\sigma_b\approx-1.60\), below conventional \(2\sigma\) evidence thresholds.
+* **AIC:** \(\Delta{\rm AIC}={\rm AIC}_{M_1}-{\rm AIC}_{M_0}\approx-0.55\).
+* **BIC:** \(\Delta{\rm BIC}={\rm BIC}_{M_1}-{\rm BIC}_{M_0}\approx-0.76\).
+* Both information-criterion differences are below the conventional \(|\Delta|>2\) threshold for notable model preference.
+* **F-test:** \(F\approx0.38,\ p\approx0.57\); the null hypothesis that the additional cubic term is unnecessary is not rejected.
+* **\(k=0\) sensitivity:** removal of the \(k=0\) point leaves the qualitative conclusion unchanged.
+
+---
+
+## Goodness-of-fit and scatter
+
+The linear baseline itself gives
+
+$$
+\chi^2_\nu(M_0)\approx5.8,
+$$
+
+substantially above the value of approximately unity expected when the model and quoted uncertainties adequately describe the data.
+
+The standardized residuals include approximately
+
+$$
++3.68\sigma,\qquad +3.04\sigma,\qquad -2.50\sigma
+$$
+
+at successive nonzero \(k\) values.
+
+Importantly, these residuals do not form a smooth monotonic pattern with \(k\). The observed deviations therefore do not provide a clear signature of coherent quartic curvature. Instead, they indicate point-to-point scatter larger than would be expected from the reported uncertainties under the simple linear baseline.
+
+This elevated reduced \(\chi^2\) is an important limitation of the six-point analysis and is not interpreted as evidence for the quartic model.
+
+---
 
 ## Bottom line
 
-**No statistically significant quartic curvature is detected in thisdataset.** This is a genuine null result on real, independent data,recorded here on the same footing as positive results elsewhere inPaper 3 — not omitted because it does not support the Λ-model.
+**No statistically significant quartic curvature is detected in this dataset.**
 
-**This is a small-sample (N=6) exploratory test.** Neither a positivenor a negative outcome from six points should be over-interpreted; theresult is reported as exactly what it is — a completed Level-B check,not evidence for or against the Λ-model.
+The additional \(bk^3\) term is not statistically supported:
+
+$$
+\frac{b}{\sigma_b}\approx-1.60,
+$$
+
+with
+
+$$
+\Delta{\rm AIC}\approx-0.55,
+\qquad
+\Delta{\rm BIC}\approx-0.76,
+$$
+
+and
+
+$$
+p\approx0.57.
+$$
+
+The result is qualitatively unchanged when the \(k=0\) point is removed.
+
+The high reduced \(\chi^2\) of the linear baseline indicates that the reported uncertainties do not fully capture the observed point-to-point scatter. Consequently, the dataset does not provide a clean detection of coherent quartic curvature.
+
+**This result is not evidence for or against the Paper 3 \(\Lambda\) model.**
+
+It is a completed phenomenological Level-B control test on real experimental data from a physically different cavity-QED collective-mode system.
+
+---
+
+## Statistical scope
+
+This is a **small-sample exploratory test with \(N=6\)**.
+
+The six-point sample provides limited statistical power for distinguishing closely related dispersion models. Neither a positive nor a negative result from this dataset should therefore be over-interpreted.
+
+In particular:
+
+* absence of a statistically significant \(b\) term is **not** a stringent upper bound on \(\Lambda\);
+* the fitted \(b\) coefficient is **not** identified with the Paper 3 \(\Lambda\);
+* the result does **not** constitute an independent experimental validation of the Paper 3 dispersion law;
+* the elevated reduced \(\chi^2\) prevents interpreting the linear model as an adequate statistical description of the complete scatter structure.
+
+The analysis is retained because the dataset is real, independently measured, publicly archived, and provides a transparent negative/control result rather than a selectively favorable example.
+
+---
 
 ## Files in this module
 
-* `README.md` — this file
-* `Fig4_dispersion.csv` — the six (k, ω, σ_ω) data points, as archived
-* `fit_quartic.py` — the analysis script (reproducible, no externaldependencies beyond numpy/scipy)
-* `results.csv` — full numerical output of both fits
-* `provenance.md` — search context (why no Level-A dataset was used),full interpretation, and explicit claim boundaries
+* `README.md` — this file.
+* `Fig4_dispersion.csv` — the six archived \((k,\omega,\sigma_\omega)\) data points used in the analysis.
+* `fit_quartic.py` — reproducible analysis script using NumPy/SciPy.
+* `results.csv` — numerical output from the model fits and statistical comparisons.
+* `provenance.md` — source and search context, dataset provenance, interpretation, limitations, and explicit claim boundaries.
+
+---
+
+## Reproducibility
+
+The analysis uses the archived Fig. 4 dispersion values without re-binning or manual selection.
+
+The complete analysis chain is:
+
+```text
+Harvard Dataverse
+        ↓
+Fig4_dispersion.tab
+        ↓
+Fig4_dispersion.csv
+        ↓
+fit_quartic.py
+        ↓
+M0 / M1 weighted fits
+        ↓
+χ² / AIC / BIC / F-test
+        ↓
+results.csv
+        ↓
+README.md + provenance.md
+```
+
+No experimental value was used as a parameter seed, target value, or branch-selection criterion for the phenomenological comparison.
+
+---
 
 ## Relationship to the rest of Paper 3
 
-This module is independent of, and does not affect, the giant-vortexq=1/q=2 experimental validation (`PAPER3_ADDENDUM_BLIND_2D.md`) or themain validation status (`PAPER3_VALIDATION_STATUS.md`). It is retainedas a separate, explicitly-scoped negative-result control.
+This module is independent of, and does not modify, the giant-vortex experimental validation of the \(q=1/q=2\) branches documented in `PAPER3_ADDENDUM_BLIND_2D.md`.
+
+It also does not modify the main validation status documented in `PAPER3_VALIDATION_STATUS.md`.
+
+The Level-B result is retained as a separate, explicitly scoped **negative-result control**.
+
+The current Paper 3 evidence should therefore be distinguished as:
+
+* **Giant-vortex \(q=1/q=2\):** experimental validation of specific model predictions in a real laboratory system.
+* **GW analysis:** independent observational constraint on the corresponding propagation-sector parameterization.
+* **Guo et al. 2021 Level-B test:** phenomenological quartic-curvature test on real cavity-QED collective-mode data; null result.
+* **Direct homogeneous-BEC \(\omega(k)\) validation:** not established by this module and remains outside the present validation claim.
+
+---
+
+## Claim boundary
+
+The strongest claim supported by this module is:
+
+> **A small-sample phenomenological comparison of linear and quartic-curvature frequency parameterizations was performed on real, independently measured cavity-QED collective-mode data. No statistically significant preference for the quartic-curvature model was found.**
+
+The following claims are **not** supported by this module:
+
+* that the Paper 3 \(\Lambda\) parameter has been experimentally measured in a BEC;
+* that the fitted coefficient \(b\) is a measurement of \(\Lambda\);
+* that the cavity-QED collective-mode system realizes the Paper 3 dispersion law;
+* that the null result excludes the Paper 3 model;
+* that the result constitutes a universal BEC-sector constraint on \(\Lambda\).
+
+This distinction is intentional and is part of the scientific provenance of the analysis.
