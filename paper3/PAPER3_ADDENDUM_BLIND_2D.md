@@ -163,6 +163,90 @@ The present evidence supports experimental validation of the Λ-model's
 spectral prediction in the tested laboratory system. It should not be
 described as a confirmed detection of a new fundamental interaction.
 
+## Supplementary data: full q=1 and q=2 comparison tables
+
+*Added as a supplement to the summary root list above. All values were
+produced by the same parameter-free pipeline (physical parameters taken
+directly from the experiment's published flow-parameter table, not fitted
+to the resonance frequencies) described in the sections above. No line in
+this table was used as a seed or selection criterion for any other line —
+each \(m\) was solved independently (q=1) or reached by continuation from
+a single validated anchor (q=2 Root-B), never from the experimental value
+itself.*
+
+### q=1 (fundamental branch), all 18 tested azimuthal numbers
+
+| m | experimental (Hz) | model (Hz) | Δ (Hz) | rel. error |
+|---:|---:|---:|---:|---:|
+| -21 | 10.53128 | 10.53419 | +0.00291 | 0.028% |
+| -20 | 10.30228 | 10.30555 | +0.00327 | 0.032% |
+| -19 | 10.07028 | 10.07388 | +0.00359 | 0.036% |
+| -18 | 9.84068 | 9.83859 | -0.00209 | 0.021% |
+| -17 | 9.60049 | 9.59904 | -0.00145 | 0.015% |
+| -16 | 9.35501 | 9.35448 | -0.00054 | 0.006% |
+| -15 | 9.10327 | 9.10404 | +0.00077 | 0.008% |
+| -14 | 8.84414 | 8.84673 | +0.00259 | 0.029% |
+| -13 | 8.58228 | 8.58139 | -0.00089 | 0.010% |
+| -12 | 8.30426 | 8.30663 | +0.00237 | 0.029% |
+| -11 | 8.02013 | 8.02078 | +0.00065 | 0.008% |
+| -10 | 7.72173 | 7.72181 | +0.00008 | 0.001% |
+| -9 | 7.40626 | 7.40719 | +0.00093 | 0.013% |
+| -8 | 7.07617 | 7.07368 | -0.00249 | 0.035% |
+| -7 | 6.71469 | 6.71708 | +0.00239 | 0.036% |
+| -6 | 6.33352 | 6.33164 | -0.00189 | 0.030% |
+| -5 | 5.91100 | 5.90921 | -0.00179 | 0.030% |
+| -4 | 5.43752 | 5.43740 | -0.00012 | 0.002% |
+
+Mean \(|\text{rel. error}|\) = 0.021%, maximum = 0.036%, across all 18
+tested \(m\).
+
+### q=2 (first overtone), Root-B branch
+
+The Root-B q=2 branch was originally validated by continuation from the
+\(m=-14\) anchor toward \(m=-14.9055\) (239 points, machine-precision
+residuals; see the main Paper 3 QNM-branch documentation). It has now been
+extended by continuation in the opposite direction, \(m=-14 \to -11\)
+(31 points, step 0.1, seeded only from the immediately preceding accepted
+root at each step; maximum residual \(1.5\times10^{-14}\) across the whole
+range; no branch jumps or discontinuities observed). This closes the
+integer-\(m\) gap at \(m=-11,-12,-13\), which the original discovery grid
+had only reached via the weaker "Root A" branch.
+
+| m | experimental (Hz) | model Root-B (Hz) | Δ (Hz) | rel. error | branch |
+|---:|---:|---:|---:|---:|---|
+| -19 | 10.83337 | 10.82690 | -0.00647 | 0.060% | discovery grid |
+| -18 | 10.58962 | 10.58474 | -0.00488 | 0.046% | discovery grid |
+| -17 | 10.34296 | 10.34130 | -0.00166 | 0.016% | discovery grid |
+| -16 | 10.09844 | 10.09596 | -0.00248 | 0.025% | discovery grid |
+| -14 | 9.59930 | 9.59671 | -0.00259 | 0.027% | anchor (both directions) |
+| -13 | 9.34220 | 9.34113 | -0.00107 | 0.011% | continuation (this update) |
+| -12 | 9.08209 | 9.08027 | -0.00182 | 0.020% | continuation (this update) |
+| -11 | 8.81124 | 8.81297 | +0.00174 | 0.020% | continuation (this update) |
+| -10 | 8.53343 | 8.53792 | +0.00450 | 0.053% | discovery grid |
+| -9 | 8.24601 | 8.25363 | +0.00762 | 0.092% | discovery grid |
+| -8 | 7.94560 | 7.95839 | +0.01279 | 0.161% | discovery grid |
+| -7 | 7.63379 | 7.65039 | +0.01660 | 0.217% | discovery grid |
+| -6 | 7.29834 | 7.32784 | +0.02950 | 0.404% | discovery grid |
+| -5 | 6.94859 | 6.98952 | +0.04093 | 0.589% | discovery grid |
+| -4 | 6.57004 | 6.63644 | +0.06640 | 1.011% | discovery grid |
+
+At the three points newly reached by continuation (\(m=-11,-12,-13\)), the
+Root-B branch improves the match from the previously available Root-A
+values (\(\sim\)2.4–3.0% relative error) to 0.011–0.020%, i.e. to the same
+precision level as the q=1 branch. Root-B is continuous and machine-precision
+validated across the full range \(m=-11\) to \(-19\) (plus the previously
+documented extension to \(m\approx-14.9055\)); Root-A values are retained
+in the repository as a secondary/diagnostic branch (see the main QNM-branch
+status document) and are not used in this table.
+
+The precision gradually degrades toward smaller \(|m|\) (\(m=-4\) to
+\(-9\)), from 0.02% to 1.0%. This is a smooth trend, not a discontinuity,
+and coincides with the region where Root-B continuation from the \(m=-14\)
+anchor has not yet been extended; these points still use the original
+discovery-grid values. Extending the Root-B continuation further toward
+\(m=-4\) is a natural next step and is expected to reduce this residual
+trend, consistent with the pattern already observed at \(m=-11,-12,-13\).
+
 ## Reproducibility
 
 The numerical values, plots, root lists, and intermediate outputs associated
@@ -214,3 +298,13 @@ evidence.
 This addendum is intentionally maintained as a separate record so that
 future analyses can distinguish the original Paper 3 validation results
 from subsequent exploratory or supplementary tests.
+
+The supplementary data tables above were added in a later update than the
+original addendum text; the root-list summary in the "Blind 2D discovery"
+section above is the earlier, independently-recorded result and is left
+unchanged. The q=2 continuation extending to \(m=-11,-12,-13\)
+(stage5I_29, this update) is a distinct analysis step from the blind 2D
+discovery (stage5I_28) documented above it — the former is a continuation
+search seeded only from the previously validated Root-B anchor, the latter
+is an unseeded discovery scan; neither result was used to seed or bias the
+other.
