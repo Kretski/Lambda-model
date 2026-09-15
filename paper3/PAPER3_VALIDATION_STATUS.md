@@ -79,6 +79,22 @@ This is a far more statistically powerful bound than the single-event GW150914 t
 - ✅ Λ=0 (pure GR) is not excluded by any test performed to date — in the propagation channel (single-event and LVK-catalog-derived), and in the synthetic/regression suites.
 - ✅ A clear, dimensionally-honest separation exists between the near-horizon, propagation, and analog-system realizations of the model, preventing accidental cross-contamination of claims between them.
 - ✅ The analog-system (giant-vortex) realization of the model's dispersion relation is experimentally validated against real laboratory data for its fundamental and first-overtone resonance branches, without fitting the individual resonance frequencies as free parameters — the strongest real-data, non-frequency-fitted result obtained to date across all three realizations of the model.
+- ## Permanent boundaries of this work
+
+The items below are not open action items awaiting future closure. Theyare structural limits of the evidence architecture presented here: even afully successful outcome of every remaining planned step (Section "Nextsteps") would not resolve them, because the project's logical structuredoes not connect these pieces. They are recorded here so that futureupdates to this document do not silently drift past them.
+
+* **No single Λ is established across realizations.** $\Lambda_{\rm NH}$(near-horizon, Paper 2), $\Lambda_{\rm GW}$ (propagation, Paper 3), andthe analog-system quartic coefficient tested against the giant-vortexand BEC laboratory data are three separate mathematical constructions,each internally consistent and separately tested in its own context. Noderivation connecting any two of them exists in this work. Thedimensional bridge $\Lambda_{\rm NH}=\Lambda_{\rm GW}/c$ noted elsewherein this document is a dimensional-consistency observation, not such aderivation (see "Critical scope clarification" above). Establishing aphysical connection between these realizations is outside the scope ofwhat has been attempted here, not a step that remains to be finished.
+  
+* **Universality of Λ is neither claimed nor implied.** Every result inthis document — laboratory, GW, theoretical cross-check — is scoped tothe specific system it was obtained from. No result here should be readas evidence that a single Λ parameter governs multiple physicaldomains.
+  
+* **$\Lambda_{\rm GW}=0$ (pure GR) remains fully consistent with thecurrent astrophysical constraint.** The GWTC-4.0-derived bound$\Lambda_{\rm GW}\in[-7.2\times10^{-3},+2.2\times10^{-3}]$ m³/s is aconstraint, not a detection. No amount of re-analysis of the sameGWTC-4.0 posterior changes this into a detection; only new, independentobservational data could do so.
+  
+* **The Hořava–Lifshitz cross-check is a theoretical cross-check, not anindependent observational validation, permanently.** Both it and thisproject's own GWTC-4.0 analysis draw on the identical published LVKposterior. This is a structural feature of using the same dataset, nota temporary limitation awaiting a new run.
+  
+* **q=3/q=4 higher-overtone correspondence is retained as an openprediction, not a pending detection.** If future continuation or awider blind spectral search does not produce a convincing branchcorrespondence, the correct and final status is that these overtonesremain unresolved — not that the model has failed, and not that theyshould be forced into the validated set. A null or inconclusive outcomehere is reported on the same footing as the positive q=1/q=2 result,consistent with the treatment of the Guo et al. negative controlelsewhere in this document.
+  
+
+**Summary framing.** This work demonstrates that one specificΛ-deformed wave-dispersion architecture is mathematically self-consistent,numerically recoverable, and supported by several independentempirical/theoretical consistency checks — with the laboratory q=1/q=2resonance structure as its strongest real result. It does not demonstrate,and does not claim to demonstrate, a single universal physical constantgoverning multiple domains. Confirmed, null, inconclusive, and unresolvedresults are reported on equal footing throughout.
 
 ## Next steps (not yet done)
 
