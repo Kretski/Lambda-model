@@ -1,0 +1,5 @@
+k_xi_O,E_over_h_kHz,sigma_kHz,note
+0.324,0.184,0.0644,author-flagged systematic outlier (low-k recoil effect)
+0.484,0.741,0.0873,
+0.641,1.066,0.0962,
+0.966,1.841,0.1012,cross-checked against text value 1840+/-100 Hz
