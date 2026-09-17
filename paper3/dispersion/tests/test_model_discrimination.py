@@ -12,6 +12,19 @@ This test verifies that the Lambda fitting machinery:
 
 This is a methodological validation test.
 It is NOT an experimental validation of Lambda.
+
+CONVENTION AUDIT NOTE (fixed from prior version)
+---------------------------------------------------
+Prior version of this file used omega = c*k*sqrt(1 + 2*Lambda*k^2),
+inconsistent with the canonical repository-wide model
+omega = c*k*sqrt(1 + Lambda*k^2) (no factor of 2). The test was
+internally self-consistent (same 2*Lambda convention used for both
+generation and recovery) and therefore passed, but it validated
+"the fitter recovers its own convention," not "the canonical
+Lambda-model fitter recovers canonical Lambda." Fixed here to match
+the canonical convention throughout, matching wave_equation_2D_solver.py,
+lambda_phase_correction() in waveform.py, and the flat limit of the
+Paper 2 Hamiltonian.
 """
 
 from pathlib import Path
@@ -43,13 +56,13 @@ except ImportError:
 
 
 # ---------------------------------------------------------------------
-# Lambda-model synthetic dispersion
+# Lambda-model synthetic dispersion (CANONICAL convention)
 #
-# omega = c*k*sqrt(1 + 2*Lambda*k^2)
+# omega = c*k*sqrt(1 + Lambda*k^2)
 # ---------------------------------------------------------------------
 
 def lambda_dispersion(k, c, lam):
-    return c * k * np.sqrt(1.0 + 2.0 * lam * k**2)
+    return c * k * np.sqrt(1.0 + lam * k**2)
 
 
 # ---------------------------------------------------------------------
@@ -65,19 +78,19 @@ def quartic_dispersion(k, c, beta):
 
 
 # ---------------------------------------------------------------------
-# Simple direct Lambda estimator
+# Simple direct Lambda estimator (CANONICAL convention)
 #
 # From:
 #
-# omega^2 = c^2 k^2 + 2 Lambda c^2 k^4
+# omega^2 = c^2 k^2 + Lambda c^2 k^4
 #
 # Lambda = (omega^2 - c^2 k^2)
-#          / (2 c^2 k^4)
+#          / (c^2 k^4)
 # ---------------------------------------------------------------------
 
 def estimate_lambda_direct(k, omega, c):
     numerator = omega**2 - (c * k)**2
-    denominator = 2.0 * c**2 * k**4
+    denominator = c**2 * k**4
 
     values = numerator / denominator
 
@@ -128,7 +141,7 @@ def test_lambda_model_recovery():
 
     print()
     print("=" * 70)
-    print("TEST 1 — LAMBDA MODEL RECOVERY")
+    print("TEST 1 — LAMBDA MODEL RECOVERY (canonical convention)")
     print("=" * 70)
     print(f"True Lambda       = {lambda_true:.8f}")
     print(f"Recovered Lambda  = {lambda_fit:.8f}")
@@ -168,15 +181,15 @@ def test_pure_quartic_is_not_lambda_model():
 
     # Attempt to fit Lambda-model through least squares.
     #
-    # For the Lambda model:
+    # For the Lambda model (canonical):
     #
-    # omega^2 = c^2 k^2 + 2 Lambda c^2 k^4
+    # omega^2 = c^2 k^2 + Lambda c^2 k^4
     #
     # Therefore calculate the best linear coefficient in omega^2.
     #
 
     y = omega**2 - c**2 * k**2
-    x = 2.0 * c**2 * k**4
+    x = c**2 * k**4
 
     lambda_fit = np.dot(x, y) / np.dot(x, x)
 
@@ -196,7 +209,7 @@ def test_pure_quartic_is_not_lambda_model():
 
     print()
     print("=" * 70)
-    print("TEST 2 — PURE QUARTIC NEGATIVE CONTROL")
+    print("TEST 2 — PURE QUARTIC NEGATIVE CONTROL (canonical convention)")
     print("=" * 70)
     print(f"Injected beta          = {beta:.8e}")
     print(f"Lambda fit attempt     = {lambda_fit:.8e}")
@@ -301,7 +314,7 @@ if __name__ == "__main__":
 
     print()
     print("=" * 70)
-    print("PAPER 3 — COMPLETE MODEL DISCRIMINATION TEST")
+    print("PAPER 3 — COMPLETE MODEL DISCRIMINATION TEST (canonical convention)")
     print("=" * 70)
 
     tests = [
