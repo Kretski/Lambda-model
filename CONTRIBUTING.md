@@ -1,3 +1,4 @@
+[CONTRIBUTING.md](https://github.com/user-attachments/files/32357613/CONTRIBUTING.md)
 # Contributing
 
 This repository welcomes contributions, but the bar for any physical
@@ -17,8 +18,7 @@ Every result in this repo has, at some point, been through:
 1. **A dimensional audit.** Before identifying two "Λ"-like
    parameters from different domains, check their SI units by direct
    analysis of the formula they appear in — not by the symbol they
-   share. (Example: the near-horizon Λ [m²] and the GW-propagation Λ
-   [m³/s] in this repo are dimensionally incompatible and are kept
+   share. (Example: the near-horizon Λ [m²] and the GW-propagation Λ [m³/s] in this repo are dimensionally distinct and are kept explicitly separate because no physical identification between them has been derived and are kept
    explicitly separate for exactly this reason.)
 2. **A known-baseline check.** Before fitting Λ to real data, confirm
    there's an established, Λ-free model for that system, and that your
@@ -42,10 +42,12 @@ These are deliberately narrow — each is a few hours of work, not a new
 research program.
 
 ### 1. Dimensional audit of a new analog-gravity platform
+
 Pick one candidate system not yet covered (exciton-polariton
 condensates, optical-fiber event horizons, water-tank surface waves,
 linear/planar BEC sonic horizons — see the Discussions "Ideas"
 category for the current shortlist). For that system:
+
 - Find the published dispersion relation.
 - Derive the SI dimension of its leading correction coefficient by
   direct analysis (not analogy).
@@ -56,10 +58,13 @@ category for the current shortlist). For that system:
 No code required for this one — just careful algebra and a citation.
 
 ### 2. Run the validator on your own (k, ω) data
+
 If you have any measured or simulated dispersion data:
+
 ```bash
 python paper3/lambda_experimental_validator.py --omega your_omega.csv --k your_k.csv
 ```
+
 Report the fitted Λ, its significance, and — critically — whether your
 system has an independently known "Λ-free" baseline to compare
 against. A null result (Λ consistent with zero) is exactly as welcome
@@ -67,6 +72,7 @@ as a positive one; this repo has more of the former than the latter so
 far, and that's by design, not a problem to fix.
 
 ### 3. Independent reimplementation of the n=1 regression test
+
 `paper3/gw/matched_filter/A2_chromatic_shadow_generalized.py --n 1`
 should reproduce Paper 2's published photon-ring coefficients
 (C_pro=−0.6230, C_ret=+11.495) to several significant figures. Write
@@ -77,6 +83,7 @@ independent check available right now — it doesn't require any new
 data, just a second pair of eyes on the math.
 
 ### 4. Extend the n-family exponent measurement to n=5, 6...
+
 The generalized solver (`A2_chromatic_shadow_generalized.py`) predicts
 δb ∝ Λ_n·E^(2n), confirmed numerically for n=1–4. Extending to higher
 n is mechanical (same code, larger `--n` argument) but worth doing to
@@ -85,6 +92,7 @@ higher order — useful before anyone tries to fit a real n from
 observational data.
 
 ### 5. Flag anything in the repo that looks unverified
+
 If you find a claimed result with no runnable script producing it, or
 a script whose output doesn't match what's written about it in a
 README or status file — please open an issue. This has happened
