@@ -1,454 +1,136 @@
 """
-PAPER 3 — MATCHED-FILTER PIPELINE INTEGRITY TEST
-=================================================
+Tests for the frequency-domain matched-filter machinery in waveform.py and
+likelihood.py.
 
-Purpose
--------
-Independent end-to-end integrity test for the Paper 3
-Lambda-corrected dispersion / matched-filter machinery.
+Every test calls the repository's own functions (lambda_phase_correction,
+cosmological_K_factor, waveform_frequency_domain, grid_search_lambda) and can
+fail. Recovery and null tests use many coloured-Gaussian-noise realisations,
+so the reported error bar is checked statistically, not just the point
+estimate.
 
-This test checks:
+These are code checks on synthetic data with known masses, distance and
+coalescence parameters. They are not evidence about Lambda in any real
+gravitational-wave event.
 
-1. Lambda = 0 baseline
-2. Non-zero Lambda waveform generation
-3. Synthetic injection
-4. Matched-filter / likelihood evaluation
-5. Lambda recovery
-6. Null-control behaviour
+Replaces an earlier version of this file whose tests re-implemented the
+formulas inline (with the obsolete 1 + 2 Lambda k^2 convention) and compared
+data against the exact injected signal, so they could not fail.
 
-IMPORTANT
----------
-A successful pipeline test does NOT constitute evidence for
-non-zero Lambda in a real gravitational-wave event.
-
-Real-event inference requires:
-    - calibrated strain data
-    - independently generated waveform families
-    - noise PSD estimation
-    - off-source/background trials
-    - nuisance-parameter marginalization
-    - statistical significance
-    - systematic-error analysis
+Run from the repository root:
+    python -m pytest paper3/gw/matched_filter/test_matched_filter_pipeline.py
 """
 
-from __future__ import annotations
-
-import inspect
-import sys
 from pathlib import Path
+import sys
 
 import numpy as np
 
-
-ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT))
-
-
-# ---------------------------------------------------------------------
-# Utilities
-# ---------------------------------------------------------------------
-
-def banner(title: str):
-    print()
-    print("=" * 70)
-    print(title)
-    print("=" * 70)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from waveform import (  # noqa: E402
+    C_SI,
+    MPC_SI,
+    cosmological_K_factor,
+    lambda_phase_correction,
+    waveform_frequency_domain,
+)
+from likelihood import aligo_like_psd, grid_search_lambda, snr_optimal  # noqa: E402
 
 
-def check(condition: bool, message: str):
-    if condition:
-        print(f"[PASS] {message}")
-        return True
+# Fixed synthetic configuration (GW150914-like masses, SNR ~ 25).
+M1, M2 = 36.0, 29.0
+DIST_MPC = 1500.0
+Z = 0.09
+DF = 0.25
+F = np.arange(20.0, 300.0, DF)
+PSD = aligo_like_psd(F)
+K_Z = cosmological_K_factor(Z)
+# Grid kept inside one phase-aliasing period (about +-0.57 here).
+GRID = np.arange(-0.5, 0.5 + 1e-12, 0.005)
+N_REALISATIONS = 100
 
-    print(f"[FAIL] {message}")
-    return False
+
+def coloured_noise(rng):
+    """Complex Gaussian noise whose inner products have the right variance:
+    E[<n|h>] = 0 and Var[<n|h>] = <h|h> for the inner product in likelihood.py."""
+    sigma = np.sqrt(PSD / (4.0 * DF))
+    return rng.normal(0, sigma) + 1j * rng.normal(0, sigma)
 
 
-# ---------------------------------------------------------------------
-# Import tests
-# ---------------------------------------------------------------------
-
-def test_imports():
-
-    banner("[1] MODULE IMPORT TEST")
-
-    modules = {}
-
-    required = [
-        "waveform",
-        "likelihood",
-        "synthetic_injection",
-        "recovery_test",
-    ]
-
-    passed = True
-
-    for name in required:
-
-        try:
-
-            module = __import__(name)
-            modules[name] = module
-
-            print(f"[PASS] import {name}")
-
-        except Exception as exc:
-
-            print(f"[FAIL] import {name}: {exc}")
-            passed = False
-
-    return passed, modules
+def recover(lam_true, rng, k_template=K_Z):
+    h = waveform_frequency_domain(F, M1, M2, lam_true, K_Z, distance_Mpc=DIST_MPC)
+    data = h + coloured_noise(rng)
+    _, _, lam_ml, lam_err = grid_search_lambda(
+        data, F, PSD, DF, M1, M2, k_template, GRID, distance_Mpc=DIST_MPC)
+    return lam_ml, lam_err
 
 
 # ---------------------------------------------------------------------
-# Waveform API inspection
+# 1. Building blocks
 # ---------------------------------------------------------------------
 
-def inspect_waveform_module(waveform):
+def test_signal_is_in_a_realistic_snr_range():
+    snr = snr_optimal(F, PSD, DF, M1, M2, 0.0, K_Z, distance_Mpc=DIST_MPC)
+    assert 10 < snr < 60
 
-    banner("[2] WAVEFORM API")
 
-    names = [
-        name for name in dir(waveform)
-        if not name.startswith("_")
-    ]
+def test_K_factor_small_redshift_limit():
+    """K(z) -> z / H0 for z -> 0 (analytic limit, independent of the code)."""
+    z = 0.005
+    H0_si = 67.4e3 / MPC_SI
+    assert abs(cosmological_K_factor(z) / (z / H0_si) - 1) < 0.01
 
-    for name in names:
 
-        obj = getattr(waveform, name)
-
-        if callable(obj):
-
-            try:
-                sig = inspect.signature(obj)
-            except Exception:
-                sig = "(signature unavailable)"
-
-            print(f"  {name}{sig}")
-
-    return True
+def test_phase_correction_scaling_and_sign():
+    f = np.array([50.0, 100.0])
+    d = lambda_phase_correction(f, 1.0, K_Z)
+    assert np.isclose(d[1] / d[0], 8.0)                       # f^3
+    assert np.isclose(lambda_phase_correction(f, 2.0, K_Z)[0], 2 * d[0])  # linear in Lambda
+    assert d[0] < 0                                            # sign convention
+    expected = -(4 * np.pi**3 * K_Z / C_SI**3) * 50.0**3
+    assert np.isclose(d[0], expected)
 
 
 # ---------------------------------------------------------------------
-# Mathematical Lambda dispersion test
+# 2. Recovery: unbiased, and the curvature error bar is honest
 # ---------------------------------------------------------------------
 
-def lambda_dispersion_test():
-
-    banner("[3] Λ DISPERSION TEST")
-
-    # Dimensionless form:
-    #
-    # omega^2 = k^2 (1 + 2 Lambda k^2)
-    #
-    # This is the central dispersion relation used by the
-    # Lambda-corrected model.
-
-    k = np.linspace(0.05, 2.0, 500)
-
-    lambda_zero = 0.0
-    lambda_true = 0.10
-
-    omega_zero = np.sqrt(
-        k**2 * (1.0 + 2.0 * lambda_zero * k**2)
-    )
-
-    omega_lambda = np.sqrt(
-        k**2 * (1.0 + 2.0 * lambda_true * k**2)
-    )
-
-    passed = True
-
-    passed &= check(
-        np.allclose(omega_zero, k),
-        "Λ = 0 recovers standard dispersion"
-    )
-
-    passed &= check(
-        np.all(omega_lambda > omega_zero),
-        "positive Λ produces positive dispersion correction"
-    )
-
-    correction = omega_lambda - omega_zero
-
-    passed &= check(
-        np.max(correction) > 0,
-        "non-zero Λ produces measurable synthetic correction"
-    )
-
-    print()
-    print(f"Lambda_true = {lambda_true:.6e}")
-    print(f"max Δomega  = {np.max(correction):.6e}")
-
-    return passed
+def test_lambda_recovery_is_unbiased_with_calibrated_errors():
+    rng = np.random.default_rng(10)
+    lam_true = 0.1
+    pulls = []
+    for _ in range(N_REALISATIONS):
+        lam_ml, lam_err = recover(lam_true, rng)
+        assert np.isfinite(lam_err)
+        pulls.append((lam_ml - lam_true) / lam_err)
+    pulls = np.array(pulls)
+    assert abs(pulls.mean()) < 4 / np.sqrt(N_REALISATIONS)
+    assert 0.8 < pulls.std() < 1.25
 
 
 # ---------------------------------------------------------------------
-# Synthetic Lambda recovery
+# 3. Null control
 # ---------------------------------------------------------------------
 
-def synthetic_recovery_test():
-
-    banner("[4] SYNTHETIC Λ RECOVERY")
-
-    rng = np.random.default_rng(12345)
-
-    k = np.linspace(0.05, 2.0, 400)
-
-    lambda_true = 0.10
-
-    omega_clean = np.sqrt(
-        k**2 * (1.0 + 2.0 * lambda_true * k**2)
-    )
-
-    noise_sigma = 5e-4
-
-    omega_obs = (
-        omega_clean
-        + rng.normal(0.0, noise_sigma, size=len(k))
-    )
-
-    # Fit:
-    #
-    # omega^2 = k^2 + 2 Lambda k^4
-    #
-    # Rearrange:
-    #
-    # y = omega^2 - k^2
-    # x = 2 k^4
-    # Lambda = slope
-
-    x = 2.0 * k**4
-    y = omega_obs**2 - k**2
-
-    lambda_fit = np.sum(x * y) / np.sum(x * x)
-
-    residuals = y - lambda_fit * x
-
-    rss = np.sum(residuals**2)
-
-    ss_tot = np.sum((y - np.mean(y))**2)
-
-    r2 = 1.0 - rss / ss_tot
-
-    passed = True
-
-    passed &= check(
-        abs(lambda_fit - lambda_true) < 0.01,
-        "synthetic Lambda recovered within tolerance"
-    )
-
-    passed &= check(
-        r2 > 0.99,
-        "synthetic Lambda fit has R² > 0.99"
-    )
-
-    print()
-    print(f"Lambda true = {lambda_true:.8f}")
-    print(f"Lambda fit  = {lambda_fit:.8f}")
-    print(f"RSS         = {rss:.8e}")
-    print(f"R²          = {r2:.8f}")
-
-    return passed
+def test_lambda_zero_control():
+    rng = np.random.default_rng(11)
+    n_sigma = []
+    for _ in range(N_REALISATIONS):
+        lam_ml, lam_err = recover(0.0, rng)
+        n_sigma.append(abs(lam_ml) / lam_err)
+    n_sigma = np.array(n_sigma)
+    assert np.mean(n_sigma > 3) < 0.03
+    assert np.mean(n_sigma > 2) < 0.12
 
 
 # ---------------------------------------------------------------------
-# Null Lambda control
+# 4. Documented limitation: only the product Lambda * K(z) is measured
 # ---------------------------------------------------------------------
 
-def lambda_zero_control():
-
-    banner("[5] Λ = 0 NULL CONTROL")
-
-    rng = np.random.default_rng(54321)
-
-    k = np.linspace(0.05, 2.0, 400)
-
-    lambda_true = 0.0
-
-    omega_clean = k.copy()
-
-    noise_sigma = 5e-4
-
-    omega_obs = (
-        omega_clean
-        + rng.normal(0.0, noise_sigma, size=len(k))
-    )
-
-    x = 2.0 * k**4
-    y = omega_obs**2 - k**2
-
-    lambda_fit = np.sum(x * y) / np.sum(x * x)
-
-    passed = True
-
-    passed &= check(
-        abs(lambda_fit) < 0.01,
-        "Λ = 0 synthetic control remains close to zero"
-    )
-
-    print()
-    print(f"Lambda true = {lambda_true:.8f}")
-    print(f"Lambda fit  = {lambda_fit:.8f}")
-
-    return passed
-
-
-# ---------------------------------------------------------------------
-# End-to-end synthetic pipeline
-# ---------------------------------------------------------------------
-
-def end_to_end_test():
-
-    banner("[6] END-TO-END SYNTHETIC PIPELINE")
-
-    rng = np.random.default_rng(2026)
-
-    n = 4096
-
-    t = np.linspace(0.0, 1.0, n, endpoint=False)
-
-    f0 = 80.0
-
-    lambda_true = 0.05
-
-    # Small phase perturbation representing a synthetic
-    # Lambda-dependent waveform deformation.
-
-    phase0 = 2.0 * np.pi * f0 * t
-
-    phase_lambda = (
-        phase0
-        + lambda_true
-        * (t / t.max())**2
-        * np.pi
-    )
-
-    template = np.sin(phase0)
-
-    injected = np.sin(phase_lambda)
-
-    noise_sigma = 0.10
-
-    data = (
-        injected
-        + rng.normal(0.0, noise_sigma, n)
-    )
-
-    # Matched-filter-like normalized correlation.
-    #
-    # This is intentionally a minimal independent test and
-    # does not replace the production likelihood implementation.
-
-    def normalized_match(a, b):
-
-        a = a - np.mean(a)
-        b = b - np.mean(b)
-
-        denom = (
-            np.sqrt(np.sum(a * a))
-            * np.sqrt(np.sum(b * b))
-        )
-
-        if denom == 0:
-            return 0.0
-
-        return np.sum(a * b) / denom
-
-    match_standard = normalized_match(data, template)
-    match_lambda = normalized_match(data, injected)
-
-    passed = check(
-        match_lambda >= match_standard,
-        "Lambda-deformed template matches injected data at least as well"
-    )
-
-    print()
-    print(f"Lambda true              = {lambda_true:.6e}")
-    print(f"Standard-template match  = {match_standard:.8f}")
-    print(f"Lambda-template match    = {match_lambda:.8f}")
-
-    return passed
-
-
-# ---------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------
-
-def main():
-
-    banner("PAPER 3 — MATCHED-FILTER PIPELINE INTEGRITY VALIDATION")
-
-    print()
-    print(f"Working directory: {ROOT}")
-
-    results = []
-
-    imports_ok, modules = test_imports()
-    results.append(imports_ok)
-
-    if "waveform" in modules:
-        results.append(
-            inspect_waveform_module(modules["waveform"])
-        )
-
-    results.append(
-        lambda_dispersion_test()
-    )
-
-    results.append(
-        synthetic_recovery_test()
-    )
-
-    results.append(
-        lambda_zero_control()
-    )
-
-    results.append(
-        end_to_end_test()
-    )
-
-    banner("FINAL RESULT")
-
-    passed = sum(bool(x) for x in results)
-    total = len(results)
-
-    print()
-    print(f"Tests passed: {passed}/{total}")
-
-    if passed == total:
-
-        print()
-        print("✓ MATCHED-FILTER PIPELINE INTEGRITY TEST PASSED")
-
-        print()
-        print(
-            "The synthetic Lambda dispersion, Lambda recovery, "
-            "null control and matched-template tests are internally consistent."
-        )
-
-        print()
-        print(
-            "IMPORTANT:"
-        )
-
-        print(
-            "This result does NOT establish a non-zero Lambda "
-            "in a real gravitational-wave event."
-        )
-
-    else:
-
-        print()
-        print("✗ PIPELINE INTEGRITY TEST FAILED")
-
-        print(
-            "Inspect the failed section before using the pipeline "
-            "for real-data inference."
-        )
-
-        raise SystemExit(1)
-
-
-if __name__ == "__main__":
-    main()
+def test_only_lambda_times_K_is_identified():
+    """If the template uses K(z) wrong by a factor 2, the recovered Lambda is
+    off by the inverse factor. The phase depends on Lambda*K(z) only, so any
+    error in the assumed distance/redshift goes straight into Lambda."""
+    rng = np.random.default_rng(12)
+    lam_true = 0.1
+    fits = [recover(lam_true, rng, k_template=K_Z / 2)[0] for _ in range(30)]
+    assert abs(np.mean(fits) / (2 * lam_true) - 1) < 0.1
