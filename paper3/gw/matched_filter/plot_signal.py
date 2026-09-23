@@ -1,19 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-plot_signal.py
-================
-"Какво вижда статистиката" — илюстративна фигура (Figure 1 за текста):
+plot_signal.py  (patched — English labels)
+============================================
+"What the statistic sees" — illustrative figure (Figure 1 for the text):
 
-  (a) Whitened H1 и L1 strain в 0.25 s прозореца на събитието; L1 е
-      изместен с ИЗМЕРЕНИЯ delay и умножен по знака на корелационния
-      пик (антенната ориентация на детекторите дава относителна
-      полярност — за GW150914 L1 е прочуто инвертиран).
-  (b) Нормализираната крос-корелация по lag; физичната ±10 ms зона е
-      защрихована; пикът (= max_corr, = измереният delay) е маркиран.
-  (c)+(d) Същото за шумов прозорец на −30 s от събитието — контрастът.
+  (a) Whitened H1 and L1 strain in the 0.25 s event window; L1 is shifted
+      by the MEASURED delay and multiplied by the sign of the correlation
+      peak (the detectors' antenna orientation gives a relative polarity —
+      for GW150914, L1 is famously inverted).
+  (b) Normalized cross-correlation vs. lag; the physical ±10 ms zone is
+      shaded; the peak (= max_corr, = the measured delay) is marked.
+  (c)+(d) The same for a noise window 30 s away from the event — the
+      contrast.
 
-Употреба:
+ПОПРАВКА (2026-09): всички потребителски низове (axis labels, titles,
+legends, suptitle, CLI help) преведени на английски — оригиналната
+версия генерираше Figure 1 с кирилица в осите, неприемливо за
+англоезично списание (CQG). Логиката на изчисленията е напълно
+непроменена.
+
+Usage:
   python plot_signal.py --event GW150914
   python plot_signal.py --event GW170814 --noise-offset -45
 """
@@ -68,28 +75,28 @@ def panel_pair(axL, axR, h1, l1, times, center, label, color_sig):
     w1, t1 = window(h1, times, ct)
     w2, _ = window(l1, times, ct)
 
-    # L1: изместен с измерения delay, знак = знака на пика
+    # L1: shifted by the measured delay, sign = sign of the peak
     shift = int(round(delay_ms / 1000.0 * SAMPLE_RATE))
     w2s = np.roll(w2, -shift) * np.sign(peak)
 
     axL.plot(t1 * 1000, w1, lw=0.9, color='tab:blue', label='H1')
     axL.plot(t1 * 1000, w2s, lw=0.9, color='tab:orange',
-             label=f'L1 (изм. {delay_ms:+.1f} ms'
-                   f'{", инверт." if peak < 0 else ""})')
-    axL.set_xlabel(f"Време спрямо GPS{off:+d}ms (ms)")
+             label=f'L1 (shifted {delay_ms:+.1f} ms'
+                   f'{", inverted" if peak < 0 else ""})')
+    axL.set_xlabel(f"Time relative to GPS{off:+d}ms (ms)")
     axL.set_ylabel("Whitened strain (σ)")
     axL.set_title(label)
     axL.legend(fontsize=8, loc='upper left')
 
     axR.axvspan(-PHYS_MS, PHYS_MS, color=color_sig, alpha=0.12,
-                label='физичен ±10 ms')
+                label='physical ±10 ms')
     axR.plot(lags, c, lw=1.0, color='0.3')
     axR.plot([delay_ms], [peak], 'v', color='tab:red', ms=9,
              label=f'|max_corr|={abs(peak):.3f} @ {delay_ms:+.2f} ms')
     axR.set_xlim(-125, 125)
     axR.set_xlabel("Lag (ms)")
-    axR.set_ylabel("Норм. крос-корелация")
-    axR.set_title(f"{label}: корелационна функция")
+    axR.set_ylabel("Normalized cross-correlation")
+    axR.set_title(f"{label}: correlation function")
     axR.legend(fontsize=8, loc='upper left')
     return abs(peak), delay_ms
 
@@ -98,7 +105,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--event", default="GW150914")
     ap.add_argument("--noise-offset", type=float, default=-30.0,
-                    help="s спрямо събитието за контрастния шумов прозорец")
+                    help="seconds relative to the event, for the contrast noise window")
     args = ap.parse_args()
     gps = GW_EVENTS[args.event]
 
@@ -118,20 +125,20 @@ def main():
                            f"(a) {args.event}", 'tab:green')
     mc_n, d_n = panel_pair(axes[1, 0], axes[1, 1], h1v, l1v, times,
                            gps + args.noise_offset,
-                           f"(c) Шум ({args.noise_offset:+.0f} s)", 'tab:green')
-    axes[1, 0].set_title(f"(c) Шумов прозорец ({args.noise_offset:+.0f} s)")
-    axes[1, 1].set_title("(d) Шум: корелационна функция")
-    axes[0, 1].set_title(f"(b) {args.event}: корелационна функция")
+                           f"(c) Noise ({args.noise_offset:+.0f} s)", 'tab:green')
+    axes[1, 0].set_title(f"(c) Noise window ({args.noise_offset:+.0f} s)")
+    axes[1, 1].set_title("(d) Noise: correlation function")
+    axes[0, 1].set_title(f"(b) {args.event}: correlation function")
 
-    fig.suptitle(f"{args.event}: какво вижда max_corr статистиката "
-                 f"(събитие {mc_e:.3f} срещу шум {mc_n:.3f})", fontsize=12)
+    fig.suptitle(f"{args.event}: what the max_corr statistic sees "
+                 f"(event {mc_e:.3f} vs. noise {mc_n:.3f})", fontsize=12)
     fig.tight_layout()
     out = f"figure_signal_{args.event}.png"
     fig.savefig(out, dpi=300, bbox_inches='tight')
     fig.savefig(out.replace('.png', '.pdf'), bbox_inches='tight')
-    print(f"Записано: {out} (+ .pdf)")
-    print(f"  Събитие: |max_corr|={mc_e:.3f} @ {d_e:+.2f} ms")
-    print(f"  Шум:     |max_corr|={mc_n:.3f} @ {d_n:+.2f} ms")
+    print(f"Saved: {out} (+ .pdf)")
+    print(f"  Event: |max_corr|={mc_e:.3f} @ {d_e:+.2f} ms")
+    print(f"  Noise: |max_corr|={mc_n:.3f} @ {d_n:+.2f} ms")
 
 
 if __name__ == "__main__":

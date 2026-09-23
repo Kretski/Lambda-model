@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-make_figures.py
-=================
+make_figures.py  (patched — n=100 twins, dual GW150914 marker)
+=================================================================
 Публикационна многопанелна фигура (стил PRD/CoAD) от записаните JSONL данни.
 
 Панели:
@@ -11,16 +11,38 @@ make_figures.py
       праг FAP=1% (p99 на null)
   (c) Null хистограма + 11-те GWTC-1 събития (както events_vs_null, изчистена)
   (d) Delay грешка |измерен - истински| по морфология (уверени възстановявания)
-Опционално (e): twin разпределения срещу реалните събития, ако twin файловете
-съществуват.
+Опционално (e): twin разпределения срещу реалните събития — отделна фигура.
+
+ПОПРАВКА (2026-09):
+  1. TWINS вече сочи към _v4 файловете (n=100, seeds 707/808/909), заменящи
+     оригиналните n=30 сетове — вижте Раздел 5.4 / section_5_4_diff.md.
+  2. GW150914 редът в twin панела вече чертае ДВА маркера за реалното
+     събитие: score-selected (events_v5.json['max_corr'], 0.338 — tie-break
+     артефакт) и raw-max (events_v5.json['max_corr_rawmax'] — изисква
+     патчнатия analyze_events_v5.py да е изпълнен наново; вижте текста).
+     Останалите две събития имат само по един маркер — не страдат от
+     tie-break проблема.
+  3. ВАЖНО за полето, използвано за twin разпределението: _v4 файловете
+     съдържат и 'max_corr', и 'max_corr_rawmax'. Емпирично, 'max_corr'
+     е полето, което възпроизвежда точно числата в таблицата на Раздел 5.4
+     (проверено на живо: медиани и диапазони съвпадат до третия знак за
+     и трите twin сета), докато 'max_corr_rawmax' дава различни (по-широки)
+     стойности за GW150914. Скриптът затова използва 'max_corr' за
+     twin-разпределенията по подразбиране — но провери в
+     injection_recovery.py точната дефиниция на всяко поле, преди да се
+     довериш на това съпоставяне без резерви; ако дефиницията там показва
+     обратното, смени TWIN_FIELD по-долу на 'max_corr_rawmax'.
 
 Употреба:
   python make_figures.py
 Очаква в текущата директория:
-  global_background_v3.jsonl, injections.jsonl, inj_sg.jsonl, inj_wnb.jsonl,
-  events_v5.json; опционално inj_gw151226_twin.jsonl, inj_gw150914_twin.jsonl,
-  inj_gw170608_twin.jsonl
-Изход: figure_validation.png (300 dpi) + figure_validation.pdf
+  global_background_v3.jsonl, injections_v2.jsonl, inj_sg_v2.jsonl,
+  inj_wnb_v2.jsonl, events_v5.json (в идеалния случай regenerated с
+  max_corr_rawmax поле — вижте патчнатия analyze_events_v5.py); опционално
+  inj_gw151226_twin_v4.jsonl, inj_gw150914_twin_v4.jsonl,
+  inj_gw170608_twin_v4.jsonl
+Изход: figure_validation.png (300 dpi) + figure_validation.pdf,
+       figure_twins.png / .pdf
 """
 
 import os, json
@@ -33,9 +55,16 @@ BG = "global_background_v3.jsonl"
 INJ_SETS = [("BBH", "injections_v2.jsonl", "tab:blue"),
             ("Sine-Gaussian", "inj_sg_v2.jsonl", "tab:orange"),
             ("White-noise burst", "inj_wnb_v2.jsonl", "tab:green")]
-TWINS = [("GW151226 twin", "inj_gw151226_twin_v2.jsonl", "GW151226"),
-         ("GW150914 twin", "inj_gw150914_twin_v2.jsonl", "GW150914"),
-         ("GW170608 twin", "inj_gw170608_twin_v2.jsonl", "GW170608")]
+
+# ПОПРАВКА: _v2 (n=30) -> _v4 (n=100), seeds 707/808/909; ред съобразен
+# с таблицата в Раздел 5.4 (170608, 151226, 150914).
+TWINS = [("GW170608 twin (n=100)", "inj_gw170608_twin_v4.jsonl", "GW170608"),
+         ("GW151226 twin (n=100)", "inj_gw151226_twin_v4.jsonl", "GW151226"),
+         ("GW150914 twin (n=100)", "inj_gw150914_twin_v4.jsonl", "GW150914")]
+
+# Полето, използвано за twin разпределението — вижте бележка 3 по-горе.
+TWIN_FIELD = "max_corr"
+
 EVENTS = "events_v5.json"
 SNR_BINS = [(5, 8), (8, 12), (12, 18), (18, 30)]
 
@@ -159,26 +188,43 @@ def main():
     if have:
         fig2, ax = plt.subplots(figsize=(7.5, 4.6))
         for i, (title, path, evname) in enumerate(have):
-            tc = np.array([r['max_corr'] for r in jl(path)])
+            recs = jl(path)
+            tc = np.array([r[TWIN_FIELD] for r in recs])
             y = np.full_like(tc, i, dtype=float) + (np.random.default_rng(0)
                                                     .uniform(-0.12, 0.12, len(tc)))
-            ax.scatter(tc, y, s=18, alpha=0.65, color='tab:blue',
-                       label="Twin injections" if i == 0 else None)
+            ax.scatter(tc, y, s=14, alpha=0.55, color='tab:blue',
+                       label=f"Twin injections (n={len(tc)})" if i == 0 else None)
             ax.scatter([np.median(tc)], [i], marker='|', s=500, color='tab:blue')
-            if evname in ev:
+
+            if evname not in ev:
+                continue
+
+            if evname == "GW150914" and 'max_corr_rawmax' in ev[evname]:
+                # ПОПРАВКА: двоен маркер — score-selected (tie-break артефакт)
+                # и raw-max (несмущаващо се число, вижте Раздел 5.4).
+                ax.scatter([ev[evname]['max_corr']], [i], marker='*', s=160,
+                           color='tab:red', zorder=5, edgecolors='k', linewidths=0.5,
+                           label="Real event (score-selected)" if i == len(have) - 1 else None)
+                ax.scatter([ev[evname]['max_corr_rawmax']], [i], marker='*', s=160,
+                           color='tab:purple', zorder=5, edgecolors='k', linewidths=0.5,
+                           label="Real event (raw-max)" if i == len(have) - 1 else None)
+            else:
                 ax.scatter([ev[evname]['max_corr']], [i], marker='*', s=180,
                            color='tab:red', zorder=5,
                            label="Real event" if i == 0 else None)
+
         ax.axvline(thr99, color='k', ls='--', lw=1, label="p99(null)")
         ax.set_yticks(range(len(have)))
         ax.set_yticklabels([t for t, _, _ in have])
         ax.set_xlabel("H1–L1 max cross-correlation (best-of-9 offsets)")
-        ax.set_title("Event-twin injections vs. real events")
-        ax.legend(fontsize=9, loc="lower right")
+        ax.set_title("Event-twin injections vs. real events (n=100 per event)")
+        ax.legend(fontsize=8, loc="lower right")
         fig2.tight_layout()
         fig2.savefig("figure_twins.png", dpi=300, bbox_inches='tight')
         fig2.savefig("figure_twins.pdf", bbox_inches='tight')
         print(f"Записано: figure_twins.png / .pdf ({len(have)} twin сета)")
+    else:
+        print("Twin файлове (_v4) не са намерени — панел (e) прескочен.")
 
 
 if __name__ == "__main__":
