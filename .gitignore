@@ -39,3 +39,6 @@ paper3/gw/path_test/allevents_cache.csv
 paper3/gw/path_test/skymaps/
 paper3/gw/path_test/skymap_tars/
 paper3/gw/path_test/path_vars_cache/
+paper3/**/pass.txt
+paper3/**/2.txt
+paper3/**/таб.txt
