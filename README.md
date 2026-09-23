@@ -1,122 +1,86 @@
-# 🧠 AZURO AI - Multi-Domain Engineering Platform
+# Λ-model
 
-<div align="center">
+**Author:** Dimitar Kretski**ORCID:** [0000-0001-5108-2243](https://orcid.org/0000-0001-5108-2243)**Affiliation:** Center for Hydro- and Aerodynamics, Institute of Metal Science, Equipment and Technologies "Acad. A. Balevski", Bulgarian Academy of Sciences, Varna, Bulgaria
 
-![Azuro AI](Azuro.ico)
+This repository contains code and analyses for the one-parameter dispersion relation ω² = c² k² (1 + Λ k²)
 
-**Professional Multi-Domain Engineering Analysis & Optimization**
+applied separately to a laboratory analog system, to gravitational-wave propagation, and to near-horizon photon orbits. No result here detects a non-zero Λ, and no single value of Λ is assumed to apply across these systems.
 
-[![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/your-username/azuro-ai/releases)
-[![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![Version](https://img.shields.io/badge/Version-1.1-success?style=for-the-badge)](https://github.com/your-username/azuro-ai/releases)
-[![License](https://img.shields.io/badge/License-Commercial-important?style=for-the-badge)](LICENSE)
+The authoritative, detailed status is [`paper3/PAPER3_VALIDATION_STATUS.md`](paper3/PAPER3_VALIDATION_STATUS.md). Where this page and that document differ, that document is correct.
 
-</div>
+## Results
 
-## 🆕 What's New in Version 1.1
+**1. Giant quantum vortex (laboratory analog system).** An independent reimplementation of the quasinormal-mode calculation for the superfluid-helium giant vortex of Švančara et al., using their dispersion relation and the flow parameters from their Table SI (arXiv:2308.10773), compared with the measured EXP B resonances (arXiv:2502.11209). The resonance frequencies were not fitted.
 
-### ✨ Latest Updates & Improvements
+* q=1: mean relative deviation 0.021% (max 0.036%) over m = −21 … −4.
+* q=2: 0.01–0.06% for m ≤ −10, growing smoothly to 1.0% at m = −4. This trend is a property of the branch, not of the numerical method.
+* q=3 and q=4: no corresponding branch identified. The search is closed unless a new method or candidate appears.
+* No statistical test is reported yet: measured frequency uncertainties are not available.
 
-| Feature | Description | Benefit |
-|---------|-------------|----------|
-| **🎯 Clear Error Messages** | Enhanced user-friendly error reporting with detailed explanations | Faster problem resolution and better user experience |
-| **📧 Easy Support Access** | One-click email support integration with auto-copy functionality | Instant access to technical support when needed |
-| **📊 Fixed Visualizations** | Improved matplotlib integration and plot rendering | Smoother, more reliable data visualization |
-| **🔢 Launch Counter** | Real-time display of remaining launches and usage statistics | Better license management and planning |
-| **🐛 Bug Fixes** | Various stability improvements and performance optimizations | More reliable operation across all domains |
+Details: [`paper3/PAPER3_ADDENDUM_BLIND_2D.md`](paper3/PAPER3_ADDENDUM_BLIND_2D.md), [`paper3/STAGE6_5B4_3_ROOTB_FREEZE.md`](paper3/STAGE6_5B4_3_ROOTB_FREEZE.md).
 
-### 🚀 Enhanced User Experience
-- **Instant Support**: Copy developer email with single click
-- **Clear Guidance**: Step-by-step error resolution suggestions
-- **Visual Polish**: Improved chart quality and rendering speed
-- **Usage Awareness**: Always see how many launches remain
+**2. Gravitational-wave propagation.** The propagation phase used here is identical to the LVK α=4 modified-dispersion parametrization, with Λ_GW = ħ²c³A₄. The published GWTC-4.0 bound (arXiv:2603.19020) translates to Λ_GW ∈ [−7.2×10⁻³, +2.2×10⁻³] m³/s (90%), consistent with Λ = 0. The same translation was published independently in arXiv:2607.17431. A separate analysis of GW150914 gives z = −0.43σ against an off-source null, also consistent with Λ = 0.
 
-## 🎯 Overview
+**3. Photon sector.** Fermi-LAT time-of-flight data give Λ < 1.44×10⁻⁵³ m². The near-horizon photon-ring solver is regression-tested against Paper 2 but has not been applied to observational data; at EHT radio frequencies the effect is too small to be measured.
 
-**AZURO AI** is a comprehensive engineering simulation platform that provides advanced analysis and optimization across multiple engineering domains. The platform integrates real-time data processing, machine learning algorithms, and interactive visualization for professional engineering applications.
+## Negative and inconclusive results
 
-### 🔬 **Supported Engineering Domains**
+* **BEC data** (Ozeri et al. 2002, digitized): consistent with the Bogoliubov prediction, but with N = 3–4 points this is not a confirmation. A cavity-QED control dataset (Guo et al. 2021) gives a clean null.
+* **Path-dependence test for GW events:** not feasible with current sky localisations (reliability 0 on all three axes, 174 events). Closed before any anomaly statistic was computed.
+* **Dirac-material mapping:** not supported by the cited literature.
+* **Photonic and fiber mappings:** a quartic scaling is present in fiber data, but its identification with Λ is refused on dimensional grounds.
 
-| Domain | Key Parameters | Applications |
-|--------|----------------|--------------|
-| **Chemical Engineering** | Temperature, Pressure, Flow Rate | Process optimization, Reactor design |
-| **Materials Science** | Time, Temperature, Concentration | Material synthesis, Property analysis |
-| **Battery Technology** | Voltage, Current, Temperature | Energy storage, Performance optimization |
-| **Biomedical Engineering** | pH, Temperature, Time | Drug delivery, Biological systems |
-| **Quantum Systems** | Coherence Time, Gate Error, Qubits | Quantum simulation, Algorithm testing |
-| **Thermal Engineering** | ΔTemperature, Flow Rate, Area | Heat transfer, Cooling systems |
-| **Aerospace Engineering** | Mach Number, Altitude, Thrust | Flight performance, Propulsion systems |
+## What is not shown
 
-## 🚀 Quick Start
+* The three systems above use separate parameters. The relation Λ_NH = Λ_GW/c is a dimensional observation, not a derivation, and the laboratory coefficients are properties of those media.
+* The laboratory results test the numerical methods against real spectra. They are not tests of gravitational dispersion, and no mapping from the vortex to a Kerr black hole has been derived.
 
-### Download & Run (Recommended)
-1. **Download** the latest `AzuroAI.exe` from [Releases](../../releases)
-2. **Double-click** to launch the application
-3. **Check License Status** - View remaining launches in Help menu
-4. **Get Support** - Use built-in email access for any issues
+## Code verification
 
-### System Requirements
-- **OS**: Windows 10/11 (64-bit)
-- **RAM**: 4GB minimum, 8GB recommended
-- **Storage**: 100MB free space
-- **Display**: 1366x768 resolution minimum
+These checks confirm that the code is correct. They are not physical results.
 
-## ⚡ Features
+* Spectral PDE solver: exact in space; O(1/N) in time; second-order spatial convergence of the full leapfrog integration for N = 64–128 (N < 64 unreliable).
+* Recovery of a known Λ from synthetic data and a Λ = 0 control: [`paper3/dispersion/tests/`](paper3/dispersion/tests/).
+* GW matched-filter pipeline: injection/recovery and off-source null tests on real LIGO noise ([`paper3/gw/matched_filter/`](paper3/gw/matched_filter/)).
+* QNM roots: reproduced by an experiment-blind 2D search and by an independent Newton solver (14/14; same physical residual function).
 
-### 🔧 Core Capabilities
-- **Multi-Domain Simulation** - 7 engineering domains with specialized models
-- **Real-Time Data Integration** - CSV, JSON, and live streaming support
-- **Advanced Visualization** - Improved matplotlib charts and interactive plots
-- **Signal Processing** - FFT analysis, cross-correlation, frequency domain analysis
-- **Parameter Optimization** - Automated parameter tuning for maximum efficiency
+## Convention
 
-### 📊 Enhanced Analysis Tools (v1.1)
-- **Smart Error Handling** - Clear, actionable error messages
-- **Launch Management** - Real-time license usage tracking
-- **Support Integration** - Direct developer communication channel
-- **Visualization Fixes** - Reliable chart generation across all domains
-- **Stability Improvements** - Reduced crashes and better error recovery
+All current code uses ω² = c²k²(1 + Λk²). Some older files (`paper3/STATUS.md`, `paper3/dispersion/README.md`, `fiber_event_horizon_structural_test.py`, `test_matched_filter_pipeline.py`, `gwosc_zero_crossing_injection_recovery.py`) write 1 + 2Λk², which defines a Λ smaller by a factor of 2. For BEC, Λ = ħ²/(4m²c_s²), which equals ξ²/4 for ξ = ħ/(m c_s).
 
-### 🎨 User Interface Improvements
-- **Modern Dark Theme** - Reduced eye strain during extended use
-- **Enhanced Error Dialogs** - Clear explanations and solutions
-- **License Information Panel** - Always visible launch counter
-- **One-Click Support** - Instant email access for help
-- **Improved Tooltips** - Better guidance throughout the application
+## Where things are
 
-## 📁 Usage Guide
+| Topic | Location |
+| --- | --- |
+| Status and claim boundaries | `paper3/PAPER3_VALIDATION_STATUS.md` |
+| Giant-vortex QNM code | `paper3/gw/matched_filter/_archive/qnm_branch_work/` |
+| GW analyses | `paper3/gw/matched_filter/` |
+| GW path-dependence test | `paper3/gw/path_test/` |
+| BEC checks | `paper3/bec_validation/` |
+| Fitting tool for your own (k, ω) data | `paper3/lambda_experimental_validator.py` |
+| Solver and convergence tests | `paper3/wave_equation_2D_solver.py`, `paper3/paper3_h_convergence_test.py` |
+| Earlier full draft (August 2026) | `paper3/paper3_final.tex` |
 
-### Basic Workflow
-1. **Select Domain** - Choose from 7 engineering domains
-2. **Adjust Parameters** - Use sliders to set simulation parameters
-3. **Check License** - View remaining launches in status bar
-4. **Import Data** (Optional) - Load external datasets for enhanced accuracy
-5. **Run Analysis** - Execute simulations with improved visualization
-6. **Get Help** - Use one-click support if needed
+Quick start: pip install -r requirements.txt python paper3/lambda_experimental_validator.py --omega data_omega.csv --k data_k.csv python paper3/gw/matched_filter/convention_check.py
 
-### 🆕 Version 1.1 Enhancements
+Further commands are listed in each subdirectory.
 
-#### Clear Error Handling
-- **User-Friendly Messages**: Instead of technical codes, get plain English explanations
-- **Actionable Solutions**: Each error includes suggested next steps
-- **Support Integration**: Direct links to contact developer for complex issues
+## Citing
 
-#### Easy Support Access
-```python
-# Built-in support features:
+* Kretski, D. (2026). *A Hamiltonian Oscillator Extension of Wave Propagation in Schwarzschild Spacetime*. Zenodo preprint. https://doi.org/10.5281/zenodo.22018715
+* Kretski, D. (2026). *A Hamiltonian Dispersion Framework for Kerr Photon Rings, Frequency-Dependent Shadow Sensitivity, Superradiance, and Eikonal Quasinormal Modes*. Zenodo. https://doi.org/10.5281/zenodo.22051427
+* Kretski, D. (2026). *[FULL TITLE]*. Submitted to Physical Review D.
 
-ersion 1.1 License Improvements
-Visible Counter: Always know how many launches remain
+Please also cite the work this repository depends on:
 
-Proactive Alerts: Get notified before license expires
+* Smaniotto, F., Solidoro, V., Patrick, R., Švančara, P. *et al.* *Black-hole spectroscopy from a giant quantum vortex*. arXiv:2502.11209. Resonance data kindly provided by P. Švančara (CNRS Institut Néel).
+* Švančara, P. *et al.* *Rotating curved spacetime signatures from a giant quantum vortex*. arXiv:2308.10773.
+* Abac, A. G. *et al.* (LVK) (2026). *GWTC-4.0: Tests of General Relativity. II. Parameterized Tests*. arXiv:2603.19020.
+* Araújo Filho, A. A. *et al.* (2026). *Gravitational wave propagation in Hořava–Lifshitz gravity*. arXiv:2607.17431.
+* Mirshekari, S., Yunes, N. & Will, C. M. (2012). Phys. Rev. D 85, 024041.
+* Ozeri, R. *et al.* (2002). Phys. Rev. Lett. 88, 220401.
+* Guo, Y. *et al.* (2021). Nature 599, 211. Data: Harvard Dataverse, DOI:10.7910/DVN/LGT5O6.
 
-Simple Renewal: Direct email integration for quick extension
+## License
 
-Clear Messages: Understand exactly what each license status means
-- One-click email copy: "kretski1@gmail.com"
-- Automatic error reporting preparation
-- Quick license extension requests
-
-
-
-https://github.com/Kretski/GravOptAdaptiveE
+MIT (see `LICENSE`). Third-party data remain subject to their original terms.
