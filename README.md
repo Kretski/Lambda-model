@@ -1,4 +1,4 @@
-# Λ-model
+﻿# Λ-model
 
 **Author:** Dimitar Kretski**ORCID:** [0000-0001-5108-2243](https://orcid.org/0000-0001-5108-2243)**Affiliation:** Center for Hydro- and Aerodynamics, Institute of Metal Science, Equipment and Technologies "Acad. A. Balevski", Bulgarian Academy of Sciences, Varna, Bulgaria
 
@@ -28,7 +28,7 @@ Details: [`paper3/PAPER3_ADDENDUM_BLIND_2D.md`](paper3/PAPER3_ADDENDUM_BLIND_2D.
 * **BEC data** (Ozeri et al. 2002, digitized): consistent with the Bogoliubov prediction, but with N = 3–4 points this is not a confirmation. A cavity-QED control dataset (Guo et al. 2021) gives a clean null.
 * **Path-dependence test for GW events:** not feasible with current sky localisations (reliability 0 on all three axes, 174 events). Closed before any anomaly statistic was computed.
 * **Dirac-material mapping:** not supported by the cited literature.
-* **Photonic and fiber mappings:** a quartic scaling is present in fiber data, but its identification with Λ is refused on dimensional grounds.
+* **Photonic and fiber mappings:** not connected to any measured quantity. The fiber module (`paper3/dispersion/`) currently runs only on synthetic demonstration arrays (omega ~ k^4 plus noise), so it produces no physical result.
 
 ## What is not shown
 
