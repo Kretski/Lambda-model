@@ -46,7 +46,7 @@ These checks confirm that the code is correct. They are not physical results.
 
 ## Convention
 
-All current code uses ω² = c²k²(1 + Λk²). Some older files (`paper3/STATUS.md`, `paper3/dispersion/README.md`, `fiber_event_horizon_structural_test.py`, `test_matched_filter_pipeline.py`, `gwosc_zero_crossing_injection_recovery.py`) write 1 + 2Λk², which defines a Λ smaller by a factor of 2. For BEC, Λ = ħ²/(4m²c_s²), which equals ξ²/4 for ξ = ħ/(m c_s).
+All current code uses ω² = c²k²(1 + Λk²). Some older files (`paper3/STATUS.md`, `paper3/dispersion/README.md`, `fiber_event_horizon_structural_test.py`, `gwosc_zero_crossing_injection_recovery.py`) write 1 + 2Λk², which defines a Λ smaller by a factor of 2. For BEC, Λ = ħ²/(4m²c_s²), which equals ξ²/4 for ξ = ħ/(m c_s).
 
 ## Where things are
 
