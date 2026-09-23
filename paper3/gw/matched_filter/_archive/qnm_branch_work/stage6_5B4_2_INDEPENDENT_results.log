@@ -1,0 +1,43 @@
+STAGE 6.5B4-2 INDEPENDENT ROOT REPRODUCTION
+====================================================================================================
+STAGE 6.5B4-2 — INDEPENDENT ROOT-B REPRODUCTION
+====================================================================================================
+
+Solver:
+    custom damped Newton
+    finite-difference Jacobian
+    mpmath root-space arithmetic
+
+Physical residual:
+    stage5I_3_resonance_v2.resonance_factor()
+
+Forbidden:
+    scipy.optimize.root(method='hybr')
+    refine_and_polish_candidate()
+    continuation
+    EXP_B / experimental frequencies
+
+mpmath precision = 50 digits
+
+==========================================================================================
+INDEPENDENT ROOT REPRODUCTION   m=-14
+==========================================================================================
+Frozen Root-B: Re=9.596712868000 Hz Im=-0.135838317000 Hz
+Light ring: r_sp=20.496141813 mm f_lr=9.397071682922 Hz
+Frozen-point residual: |Res|=4.671514e-09
+    independent Newton start: Re=9.596712868000 Im=-0.135838317000
+      iter=01 Re=9.596712868000 Im=-0.135838317000 |Res|=4.671514e-09
+        accepted damping=1.000000 step=4.685466e-10
+      iter=02 Re=9.596712867698 Im=-0.135838316642 |Res|=9.095871e-15
+
+Independent result: Re=9.596712867698 Hz Im=-0.135838316642 Hz
+  |Res|=9.095871e-15
+  delta Re=-3.021281e-10 Hz  delta Im=+3.581253e-10 Hz
+  distance=4.685457e-10 Hz
+  iterations=2
+  residual gate : PASS
+  shift gate    : PASS
+  damping gate  : PASS
+  convergence   : PASS
+
+  >>> PASS <<<

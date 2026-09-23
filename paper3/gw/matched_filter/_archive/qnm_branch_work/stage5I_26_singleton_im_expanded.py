@@ -57,30 +57,67 @@ except ImportError as e:
 #
 # PLACEHOLDER — replace with your actual Stage 5I-10 singleton m-values:
 SINGLETON_TARGETS = [
-    # m=-11: example placeholder — edit with real seeds from Stage 5I-10
-    # Seeds: near the boundary hit point + extended below it
-    (-11, [
-        (8.54, -1.40),   # just above old boundary
-        (8.54, -1.60),   # just below old boundary (new territory)
-        (8.54, -1.80),
-        (8.54, -2.00),
-        (8.54, -2.20),
-        (8.30, -1.50),
-        (8.30, -1.80),
-        (8.70, -1.50),
-        (8.70, -1.80),
+    # ==================================================================
+    # REAL targets extracted from stage5I_4_full_m_scan_v6_FIXED.log
+    # (all Im=-1.4999... boundary hits, grouped by m).
+    #
+    # GROUP A: low |Res| at the -1.5 wall -> a root plausibly sits just
+    #          below the old boundary. These are the genuine recovery
+    #          candidates.
+    # GROUP B: |Res| ~ 0.9-1.0 at the wall -> solver boundary attractor,
+    #          NOT a near-miss root. Included as CONTROLS: we expect them
+    #          to stay NOT FOUND even at -2.5 (confirming genuine absence,
+    #          not a masked pole). If they DO get found, the problem is
+    #          broader than a single wall.
+    # ==================================================================
+
+    # --- GROUP A: low |Res| boundary hits (genuine recovery candidates) ---
+    (-13, [                 # |Res|=0.360 at the wall -- most promising
+        (10.490, -1.50),
+        (10.490, -1.70),
+        (10.490, -2.00),
+        (10.490, -2.30),
+        (10.490, -2.49),
     ]),
-    # m=-12: example placeholder
-    (-12, [
-        (8.84, -1.40),
-        (8.84, -1.60),
-        (8.84, -1.80),
-        (8.84, -2.00),
-        (8.84, -2.20),
-        (8.60, -1.50),
-        (8.60, -1.80),
-        (9.00, -1.50),
-        (9.00, -1.80),
+    (-12, [                 # |Res|=0.671 at the wall
+        (10.380, -1.50),
+        (10.380, -1.70),
+        (10.380, -2.00),
+        (10.380, -2.30),
+        (10.380, -2.49),
+    ]),
+    (-11, [                 # |Res|=0.812 at the wall
+        (10.260, -1.50),
+        (10.260, -1.70),
+        (10.260, -2.00),
+        (10.260, -2.30),
+        (10.260, -2.49),
+    ]),
+
+    # --- GROUP B: high |Res| controls (expect genuine absence / wall-move) ---
+    (-21, [                 # |Res|=0.922 at the wall
+        (13.020, -1.50),
+        (13.020, -1.80),
+        (13.020, -2.20),
+        (13.020, -2.49),
+    ]),
+    (-17, [                 # |Res|=1.000 at the wall
+        (11.510, -1.50),
+        (11.510, -1.80),
+        (11.510, -2.20),
+        (11.510, -2.49),
+    ]),
+    (-8, [                  # |Res|=0.946 at the wall
+        (9.960, -1.50),
+        (9.960, -1.80),
+        (9.960, -2.20),
+        (9.960, -2.49),
+    ]),
+    (-4, [                  # |Res|=0.925 at the wall
+        (9.500, -1.50),
+        (9.500, -1.80),
+        (9.500, -2.20),
+        (9.500, -2.49),
     ]),
 ]
 

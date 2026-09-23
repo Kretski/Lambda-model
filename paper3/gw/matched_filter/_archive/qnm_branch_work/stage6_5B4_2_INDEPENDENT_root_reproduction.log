@@ -1,0 +1,288 @@
+STAGE 6.5B4-2 — INDEPENDENT ROOT-B REPRODUCTION
+
+==============================================================================
+STAGE 6.5B4-2 — INDEPENDENT ROOT-B REPRODUCTION
+==============================================================================
+
+Solver:
+  Custom damped Newton
+  Central finite-difference Jacobian
+  Explicit 2x2 linear solve
+  Backtracking line search
+
+NOT USED:
+  scipy.optimize.root(method='hybr')
+  scipy.optimize.minimize(method='Nelder-Mead')
+  continuation
+  experimental q=2 frequencies
+  EXP_B
+
+Frozen points:
+  m=  -4.0 : 6.636443687771 -0.421971108577 i
+  m=  -5.0 : 6.989518102571 -0.363141434134 i
+  m=  -6.0 : 7.327835886000 -0.318302218000 i
+  m= -11.0 : 8.812972738000 -0.188208416000 i
+  m= -12.0 : 9.080269182000 -0.169919319000 i
+  m= -13.0 : 9.341131317000 -0.152555812000 i
+  m= -14.0 : 9.596712868000 -0.135838317000 i
+
+Residual tolerance = 1.0e-10
+FD steps = 2.0e-05, 2.0e-05
+Local starts per root = 2
+
+------------------------------------------------------------------------------
+m = -4.0
+------------------------------------------------------------------------------
+r_sp      = 1.529453353582e-02
+omega_lr  = 3.749283920059e+01
+
+Frozen-point residual:
+  |Res(frozen)| = 1.363813e-12
+
+START 1/2
+  offset = (+1.000000e-02, +1.000000e-02) Hz
+  start = 6.646443687771 -0.411971108577 i
+  root  = 6.636443687770 -0.421971108577 i
+  |Res| = 3.551756e-12
+  Δroot = (-5.320189e-13, +5.173639e-14) Hz
+  distance = 5.345285e-13 Hz
+  iterations = 3
+  reason = RESIDUAL_CONVERGED
+  elapsed = 0.485 s
+
+START 2/2
+  offset = (-1.000000e-02, +5.000000e-03) Hz
+  start = 6.626443687771 -0.416971108577 i
+  root  = 6.636443687771 -0.421971108577 i
+  |Res| = 5.014287e-13
+  Δroot = (+3.259615e-13, +1.623701e-13) Hz
+  distance = 3.641633e-13 Hz
+  iterations = 3
+  reason = RESIDUAL_CONVERGED
+  elapsed = 0.544 s
+
+m=-4.0 finished in 1.265 s
+
+------------------------------------------------------------------------------
+m = -5.0
+------------------------------------------------------------------------------
+r_sp      = 1.632782641781e-02
+omega_lr  = 4.046547009302e+01
+
+Frozen-point residual:
+  |Res(frozen)| = 1.498320e-12
+
+START 1/2
+  offset = (+1.000000e-02, +1.000000e-02) Hz
+  start = 6.999518102571 -0.353141434134 i
+  root  = 6.989518102569 -0.363141434135 i
+  |Res| = 1.180118e-11
+  Δroot = (-2.189360e-12, -9.121037e-13) Hz
+  distance = 2.371757e-12 Hz
+  iterations = 3
+  reason = RESIDUAL_CONVERGED
+  elapsed = 0.553 s
+
+START 2/2
+  offset = (-1.000000e-02, +5.000000e-03) Hz
+  start = 6.979518102571 -0.358141434134 i
+  root  = 6.989518102571 -0.363141434134 i
+  |Res| = 1.643663e-12
+  Δroot = (+7.815970e-14, +1.733058e-13) Hz
+  distance = 1.901153e-13 Hz
+  iterations = 3
+  reason = RESIDUAL_CONVERGED
+  elapsed = 0.546 s
+
+m=-5.0 finished in 1.343 s
+
+------------------------------------------------------------------------------
+m = -6.0
+------------------------------------------------------------------------------
+r_sp      = 1.718157082577e-02
+omega_lr  = 4.310240738719e+01
+
+Frozen-point residual:
+  |Res(frozen)| = 1.831914e-09
+
+START 1/2
+  offset = (+1.000000e-02, +1.000000e-02) Hz
+  start = 7.337835886000 -0.308302218000 i
+  root  = 7.327835886298 -0.318302218073 i
+  |Res| = 3.225243e-11
+  Δroot = (+2.978977e-10, -7.262846e-11) Hz
+  distance = 3.066234e-10 Hz
+  iterations = 3
+  reason = RESIDUAL_CONVERGED
+  elapsed = 0.562 s
+
+START 2/2
+  offset = (-1.000000e-02, +5.000000e-03) Hz
+  start = 7.317835886000 -0.313302218000 i
+  root  = 7.327835886303 -0.318302218069 i
+  |Res| = 4.444458e-12
+  Δroot = (+3.029008e-10, -6.906592e-11) Hz
+  distance = 3.106751e-10 Hz
+  iterations = 3
+  reason = RESIDUAL_CONVERGED
+  elapsed = 0.499 s
+
+m=-6.0 finished in 1.278 s
+
+------------------------------------------------------------------------------
+m = -11.0
+------------------------------------------------------------------------------
+r_sp      = 1.979595530522e-02
+omega_lr  = 5.368186945009e+01
+
+Frozen-point residual:
+  |Res(frozen)| = 4.625803e-09
+
+START 1/2
+  offset = (+1.000000e-02, +1.000000e-02) Hz
+  start = 8.822972738000 -0.178208416000 i
+  root  = 8.812972737773 -0.188208416488 i
+  |Res| = 9.036561e-16
+  Δroot = (-2.267893e-10, -4.880633e-10) Hz
+  distance = 5.381813e-10 Hz
+  iterations = 4
+  reason = STEP_AND_RESIDUAL_CONVERGED
+  elapsed = 0.719 s
+
+START 2/2
+  offset = (-1.000000e-02, +5.000000e-03) Hz
+  start = 8.802972738000 -0.183208416000 i
+  root  = 8.812972737773 -0.188208416488 i
+  |Res| = 3.852730e-15
+  Δroot = (-2.267893e-10, -4.880638e-10) Hz
+  distance = 5.381817e-10 Hz
+  iterations = 4
+  reason = STEP_AND_RESIDUAL_CONVERGED
+  elapsed = 0.658 s
+
+m=-11.0 finished in 1.618 s
+
+------------------------------------------------------------------------------
+m = -12.0
+------------------------------------------------------------------------------
+r_sp      = 2.008746138072e-02
+omega_lr  = 5.551472662927e+01
+
+Frozen-point residual:
+  |Res(frozen)| = 4.958554e-09
+
+START 1/2
+  offset = (+1.000000e-02, +1.000000e-02) Hz
+  start = 9.090269182000 -0.159919319000 i
+  root  = 9.080269181516 -0.169919318747 i
+  |Res| = 5.714414e-15
+  Δroot = (-4.844889e-10, +2.531872e-10) Hz
+  distance = 5.466564e-10 Hz
+  iterations = 4
+  reason = RESIDUAL_CONVERGED
+  elapsed = 0.697 s
+
+START 2/2
+  offset = (-1.000000e-02, +5.000000e-03) Hz
+  start = 9.070269182000 -0.164919319000 i
+  root  = 9.080269181516 -0.169919318747 i
+  |Res| = 8.906729e-15
+  Δroot = (-4.844889e-10, +2.531879e-10) Hz
+  distance = 5.466567e-10 Hz
+  iterations = 4
+  reason = STEP_AND_RESIDUAL_CONVERGED
+  elapsed = 0.711 s
+
+m=-12.0 finished in 1.646 s
+
+------------------------------------------------------------------------------
+m = -13.0
+------------------------------------------------------------------------------
+r_sp      = 2.031943069764e-02
+omega_lr  = 5.729787611341e+01
+
+Frozen-point residual:
+  |Res(frozen)| = 1.669830e-09
+
+START 1/2
+  offset = (+1.000000e-02, +1.000000e-02) Hz
+  start = 9.351131317000 -0.142555812000 i
+  root  = 9.341131317151 -0.152555811911 i
+  |Res| = 3.095213e-15
+  Δroot = (+1.508802e-10, +8.910478e-11) Hz
+  distance = 1.752270e-10 Hz
+  iterations = 4
+  reason = RESIDUAL_CONVERGED
+  elapsed = 0.695 s
+
+START 2/2
+  offset = (-1.000000e-02, +5.000000e-03) Hz
+  start = 9.331131317000 -0.147555812000 i
+  root  = 9.341131317151 -0.152555811911 i
+  |Res| = 1.852210e-14
+  Δroot = (+1.508820e-10, +8.910511e-11) Hz
+  distance = 1.752287e-10 Hz
+  iterations = 4
+  reason = STEP_AND_RESIDUAL_CONVERGED
+  elapsed = 0.738 s
+
+m=-13.0 finished in 1.664 s
+
+------------------------------------------------------------------------------
+m = -14.0
+------------------------------------------------------------------------------
+r_sp      = 2.049614181294e-02
+omega_lr  = 5.904354272865e+01
+
+Frozen-point residual:
+  |Res(frozen)| = 4.671514e-09
+
+START 1/2
+  offset = (+1.000000e-02, +1.000000e-02) Hz
+  start = 9.606712868000 -0.125838317000 i
+  root  = 9.596712867698 -0.135838316642 i
+  |Res| = 1.037984e-14
+  Δroot = (-3.021281e-10, +3.581258e-10) Hz
+  distance = 4.685461e-10 Hz
+  iterations = 4
+  reason = RESIDUAL_CONVERGED
+  elapsed = 0.684 s
+
+START 2/2
+  offset = (-1.000000e-02, +5.000000e-03) Hz
+  start = 9.586712868000 -0.130838317000 i
+  root  = 9.596712867698 -0.135838316642 i
+  |Res| = 1.065944e-14
+  Δroot = (-3.021281e-10, +3.581258e-10) Hz
+  distance = 4.685461e-10 Hz
+  iterations = 4
+  reason = STEP_AND_RESIDUAL_CONVERGED
+  elapsed = 0.654 s
+
+m=-14.0 finished in 1.564 s
+
+==============================================================================
+FINAL SUMMARY
+==============================================================================
+
+Total independent solves : 14
+Successful solves        : 14
+Failed solves            : 0
+
+max |Res| among PASS      = 3.225243e-11
+max distance to frozen   = 5.466567e-10 Hz
+
+CSV : C:\Users\Lenovo\Desktop\Grav\Gr\repo\Lambda-model\paper3\gw\matched_filter\_archive\qnm_branch_work\stage6_5B4_2_INDEPENDENT_root_reproduction.csv
+LOG : C:\Users\Lenovo\Desktop\Grav\Gr\repo\Lambda-model\paper3\gw\matched_filter\_archive\qnm_branch_work\stage6_5B4_2_INDEPENDENT_root_reproduction.log
+
+==============================================================================
+INTERPRETATION
+==============================================================================
+
+A PASS means the independent Newton solver, starting from a local perturbation, returned to the frozen Root-B point with |Res| below tolerance.
+
+This supports numerical reproducibility of the frozen Root-B roots under a different root-finding algorithm.
+
+It does NOT establish a physical Kerr mapping or an experimental q=2 identification.
+
+DONE.
