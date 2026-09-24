@@ -5,10 +5,9 @@ claim is high — see `paper3/PAPER3_VALIDATION_STATUS.md` for the
 current honest status before proposing new results. **The single most
 useful thing you can do is find a mistake, not add a new claim.**
 
-If you're new here, read the [README status
-table](README.md#status-of-results--read-before-citing) first — it
-tells you what's established, what's speculative, and what's actively
-refused (and why).
+If you're new here, read the [README](README.md) first — it tells you
+what has been shown, what has not, and which results are negative or
+inconclusive.
 
 ## The discipline this project follows (please match it)
 
@@ -42,6 +41,46 @@ Every result in this repo has, at some point, been through:
 
 A pull request that skips these steps, even for a small change, will
 likely get asked to add them before merging.
+
+## Before claiming a new result
+
+The checks above make the code trustworthy. The checks below protect
+against a different problem: finding a pattern that exists only because
+of the choices made while looking for it. A real effect persists or
+grows as the data improve; an artificial one fades. Before any new
+pattern is described as a result, it goes through these steps.
+
+1. **Freeze the rules first.** Before looking at the outcome, record
+   the dataset, selection cuts, method, free and fixed parameters,
+   test statistic and significance threshold. Commit them with a date.
+   An analysis changed after seeing the result is exploratory, not
+   confirmatory.
+2. **Test on data not used to find the pattern.** Split the data into a
+   discovery half and a confirmation half, or wait for new data (a new
+   event, run or experiment). Apply the frozen rules unchanged.
+3. **Write down a prediction that can fail.** State what should be seen
+   if the pattern is real, what should be seen if it is not, and under
+   which conditions it should disappear. If no outcome could count
+   against it, it is not yet a testable claim.
+4. **Run a null control.** Apply the same pipeline to shuffled,
+   time-shifted or effect-free data. If the "signal" appears there too,
+   it comes from the method.
+5. **Reproduce independently.** A second implementation, solver,
+   dataset or method, compared quantitatively.
+
+Label every claim by how far it has come:
+
+- **Exploratory:** pattern seen, not yet independently tested.
+- **Reproduced:** recovered by an independent route under the same
+  frozen rules.
+- **Robust:** reproduced across independent data or conditions, and
+  absent in the null control.
+- **Not supported:** the prediction failed, or the effect also appears
+  in the null control.
+
+A label is never upgraded because a further analysis, chosen after the
+fact, happened to look favourable. The current label of each result in
+this repository is kept in `paper3/PAPER3_VALIDATION_STATUS.md`.
 
 ## Concrete, scoped tasks (good first contributions)
 
