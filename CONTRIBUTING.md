@@ -1,116 +1,320 @@
-# Contributing
+# -*- coding: utf-8 -*-
+"""
+spectral_contribution_test.py
+==============================
+Тест за "Алгоритмичен фазов резонанс"
 
-This repository welcomes contributions, but the bar for any physical
-claim is high — see `paper3/PAPER3_VALIDATION_STATUS.md` for the
-current honest status before proposing new results. **The single most
-useful thing you can do is find a mistake, not add a new claim.**
+Хипотеза: При T < 0.92 → 10% perturbation
+           улавя "глобална мода" (много върха допринасят)
+           При T > 0.92 → само "локални моди" остават
+           (малко върха допринасят)
 
-If you're new here, read the [README status
-table](README.md#status-of-results--read-before-citing) first — it
-tells you what's established, what's speculative, and what's actively
-refused (and why).
+Метрика: Contribution Efficiency (CE)
+  CE = брой върха, допринесли за +CUT /
+       брой флипнати върха
 
-## The discipline this project follows (please match it)
+  CE ≈ 1.0 → всички флипнати върха помагат (глобална мода)
+  CE ≈ 0.1 → само 10% от флипнатите помагат (локална мода)
 
-Every result in this repo has, at some point, been through:
+Граф: G72 (реален Gset, n=10,000)
+      best_cut = 6,680
+"""
+import numpy as np
+from numba import njit
+import time, json, os
 
-1. **A dimensional audit.** Before identifying two "Λ"-like
-   parameters from different domains, check their SI units by direct
-   analysis of the formula they appear in — not by the symbol they
-   share. (Example: the near-horizon Λ [m²] and the GW-propagation Λ
-   [m³/s] in this repo are dimensionally distinct — they are not the
-   same quantity, and no physical identification between them has
-   been derived. They are related only by a dimensional bookkeeping
-   factor, Λ_NH = Λ_GW / c [verified: (m³/s)/(m/s) = m²] — this shows
-   the two are dimensionally consistent with such a relation existing,
-   not that this specific relation has been physically established.
-   The two are kept explicitly separate for exactly this reason; see
-   `paper3/PAPER3_VALIDATION_STATUS.md`, "Critical scope
-   clarification," for the full discussion.)
-2. **A known-baseline check.** Before fitting Λ to real data, confirm
-   there's an established, Λ-free model for that system, and that your
-   pipeline correctly rejects pure baseline data as "not Λ" (see
-   `test_pure_quartic_is_not_lambda_model` for the pattern).
-3. **A synthetic sanity check with a known answer**, run *before*
-   touching real data — inject a known Λ, confirm you recover it, confirm
-   Λ=0 stays at zero.
-4. **Independent re-execution**, not just re-reading the code. If a
-   result is claimed "validated," re-run it yourself and check the
-   actual printed output before citing it. Several early results in
-   this repo's history did not survive this step (see the audit trail
-   in the Honesty Statement).
+REAL_BEST_CUT = 6680
+COSM = 7008
 
-A pull request that skips these steps, even for a small change, will
-likely get asked to add them before merging.
+T_LEVELS = [0.88, 0.90, 0.92, 0.94, 0.95, 0.96, 0.97, 0.98]
+N_RUNS   = 15
+N_PROBES = 100  # проби на run
 
-## Concrete, scoped tasks (good first contributions)
 
-These are deliberately narrow — each is a few hours of work, not a new
-research program.
+def load_graph(path):
+    eu, ev, ew = [], [], []
+    with open(path) as f:
+        f.readline()
+        for line in f:
+            p = line.strip().split()
+            if len(p) >= 3:
+                eu.append(int(p[0])-1)
+                ev.append(int(p[1])-1)
+                ew.append(float(p[2]))
+    return (10000,
+            np.array(eu,np.int32),
+            np.array(ev,np.int32),
+            np.array(ew,np.float64))
 
-### 1. Dimensional audit of a new analog-gravity platform
-Pick one candidate system not yet covered (exciton-polariton
-condensates, optical-fiber event horizons, water-tank surface waves,
-linear/planar BEC sonic horizons — see the Discussions "Ideas"
-category for the current shortlist). For that system:
-- Find the published dispersion relation.
-- Derive the SI dimension of its leading correction coefficient by
-  direct analysis (not analogy).
-- State explicitly whether it matches Λ_NH [m²], Λ_GW [m³/s], neither,
-  or needs its own symbol.
-- Open a PR adding one row to a new `analog_platforms_audit.md` table.
+def build_adj(n, eu, ev, ew):
+    deg = np.zeros(n, np.int32)
+    for k in range(len(eu)):
+        deg[eu[k]]+=1; deg[ev[k]]+=1
+    ptr = np.zeros(n+1, np.int32)
+    for i in range(n): ptr[i+1]=ptr[i]+deg[i]
+    nbr = np.zeros(ptr[n], np.int32)
+    wgt = np.zeros(ptr[n], np.float64)
+    cnt = np.zeros(n, np.int32)
+    for k in range(len(eu)):
+        u,v,w=eu[k],ev[k],ew[k]
+        nbr[ptr[u]+cnt[u]]=v; wgt[ptr[u]+cnt[u]]=w; cnt[u]+=1
+        nbr[ptr[v]+cnt[v]]=u; wgt[ptr[v]+cnt[v]]=w; cnt[v]+=1
+    return ptr, nbr, wgt
 
-No code required for this one — just careful algebra and a citation.
+def cut_val(x, eu, ev, ew):
+    return 0.5*float(np.sum(ew*(1.0-x[eu]*x[ev])))
 
-### 2. Run the validator on your own (k, ω) data
-If you have any measured or simulated dispersion data:
-```bash
-python paper3/lambda_experimental_validator.py --omega your_omega.csv --k your_k.csv
-```
-Report the fitted Λ, its significance, and — critically — whether your
-system has an independently known "Λ-free" baseline to compare
-against. A null result (Λ consistent with zero) is exactly as welcome
-as a positive one; this repo has more of the former than the latter so
-far, and that's by design, not a problem to fix.
+@njit(fastmath=True)
+def local_search(x, ptr, nbr, wgt, n, max_passes=400):
+    for _ in range(max_passes):
+        improved = False
+        for i in range(n):
+            gain = 0.0
+            for k in range(ptr[i], ptr[i+1]):
+                gain += wgt[k]*x[i]*x[nbr[k]]
+            if gain > 1e-10:
+                x[i]=-x[i]; improved=True
+        if not improved: break
+    return x
 
-### 3. Independent reimplementation of the n=1 regression test
-`paper3/gw/matched_filter/A2_chromatic_shadow_generalized.py --n 1`
-should reproduce Paper 2's published photon-ring coefficients
-(C_pro=−0.6230, C_ret=+11.495) to several significant figures. Write
-your own from-scratch implementation of the same photon-ring
-condition (H=0, ∂H/∂r=0 at Λ=0) in a different language/library and
-confirm you get the same numbers. This is the single highest-value
-independent check available right now — it doesn't require any new
-data, just a second pair of eyes on the math.
+@njit(fastmath=True)
+def perturb_tracked(x, ptr, nbr, wgt, n, strength, seed):
+    """Перturb и връща кои върха са флипнати"""
+    np.random.seed(seed)
+    n_flip = max(1, int(n*strength))
+    idx = np.random.choice(n, n_flip, replace=False)
+    x_new = x.copy()
+    for i in idx: x_new[i] = -x_new[i]
+    return x_new, idx
 
-### 4. Extend the n-family exponent measurement to n=5, 6...
-The generalized solver (`A2_chromatic_shadow_generalized.py`) predicts
-δb ∝ Λ_n·E^(2n), confirmed numerically for n=1–4. Extending to higher
-n is mechanical (same code, larger `--n` argument) but worth doing to
-see whether the pattern holds or something breaks numerically at
-higher order — useful before anyone tries to fit a real n from
-observational data.
+@njit(fastmath=True)
+def perturb(x, ptr, nbr, wgt, n, strength, seed):
+    np.random.seed(seed)
+    n_flip = max(1, int(n*strength))
+    idx = np.random.choice(n, n_flip, replace=False)
+    for i in idx: x[i]=-x[i]
+    return x
 
-### 5. Flag anything in the repo that looks unverified
-If you find a claimed result with no runnable script producing it, or
-a script whose output doesn't match what's written about it in a
-README or status file — please open an issue. This has happened
-before in this repo's history and was corrected; it will likely happen
-again as the codebase grows, and catching it is genuinely valuable
-work, not a minor nitpick.
+def greedy_init(n, ptr, nbr, wgt, seed=42):
+    np.random.seed(seed)
+    x = np.zeros(n)
+    order = np.random.permutation(n)
+    for i in order:
+        score=0.0
+        for k in range(ptr[i],ptr[i+1]):
+            j=nbr[k]; w=wgt[k]
+            if x[j]!=0: score+=w*x[j]
+        x[i]=-1.0 if score>0 else 1.0
+        if score==0: x[i]=1.0 if np.random.random()>0.5 else -1.0
+    return x
 
-## What NOT to open a PR for
 
-- New Λ mappings to a physical system without the dimensional audit
-  above.
-- Claims of a "detected" non-zero Λ based on a single fit without a
-  null-control comparison and a stated significance level.
-- Code that reproduces a result without also including the
-  known-baseline / Λ=0 control that shows the pipeline can correctly
-  say "no" when the answer is no.
+def measure_contribution(x_start, ptr, nbr, wgt, eu, ev, ew, n,
+                          base_cut, strength, n_probes, seed_offset):
+    """
+    Contribution Efficiency (CE):
+    За всяка успешна perturbation измерва колко от
+    флипнатите върха реално допринасят за подобрението.
+    
+    Връща: (mean_CE, success_rate, mean_gain)
+    """
+    n_flip = max(1, int(n * strength))
+    CE_values = []
+    gains = []
+    successes = 0
 
-## Questions, not sure where to start?
+    for probe in range(n_probes):
+        # Perturbation с tracking
+        np.random.seed(seed_offset * 10000 + probe)
+        idx = np.random.choice(n, n_flip, replace=False)
 
-Use GitHub Discussions (Q&A category) rather than opening an issue —
-issues are for concrete bugs or well-defined tasks; Discussions is for
-"is this idea worth pursuing" conversations.
+        x_new = x_start.copy()
+        for i in idx: x_new[i] = -x_new[i]
+        x_new = local_search(x_new, ptr, nbr, wgt, n, 150)
+
+        new_cut = cut_val(x_new, eu, ev, ew)
+        gain = new_cut - base_cut
+
+        if gain > 0:
+            successes += 1
+            gains.append(gain)
+
+            # Измерваме колко от флипнатите върха
+            # са в "правилна" посока след LS
+            # Ако x_new[i] != x_start[i] → върхът е останал флипнат
+            # Ако x_new[i] == x_start[i] → LS го е върнал обратно
+            stayed_flipped = sum(1 for i in idx
+                                 if x_new[i] != x_start[i])
+            CE = stayed_flipped / n_flip
+            CE_values.append(CE)
+
+    success_rate = successes / n_probes
+    mean_CE = float(np.mean(CE_values)) if CE_values else 0.0
+    mean_gain = float(np.mean(gains)) if gains else 0.0
+
+    return mean_CE, success_rate, mean_gain
+
+
+def climb_to_cut(n, eu, ev, ew, ptr, nbr, wgt,
+                 target_cut, seed=42, budget=25):
+    x = greedy_init(n, ptr, nbr, wgt, seed=seed)
+    x = local_search(x.copy(), ptr, nbr, wgt, n, 1000)
+    best_cut = cut_val(x, eu, ev, ew)
+    best_x = x.copy()
+    start = time.time()
+    r = 0
+    while time.time()-start < budget:
+        r += 1
+        ratio = best_cut / REAL_BEST_CUT
+        s = 0.10 if ratio<0.85 else (0.03 if ratio<0.92 else 0.01)
+        xp = perturb(best_x.copy(), ptr, nbr, wgt, n, s, seed*1000+r)
+        xp = local_search(xp, ptr, nbr, wgt, n, 300)
+        cp = cut_val(xp, eu, ev, ew)
+        if cp > best_cut: best_cut=cp; best_x=xp.copy()
+        if best_cut >= target_cut: break
+    return best_x, best_cut
+
+
+# ══ MAIN ════════════════════════════════════════════════════
+if __name__ == "__main__":
+
+    candidates = [
+        'C:\\Users\\Lenovo\\Desktop\\int\\G72.txt',
+        'C:\\Users\\Lenovo\\Desktop\\G72.txt',
+        'G72.txt',
+    ]
+    graph_path = None
+    for c in candidates:
+        if os.path.exists(c): graph_path=c; break
+
+    if not graph_path:
+        print("G72.txt не е намерен!")
+        exit(1)
+
+    print(f"{'='*65}")
+    print(f"SPECTRAL CONTRIBUTION TEST — Алгоритмичен фазов резонанс")
+    print(f"Хипотеза: CE(10%) >> CE(1%) при T < 0.92")
+    print(f"          CE(10%) << CE(1%) при T > 0.92")
+    print(f"{'='*65}\n")
+
+    n, eu, ev, ew = load_graph(graph_path)
+    ptr, nbr, wgt = build_adj(n, eu, ev, ew)
+
+    # Warmup
+    xt=np.ones(10)
+    ptr_=np.array([0,1,2,3,4,5,6,7,8,9,10,10],np.int32)
+    nbr_=np.array([1,0,3,2,5,4,7,6,9,8],np.int32)
+    wgt_=np.ones(10)
+    local_search(xt,ptr_,nbr_,wgt_,10,1)
+    perturb(xt,ptr_,nbr_,wgt_,10,0.1,0)
+    print("Numba OK\n")
+
+    strengths = [0.01, 0.10]
+    op_names  = ['1%', '10%']
+
+    results = []
+
+    print(f"{'T':>6} {'%Cosm':>7} {'CE(1%)':>8} {'CE(10%)':>9} "
+          f"{'Ratio':>8} {'SR(1%)':>8} {'SR(10%)':>9}")
+    print(f"{'─'*65}")
+
+    for T_level in T_LEVELS:
+        target_cut = int(REAL_BEST_CUT * T_level)
+        row = {'T': T_level, 'target_cut': target_cut, 'ops': {}}
+
+        CE_means = {}
+        SR_means = {}
+
+        for strength, op_name in zip(strengths, op_names):
+            CE_all, SR_all = [], []
+
+            for run in range(N_RUNS):
+                x_at_T, cut_at_T = climb_to_cut(
+                    n, eu, ev, ew, ptr, nbr, wgt,
+                    target_cut=target_cut,
+                    seed=run*7+42, budget=20
+                )
+
+                if cut_at_T < target_cut * 0.99:
+                    continue
+
+                CE, SR, gain = measure_contribution(
+                    x_at_T, ptr, nbr, wgt, eu, ev, ew, n,
+                    base_cut=cut_at_T,
+                    strength=strength,
+                    n_probes=N_PROBES,
+                    seed_offset=run*100
+                )
+                CE_all.append(CE)
+                SR_all.append(SR)
+
+            CE_means[op_name] = float(np.mean(CE_all)) if CE_all else 0
+            SR_means[op_name] = float(np.mean(SR_all)) if SR_all else 0
+            row['ops'][op_name] = {
+                'CE': CE_means[op_name],
+                'SR': SR_means[op_name],
+            }
+
+        ce1  = CE_means.get('1%', 0)
+        ce10 = CE_means.get('10%', 0)
+        sr1  = SR_means.get('1%', 0)
+        sr10 = SR_means.get('10%', 0)
+        ratio = ce10/ce1 if ce1 > 0 else 0
+        pct = target_cut/COSM*100
+        marker = " ← T₂" if abs(T_level-0.92)<0.005 else \
+                 (" ← T_emp" if abs(T_level-0.95)<0.005 else "")
+
+        print(f"{T_level:>6.2f} {pct:>6.1f}% {ce1:>8.3f} "
+              f"{ce10:>9.3f} {ratio:>8.2f}x "
+              f"{sr1:>7.1%} {sr10:>8.1%}{marker}")
+
+        results.append(row)
+
+    # ФИНАЛЕН АНАЛИЗ
+    print(f"\n{'='*65}")
+    print(f"АНАЛИЗ: Промяна на доминиращата мода при T=0.92")
+    print(f"{'='*65}")
+
+    below = [r for r in results if r['T'] < 0.92]
+    above = [r for r in results if r['T'] >= 0.92]
+
+    if below and above:
+        ce10_below = np.mean([r['ops'].get('10%',{}).get('CE',0)
+                              for r in below])
+        ce10_above = np.mean([r['ops'].get('10%',{}).get('CE',0)
+                              for r in above])
+        ce1_below  = np.mean([r['ops'].get('1%',{}).get('CE',0)
+                              for r in below])
+        ce1_above  = np.mean([r['ops'].get('1%',{}).get('CE',0)
+                              for r in above])
+
+        print(f"\n  CE(10%) под T₂=0.92: {ce10_below:.3f}")
+        print(f"  CE(10%) над T₂=0.92: {ce10_above:.3f} "
+              f"({'▼' if ce10_above < ce10_below else '▲'}"
+              f" {abs(ce10_above-ce10_below)/max(ce10_below,0.001)*100:.0f}%)")
+        print(f"\n  CE(1%)  под T₂=0.92: {ce1_below:.3f}")
+        print(f"  CE(1%)  над T₂=0.92: {ce1_above:.3f} "
+              f"({'▼' if ce1_above < ce1_below else '▲'}"
+              f" {abs(ce1_above-ce1_below)/max(ce1_below,0.001)*100:.0f}%)")
+
+        print(f"\n  ЗАКЛЮЧЕНИЕ:")
+        if ce10_above < ce10_below * 0.7:
+            print(f"  ✓ CE(10%) намалява над T₂ — глобалната мода изчезва")
+        if ce1_above >= ce1_below * 0.9:
+            print(f"  ✓ CE(1%) остава стабилна — локалните моди персистират")
+
+    # Запис
+    out = os.path.join(os.path.dirname(graph_path),
+                       'spectral_contribution_results.json')
+    try:
+        with open(out, 'w') as f:
+            json.dump({
+                'test': 'spectral_contribution',
+                'graph': 'G72', 'n': n,
+                'real_best_cut': REAL_BEST_CUT,
+                'T_levels': T_LEVELS,
+                'results': results,
+            }, f, indent=2)
+        print(f"\nЗапазено: {out}")
+    except Exception as e:
+        print(f"JSON: {e}")
