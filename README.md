@@ -21,8 +21,7 @@ Details: [`paper3/PAPER3_ADDENDUM_BLIND_2D.md`](paper3/PAPER3_ADDENDUM_BLIND_2D.
 
 **2. Gravitational-wave propagation.** The propagation phase used here is identical to the LVK α=4 modified-dispersion parametrization, with Λ_GW = ħ²c³A₄. The published GWTC-4.0 bound (arXiv:2603.19020) translates to Λ_GW ∈ [−7.2×10⁻³, +2.2×10⁻³] m³/s (90%), consistent with Λ = 0. The same translation was published independently in arXiv:2607.17431. A separate analysis of GW150914 gives z = −0.43σ against an off-source null, also consistent with Λ = 0.
 
-**3. Photon sector.** Fermi-LAT time-of-flight data give Λ < 1.44×10⁻⁵³ m². The near-horizon photon-ring solver is regression-tested against Paper 2 but has not been applied to observational data; at EHT radio frequencies the effect is too small to be measured.
-
+**3. Photon sector.**3. Photon sector. LHAASO observations of GRB 221009A (Yang, Bi & Yin, JCAP 04 (2024) 060, arXiv:2312.09079) constrain the quadratic (n=2) photon dispersion, which maps onto this model as Λ = −S·(ħc/E_QG,2)², with Λ > 0 superluminal. The maximum-likelihood 95% limits give Λ < 7.5×10⁻⁵⁶ m² (superluminal) and |Λ| < 2.7×10⁻⁵⁶ m² (subluminal); the weakest of the paper's three spectral models gives Λ < 2.0×10⁻⁵⁵ m². This supersedes the earlier Fermi-LAT bound (Λ < 1.44×10⁻⁵³ m²). The limits assume no intrinsic energy-dependent emission delay and vary by tens of percent with the light-curve model. The near-horizon photon-ring solver is regression-tested against Paper 2 but has not been applied to observational data.
 ## Negative and inconclusive results
 
 * **BEC data** (Ozeri et al. 2002, digitized): consistent with the Bogoliubov prediction, but with N = 3–4 points this is not a confirmation. A cavity-QED control dataset (Guo et al. 2021) gives a clean null.
