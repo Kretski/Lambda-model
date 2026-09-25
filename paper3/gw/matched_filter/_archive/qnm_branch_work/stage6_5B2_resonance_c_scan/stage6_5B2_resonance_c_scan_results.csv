@@ -1,0 +1,5 @@
+label,C,status,r_sp,f_lr,f_R,f_I,Q,abs_res,re_res,im_res,action_re,action_im,abs_R,r_minus,r_turn_re,r_turn_im,max_p,n,optimizer_success,optimizer_iterations,optimizer_objective
+C_ZERO,0.0,NO_LIGHT_RING,,,,,,,,,,,,,,,,,,,
+C_HALF,0.0003845,NO_COARSE_CANDIDATE,0.009873054390127308,12.350160999192898,,,,,,,,,,,,,,,,,
+BASELINE,0.000769,NO_COARSE_CANDIDATE,0.020087461380721258,8.835443157444212,,,,,,,,,,,,,,,,,
+C_DOUBLE,0.001538,NO_COARSE_CANDIDATE,0.03436314164907322,6.764468228977265,,,,,,,,,,,,,,,,,

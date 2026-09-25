@@ -1,0 +1,63 @@
+{
+  "stage": "6.5B4-0",
+  "description": "Baseline resonance reproducibility @ N=1000",
+  "mode_m": -12,
+  "constants": {
+    "C": 0.000769,
+    "Omega": 0.1,
+    "gamma": 2.22e-06,
+    "h0": 0.034,
+    "g": 9.81,
+    "r_B": 0.0373
+  },
+  "radial_N": 1000,
+  "input_frequency_hz": {
+    "f_re": 8.306625532027,
+    "f_im": -0.000586962309
+  },
+  "light_ring": {
+    "r_sp_m": 0.020087461380721258,
+    "r_sp_mm": 20.08746138072126,
+    "omega_lr_rad_s": 55.51472662927388,
+    "f_lr_hz": 8.835443157444212
+  },
+  "last_scattering_point": {
+    "r_minus_real_m": 0.030265150841229545
+  },
+  "turning_point": {
+    "r_turn_real_m": 0.030265151172733908,
+    "r_turn_imag_m": 8.108992833505853e-06,
+    "H_turn_real": 2.2737367544323206e-13,
+    "H_turn_imag": 4.440892098500626e-16,
+    "H_turn_abs": 2.2737410912368746e-13
+  },
+  "radial_action": {
+    "real": 0.7574822498980011,
+    "imag": -0.00137352205770723,
+    "abs": 0.7574834951821596,
+    "N": 1000
+  },
+  "reflection": {
+    "real": 0.055711329244375385,
+    "imag": -0.995798198378311,
+    "abs": 0.9973554051087632
+  },
+  "resonance": {
+    "f_re_hz": 8.306625532027,
+    "f_im_hz": -0.000586962309,
+    "Q": 7075.944574855999,
+    "Res_real": 9.894941491817022e-05,
+    "Res_imag": 5.632213547014653e-05,
+    "Res_abs": 0.00011385591621240305
+  },
+  "historical_reference": {
+    "f_re_hz": 8.3066307032346,
+    "f_im_hz": -0.0005696389388967092,
+    "delta_f_re_hz": -5.171207599019567e-06,
+    "delta_f_im_hz": -1.7323370103290757e-05,
+    "complex_distance_hz": 1.807873169687923e-05,
+    "status": "PASS"
+  },
+  "verdict": "PASS",
+  "authoritative_solver_modified": false
+}

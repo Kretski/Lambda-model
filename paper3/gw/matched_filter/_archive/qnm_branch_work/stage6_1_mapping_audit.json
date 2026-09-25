@@ -1,0 +1,47 @@
+{
+  "stage": "6.1",
+  "title": "Lambda / Giant-Vortex to Kerr QNM Mapping Audit",
+  "input": "C:\\Users\\Lenovo\\Desktop\\Grav\\Gr\\repo\\Lambda-model\\paper3\\gw\\matched_filter\\_archive\\qnm_branch_work\\stage5K_1_observables_rootB.csv",
+  "output_csv": "C:\\Users\\Lenovo\\Desktop\\Grav\\Gr\\repo\\Lambda-model\\paper3\\gw\\matched_filter\\_archive\\qnm_branch_work\\stage6_1_mapping_audit.csv",
+  "output_json": "C:\\Users\\Lenovo\\Desktop\\Grav\\Gr\\repo\\Lambda-model\\paper3\\gw\\matched_filter\\_archive\\qnm_branch_work\\stage6_1_mapping_audit.json",
+  "n_validated_points": 239,
+  "m_range": [
+    -14.905000000000074,
+    -14.0
+  ],
+  "last_validated_m": -14.905000000000074,
+  "residual_range": [
+    7.2164496600635185e-16,
+    2.981791189775536e-14
+  ],
+  "q_internal_consistency": {
+    "relation": "Q = pi * f_R * tau",
+    "max_relative_error": 5.369061519090162e-16,
+    "pass": true
+  },
+  "candidate_dimensionless_features": [],
+  "candidate_status": {
+    "Q": {
+      "dimensionless": true,
+      "injective_on_tested_branch": true,
+      "monotonic_on_tested_branch": false,
+      "physical_Kerr_mapping_established": false
+    },
+    "omegaR_over_abs_omegaI": {
+      "dimensionless": true,
+      "injective_on_tested_branch": true,
+      "monotonic_on_tested_branch": false,
+      "physical_Kerr_mapping_established": false
+    }
+  },
+  "explicit_non_assumptions": [
+    "m_gv is not identified with Kerr m",
+    "giant-vortex circulation is not identified with Kerr a/M",
+    "analog frequency scale is not identified with astrophysical frequency scale",
+    "no real GW event is used",
+    "no post-hoc event-specific mapping is fitted",
+    "dimensionless spectral similarity is not treated as physical equivalence"
+  ],
+  "scientific_conclusion": "The Root-B branch provides well-defined dimensionless spectral features, including Q and omega_R/|omega_I|, that are internally consistent and monotonic over the validated branch. However, this audit does not establish a physical or unique mapping onto Kerr QNM parameter space. A physical correspondence requires an independently justified mapping between analog mode/rotation variables and Kerr dimensionless parameters (a/M, l, m, n), together with an independently justified frequency scale.",
+  "next_stage": "Derive or falsify an independent physical mapping between giant-vortex variables and Kerr QNM parameters before using real GW strain data."
+}

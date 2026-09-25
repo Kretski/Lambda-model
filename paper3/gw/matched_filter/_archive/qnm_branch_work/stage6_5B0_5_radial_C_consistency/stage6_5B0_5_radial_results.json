@@ -1,0 +1,252 @@
+{
+  "stage": "6.5B-0.5",
+  "description": "Radial C-consistency preflight before complex resonance search",
+  "authoritative_solver": "C:\\Users\\Lenovo\\Desktop\\Grav\\Gr\\repo\\Lambda-model\\paper3\\gw\\matched_filter\\_archive\\qnm_branch_work\\stage5I_3_resonance.py",
+  "mode_m": -12,
+  "baseline_C": 0.000769,
+  "constants": {
+    "Omega": 0.1,
+    "gamma": 2.22e-06,
+    "h0": 0.034,
+    "g": 9.81,
+    "r_B": 0.0373
+  },
+  "rules": [
+    "authoritative solver loaded normally",
+    "no AST rewriting",
+    "no modification of globals",
+    "no modification of function defaults",
+    "only explicit C argument is varied",
+    "no complex resonance root search",
+    "no Kerr fit",
+    "no GW calibration",
+    "no frequency rescaling",
+    "no low-k approximation"
+  ],
+  "results": [
+    {
+      "case": "C_ZERO",
+      "C": 0.0,
+      "light_ring": false,
+      "r_sp_m": null,
+      "r_sp_mm": null,
+      "omega_lr": null,
+      "f_lr_hz": null,
+      "radial_points": [],
+      "status": "NO_LIGHT_RING",
+      "error": null
+    },
+    {
+      "case": "C_HALF",
+      "C": 0.0003845,
+      "light_ring": true,
+      "r_sp_m": 0.009873054390127308,
+      "r_sp_mm": 9.873054390127308,
+      "omega_lr": 77.59835013143118,
+      "f_lr_hz": 12.350160999192898,
+      "radial_points": [
+        {
+          "offset_mm": -2.0,
+          "r_m": 0.007873054390127308,
+          "r_mm": 7.873054390127308,
+          "solve_p_raw": "np.float64(283.5490721558334)",
+          "solve_p_real": 283.5490721558334,
+          "finite_real": true
+        },
+        {
+          "offset_mm": -1.0,
+          "r_m": 0.008873054390127307,
+          "r_mm": 8.873054390127308,
+          "solve_p_raw": "np.float64(122.02811529282461)",
+          "solve_p_real": 122.02811529282461,
+          "finite_real": true
+        },
+        {
+          "offset_mm": -0.25,
+          "r_m": 0.009623054390127308,
+          "r_mm": 9.623054390127308,
+          "solve_p_raw": "np.float64(27.522996974283785)",
+          "solve_p_real": 27.522996974283785,
+          "finite_real": true
+        },
+        {
+          "offset_mm": 0.0,
+          "r_m": 0.009873054390127308,
+          "r_mm": 9.873054390127308,
+          "solve_p_raw": "np.float64(2.024427516752351e-05)",
+          "solve_p_real": 2.024427516752351e-05,
+          "finite_real": true
+        },
+        {
+          "offset_mm": 0.25,
+          "r_m": 0.010123054390127308,
+          "r_mm": 10.123054390127308,
+          "solve_p_raw": "np.float64(25.79856321612013)",
+          "solve_p_real": 25.79856321612013,
+          "finite_real": true
+        },
+        {
+          "offset_mm": 1.0,
+          "r_m": 0.010873054390127309,
+          "r_mm": 10.87305439012731,
+          "solve_p_raw": "np.float64(94.14198786814548)",
+          "solve_p_real": 94.14198786814548,
+          "finite_real": true
+        },
+        {
+          "offset_mm": 2.0,
+          "r_m": 0.011873054390127308,
+          "r_mm": 11.873054390127308,
+          "solve_p_raw": "np.float64(168.0509361827191)",
+          "solve_p_real": 168.0509361827191,
+          "finite_real": true
+        }
+      ],
+      "status": "PASS",
+      "error": null,
+      "valid_radial_points": 7
+    },
+    {
+      "case": "BASELINE",
+      "C": 0.000769,
+      "light_ring": true,
+      "r_sp_m": 0.020087461380721258,
+      "r_sp_mm": 20.08746138072126,
+      "omega_lr": 55.51472662927388,
+      "f_lr_hz": 8.835443157444212,
+      "radial_points": [
+        {
+          "offset_mm": -2.0,
+          "r_m": 0.01808746138072126,
+          "r_mm": 18.08746138072126,
+          "solve_p_raw": "np.float64(75.74167894368755)",
+          "solve_p_real": 75.74167894368755,
+          "finite_real": true
+        },
+        {
+          "offset_mm": -1.0,
+          "r_m": 0.019087461380721257,
+          "r_mm": 19.08746138072126,
+          "solve_p_raw": "np.float64(34.936929299997054)",
+          "solve_p_real": 34.936929299997054,
+          "finite_real": true
+        },
+        {
+          "offset_mm": -0.25,
+          "r_m": 0.019837461380721257,
+          "r_mm": 19.83746138072126,
+          "solve_p_raw": "np.float64(8.245016476426779)",
+          "solve_p_real": 8.245016476426779,
+          "finite_real": true
+        },
+        {
+          "offset_mm": 0.0,
+          "r_m": 0.020087461380721258,
+          "r_mm": 20.08746138072126,
+          "solve_p_raw": "np.float64(1.0293929966915742e-05)",
+          "solve_p_real": 1.0293929966915742e-05,
+          "finite_real": true
+        },
+        {
+          "offset_mm": 0.25,
+          "r_m": 0.020337461380721258,
+          "r_mm": 20.33746138072126,
+          "solve_p_raw": "np.float64(7.944287889119068)",
+          "solve_p_real": 7.944287889119068,
+          "finite_real": true
+        },
+        {
+          "offset_mm": 1.0,
+          "r_m": 0.02108746138072126,
+          "r_mm": 21.08746138072126,
+          "solve_p_raw": "np.float64(30.10889715079084)",
+          "solve_p_real": 30.10889715079084,
+          "finite_real": true
+        },
+        {
+          "offset_mm": 2.0,
+          "r_m": 0.022087461380721256,
+          "r_mm": 22.087461380721255,
+          "solve_p_raw": "np.float64(56.218095824425774)",
+          "solve_p_real": 56.218095824425774,
+          "finite_real": true
+        }
+      ],
+      "status": "PASS",
+      "error": null,
+      "valid_radial_points": 7
+    },
+    {
+      "case": "C_DOUBLE",
+      "C": 0.001538,
+      "light_ring": true,
+      "r_sp_m": 0.03436314164907322,
+      "r_sp_mm": 34.36314164907322,
+      "omega_lr": 42.50240738719307,
+      "f_lr_hz": 6.764468228977265,
+      "radial_points": [
+        {
+          "offset_mm": -2.0,
+          "r_m": 0.03236314164907322,
+          "r_mm": 32.363141649073214,
+          "solve_p_raw": "np.float64(26.234223654152448)",
+          "solve_p_real": 26.234223654152448,
+          "finite_real": true
+        },
+        {
+          "offset_mm": -1.0,
+          "r_m": 0.03336314164907322,
+          "r_mm": 33.36314164907322,
+          "solve_p_raw": "np.float64(12.488942581137358)",
+          "solve_p_real": 12.488942581137358,
+          "finite_real": true
+        },
+        {
+          "offset_mm": -0.25,
+          "r_m": 0.03411314164907322,
+          "r_mm": 34.11314164907322,
+          "solve_p_raw": "np.float64(3.012910069286299)",
+          "solve_p_real": 3.012910069286299,
+          "finite_real": true
+        },
+        {
+          "offset_mm": 0.0,
+          "r_m": 0.03436314164907322,
+          "r_mm": 34.36314164907322,
+          "solve_p_raw": "None",
+          "solve_p_real": null,
+          "finite_real": false
+        },
+        {
+          "offset_mm": 0.25,
+          "r_m": 0.03461314164907322,
+          "r_mm": 34.61314164907322,
+          "solve_p_raw": "np.float64(2.943716252400173)",
+          "solve_p_real": 2.943716252400173,
+          "finite_real": true
+        },
+        {
+          "offset_mm": 1.0,
+          "r_m": 0.03536314164907322,
+          "r_mm": 35.36314164907322,
+          "solve_p_raw": "np.float64(11.380228299382082)",
+          "solve_p_real": 11.380228299382082,
+          "finite_real": true
+        },
+        {
+          "offset_mm": 2.0,
+          "r_m": 0.03636314164907322,
+          "r_mm": 36.36314164907322,
+          "solve_p_raw": "np.float64(21.77861661311634)",
+          "solve_p_real": 21.77861661311634,
+          "finite_real": true
+        }
+      ],
+      "status": "PASS",
+      "error": null,
+      "valid_radial_points": 6
+    }
+  ],
+  "failures": [],
+  "overall": "PASS"
+}

@@ -1,0 +1,116 @@
+{
+  "C_modified_on_disk": false,
+  "authoritative_solver_modified": false,
+  "baseline_root_hz": {
+    "im": -0.000586962309,
+    "re": 8.306625532027
+  },
+  "blind_2d_scan": false,
+  "complex_C_injection_audit": {
+    "H_minus": {
+      "im": 0.1822128294877922,
+      "re": 204.5243639153009
+    },
+    "H_plus": {
+      "im": 0.20724722621760963,
+      "re": 103.8921159761885
+    },
+    "H_zero": {
+      "im": 0.19464282812787534,
+      "re": 154.48073907710432
+    },
+    "delta_minus": 50.043626381898356,
+    "delta_plus": 50.5886246711389
+  },
+  "constants": {
+    "C0": 0.000769,
+    "Omega": 0.1,
+    "g": 9.81,
+    "gamma": 2.22e-06,
+    "h0": 0.034,
+    "r_B": 0.0373
+  },
+  "controlled_cases": {
+    "BASELINE": 0.000769,
+    "C_MINUS": 0.0007305500000000001,
+    "C_PLUS": 0.00080745
+  },
+  "derivatives": {
+    "df_I_dC_central": null,
+    "df_I_dC_minus": null,
+    "df_I_dC_plus": null,
+    "df_R_dC_central": null,
+    "df_R_dC_minus": null,
+    "df_R_dC_plus": null
+  },
+  "description": "Narrow local C-continuation of the validated baseline complex resonance root",
+  "frequency_rescaling": false,
+  "gw_calibration": false,
+  "kerr_fit": false,
+  "low_k_approximation": false,
+  "mode": -12,
+  "radial_resolution": 1000,
+  "results": [
+    {
+      "C": 0.000769,
+      "H_turn_abs": 2.2737410912368746e-13,
+      "Q": 7075.944574855999,
+      "R_abs": 0.9973554051087632,
+      "R_im": -0.995798198378311,
+      "R_re": 0.055711329244375385,
+      "Res_abs": 8.997183951702856e-05,
+      "Res_im": 8.573453557775973e-05,
+      "Res_re": 2.7285917894470657e-05,
+      "S_abs": 0.7574981388564984,
+      "S_im": -0.0013376936152670676,
+      "S_re": 0.7574969577145843,
+      "delta_f_I": 0.0,
+      "delta_f_R": 0.0,
+      "delta_f_abs": 0.0,
+      "f_I": -0.000586962309,
+      "f_R": 8.306625532027,
+      "f_lr": 8.835443157444212,
+      "label": "BASELINE",
+      "r_minus_real_m": 0.030265150841229545,
+      "r_sp_m": 0.020087461380721258,
+      "r_sp_mm": 20.08746138072126,
+      "r_turn_im_m": 8.108992833505853e-06,
+      "r_turn_re_m": 0.030265151172733908,
+      "radial_n": 1000,
+      "reason": "B4_0_BASELINE_REPRODUCTION",
+      "relative_delta_f": 0.0,
+      "seed_f_I": -0.000586962309,
+      "seed_f_R": 8.306625532027,
+      "status": "PASS"
+    },
+    {
+      "C": 0.0007305500000000001,
+      "candidate_f_I": 0.0016494613274073027,
+      "candidate_f_R": 8.318096232032337,
+      "f_lr": 9.025525849108186,
+      "label": "C_MINUS_0.95",
+      "reason": "BRANCH_JUMP",
+      "seed_f_I": -0.000586962309,
+      "seed_f_R": 8.306625532027,
+      "status": "FAIL"
+    },
+    {
+      "C": 0.00080745,
+      "candidate_f_I": -0.002602080146352295,
+      "candidate_f_R": 8.253107340787496,
+      "f_lr": 8.66076565499969,
+      "label": "C_PLUS_1.05",
+      "reason": "BRANCH_JUMP",
+      "seed_f_I": -0.000586962309,
+      "seed_f_R": 8.306625532027,
+      "status": "FAIL"
+    }
+  ],
+  "stage": "6.5B4-1",
+  "verdict": {
+    "both_continuations_pass": false,
+    "local_response_detected": false,
+    "minus_pass": false,
+    "plus_pass": false
+  }
+}

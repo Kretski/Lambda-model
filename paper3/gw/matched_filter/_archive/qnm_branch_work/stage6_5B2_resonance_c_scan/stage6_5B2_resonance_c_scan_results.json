@@ -1,0 +1,30 @@
+[
+  {
+    "label": "C_ZERO",
+    "C": 0.0,
+    "status": "NO_LIGHT_RING",
+    "r_sp": null,
+    "f_lr": null
+  },
+  {
+    "label": "C_HALF",
+    "C": 0.0003845,
+    "status": "NO_COARSE_CANDIDATE",
+    "r_sp": 0.009873054390127308,
+    "f_lr": 12.350160999192898
+  },
+  {
+    "label": "BASELINE",
+    "C": 0.000769,
+    "status": "NO_COARSE_CANDIDATE",
+    "r_sp": 0.020087461380721258,
+    "f_lr": 8.835443157444212
+  },
+  {
+    "label": "C_DOUBLE",
+    "C": 0.001538,
+    "status": "NO_COARSE_CANDIDATE",
+    "r_sp": 0.03436314164907322,
+    "f_lr": 6.764468228977265
+  }
+]

@@ -1,0 +1,213 @@
+{
+  "stage": "6.5",
+  "title": "Causal / Independent Physical Consequence Audit",
+  "baseline": {
+    "C": 0.000769,
+    "Omega": 0.1,
+    "gamma": 2.22e-06,
+    "h0": 0.034,
+    "g": 9.81,
+    "r_B": 0.0373
+  },
+  "mode": -12,
+  "parameter_audit": [
+    {
+      "case": "BASELINE",
+      "C": 0.000769,
+      "Omega": 0.1,
+      "gamma": 2.22e-06,
+      "r_sp_m": 0.02008746152762444,
+      "f_lr_hz": 8.835443157444208,
+      "k_m_inv": 597.3875784900696,
+      "h0_k": 20.311177668662367,
+      "capillary_ratio": 0.08076000611967263,
+      "long_wave_controlled": false,
+      "gravity_controlled": true,
+      "status": "OK"
+    },
+    {
+      "case": "C_ZERO",
+      "C": 0.0,
+      "Omega": 0.1,
+      "gamma": 2.22e-06,
+      "r_sp_m": NaN,
+      "f_lr_hz": NaN,
+      "k_m_inv": NaN,
+      "h0_k": NaN,
+      "capillary_ratio": NaN,
+      "long_wave_controlled": false,
+      "gravity_controlled": false,
+      "status": "NO_LIGHT_RING"
+    },
+    {
+      "case": "OMEGA_ZERO",
+      "C": 0.000769,
+      "Omega": 0.0,
+      "gamma": 2.22e-06,
+      "r_sp_m": 0.02008746152760135,
+      "f_lr_hz": 9.026429089154483,
+      "k_m_inv": 597.3875784907564,
+      "h0_k": 20.31117766868572,
+      "capillary_ratio": 0.08076000611985833,
+      "long_wave_controlled": false,
+      "gravity_controlled": true,
+      "status": "OK"
+    },
+    {
+      "case": "GAMMA_ZERO",
+      "C": 0.000769,
+      "Omega": 0.1,
+      "gamma": 0.0,
+      "r_sp_m": 0.022620123345346882,
+      "f_lr_hz": 8.420122109909567,
+      "k_m_inv": 530.5010859929057,
+      "h0_k": 18.037036923758794,
+      "capillary_ratio": 0.0,
+      "long_wave_controlled": false,
+      "gravity_controlled": true,
+      "status": "OK"
+    },
+    {
+      "case": "C_HALF",
+      "C": 0.0003845,
+      "Omega": 0.1,
+      "gamma": 2.22e-06,
+      "r_sp_m": 0.009873054472648649,
+      "f_lr_hz": 12.350160999192898,
+      "k_m_inv": 1215.4293317477013,
+      "h0_k": 41.324597279421845,
+      "capillary_ratio": 0.3343054008409086,
+      "long_wave_controlled": false,
+      "gravity_controlled": false,
+      "status": "OK"
+    },
+    {
+      "case": "C_DOUBLE",
+      "C": 0.001538,
+      "Omega": 0.1,
+      "gamma": 2.22e-06,
+      "r_sp_m": 0.034363141737730536,
+      "f_lr_hz": 6.7644682289772655,
+      "k_m_inv": 349.2113757114376,
+      "h0_k": 11.873186774188879,
+      "capillary_ratio": 0.02759692747567075,
+      "long_wave_controlled": false,
+      "gravity_controlled": true,
+      "status": "OK"
+    },
+    {
+      "case": "OMEGA_HALF",
+      "C": 0.000769,
+      "Omega": 0.05,
+      "gamma": 2.22e-06,
+      "r_sp_m": 0.02008746152760631,
+      "f_lr_hz": 8.930936123299347,
+      "k_m_inv": 597.3875784906088,
+      "h0_k": 20.3111776686807,
+      "capillary_ratio": 0.08076000611981841,
+      "long_wave_controlled": false,
+      "gravity_controlled": true,
+      "status": "OK"
+    },
+    {
+      "case": "OMEGA_DOUBLE",
+      "C": 0.000769,
+      "Omega": 0.2,
+      "gamma": 2.22e-06,
+      "r_sp_m": 0.020087461527621357,
+      "f_lr_hz": 8.644457225733934,
+      "k_m_inv": 597.3875784901613,
+      "h0_k": 20.311177668665486,
+      "capillary_ratio": 0.08076000611969743,
+      "long_wave_controlled": false,
+      "gravity_controlled": true,
+      "status": "OK"
+    },
+    {
+      "case": "GAMMA_HALF",
+      "C": 0.000769,
+      "Omega": 0.1,
+      "gamma": 1.11e-06,
+      "r_sp_m": 0.021387857655231025,
+      "f_lr_hz": 8.61440986206371,
+      "k_m_inv": 561.0660120072872,
+      "h0_k": 19.076244408247767,
+      "capillary_ratio": 0.035619014017434766,
+      "long_wave_controlled": false,
+      "gravity_controlled": true,
+      "status": "OK"
+    },
+    {
+      "case": "GAMMA_DOUBLE",
+      "C": 0.000769,
+      "Omega": 0.1,
+      "gamma": 4.44e-06,
+      "r_sp_m": 0.017259925751309788,
+      "f_lr_hz": 9.389656641809712,
+      "k_m_inv": 695.252121758946,
+      "h0_k": 23.638572139804168,
+      "capillary_ratio": 0.2187754614554337,
+      "long_wave_controlled": false,
+      "gravity_controlled": false,
+      "status": "OK"
+    }
+  ],
+  "sensitivities": [
+    {
+      "parameter": "C",
+      "f_minus": 8.839086033711279,
+      "f_plus": 8.83180642602827,
+      "df_dp": -4733.164943438703,
+      "relative_step": 0.001
+    },
+    {
+      "parameter": "Omega",
+      "f_minus": 8.835634143375922,
+      "f_plus": 8.835252171512499,
+      "df_dp": -1.9098593171130385,
+      "relative_step": 0.001
+    },
+    {
+      "parameter": "gamma",
+      "f_minus": 8.834969981692122,
+      "f_plus": 8.835916468266555,
+      "df_dp": 213172.65189935497,
+      "relative_step": 0.001
+    }
+  ],
+  "convergence": [
+    {
+      "n": 5000,
+      "r_sp_m": 0.02008746261581618,
+      "f_lr_hz": 8.835443157444193
+    },
+    {
+      "n": 10000,
+      "r_sp_m": 0.020087461839800518,
+      "f_lr_hz": 8.835443157444207
+    },
+    {
+      "n": 20000,
+      "r_sp_m": 0.02008746152762444,
+      "f_lr_hz": 8.835443157444208
+    },
+    {
+      "n": 40000,
+      "r_sp_m": 0.020087461390433572,
+      "f_lr_hz": 8.835443157444208
+    },
+    {
+      "n": 80000,
+      "r_sp_m": 0.020087461382378772,
+      "f_lr_hz": 8.83544315744421
+    }
+  ],
+  "validity": {
+    "k": 597.3875784900696,
+    "h0_k": 20.311177668662367,
+    "capillary_ratio": 0.08076000611967263,
+    "long_wave_controlled": false,
+    "gravity_controlled": true
+  },
+  "scientific_status": "PARAMETER_DEPENDENCE_AUDIT_ONLY"
+}

@@ -1,0 +1,63 @@
+{
+  "stage": "6.5B-0",
+  "description": "C injection preflight",
+  "authoritative_solver": "C:\\Users\\Lenovo\\Desktop\\Grav\\Gr\\repo\\Lambda-model\\paper3\\gw\\matched_filter\\_archive\\qnm_branch_work\\stage5I_3_resonance.py",
+  "mode_m": -12,
+  "baseline_C": 0.000769,
+  "authoritative_solver_modified": false,
+  "passed": true,
+  "failures": [],
+  "results": [
+    {
+      "case": "C_ZERO",
+      "C_requested": 0.0,
+      "C_methods_module": 0.000769,
+      "C_table_module": 0.000769,
+      "light_ring": false,
+      "r_sp_m": null,
+      "f_lr_hz": null,
+      "call_ok": true,
+      "error_type": null,
+      "error": null
+    },
+    {
+      "case": "C_HALF",
+      "C_requested": 0.0003845,
+      "C_methods_module": 0.000769,
+      "C_table_module": 0.000769,
+      "light_ring": true,
+      "r_sp_m": 0.009873054390127308,
+      "f_lr_hz": 12.350160999192898,
+      "omega_lr_rad_s": 77.59835013143118,
+      "call_ok": true,
+      "error_type": null,
+      "error": null
+    },
+    {
+      "case": "BASELINE",
+      "C_requested": 0.000769,
+      "C_methods_module": 0.000769,
+      "C_table_module": 0.000769,
+      "light_ring": true,
+      "r_sp_m": 0.020087461380721258,
+      "f_lr_hz": 8.835443157444212,
+      "omega_lr_rad_s": 55.51472662927388,
+      "call_ok": true,
+      "error_type": null,
+      "error": null
+    },
+    {
+      "case": "C_DOUBLE",
+      "C_requested": 0.001538,
+      "C_methods_module": 0.000769,
+      "C_table_module": 0.000769,
+      "light_ring": true,
+      "r_sp_m": 0.03436314164907322,
+      "f_lr_hz": 6.764468228977265,
+      "omega_lr_rad_s": 42.50240738719307,
+      "call_ok": true,
+      "error_type": null,
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+criterion,status,physical_evidence,equation
+"Mode mapping m_gv -> Kerr (l,m,n)",False,"NOT PROVIDED: no independent derivation connecting giant-vortex mode number to Kerr (l,m,n)",
+Rotation mapping -> Kerr a/M,False,NOT PROVIDED: no independent derivation connecting giant-vortex circulation/rotation to Kerr a/M,
+Independent frequency scale,False,NOT PROVIDED: no independent derivation of analog-to-Kerr frequency scale,
+QNM overtone/index mapping,False,NOT PROVIDED: no independent derivation of analog QNM index -> Kerr overtone n,
+Multi-feature physical relation,False,NOT PROVIDED: no independently derived multi-feature relation between analog and Kerr QNM observables,
+Normalization independent,False,NOT PROVIDED: normalization independence has not been independently demonstrated,
+Unique mapping,False,NOT PROVIDED: uniqueness of the analog -> Kerr mapping has not been independently demonstrated,

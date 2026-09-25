@@ -1,0 +1,43 @@
+{
+  "stage": "6.3c",
+  "title": "GW150914 low-frequency PSD gate",
+  "purpose": "Determine whether the selected GWOSC data product contains potentially usable information around the Root-B frequency.",
+  "rootB_frequency_min_hz": 9.596712868,
+  "rootB_frequency_max_hz": 9.824309473,
+  "analysis_start_s": 4.0,
+  "analysis_duration_s": 24.0,
+  "detectors": {
+    "H1": {
+      "filename": "gw150914_data\\H-H1_LOSC_4_V1-1126259446-32.hdf5",
+      "sample_rate": 4096.0,
+      "duration_s": 32.0,
+      "asd_9p7": 2.620545845849882e-20,
+      "asd_100": 1.1751267702796346e-23,
+      "ratio_9p7_to_100": 2230.0111886875775,
+      "ratio_db": 66.96614084099087,
+      "median_asd_5_15": 1.8894161591735588e-20,
+      "median_asd_90_110": 8.654199394848384e-24,
+      "low_high_band_ratio": 2183.2362220568643,
+      "possible_cutoff_hz": null,
+      "classification": "VERY_HIGH_LOW_FREQUENCY_NOISE"
+    },
+    "L1": {
+      "filename": "gw150914_data\\L-L1_LOSC_4_V1-1126259446-32.hdf5",
+      "sample_rate": 4096.0,
+      "duration_s": 32.0,
+      "asd_9p7": 1.069174534426219e-19,
+      "asd_100": 7.541145993260328e-24,
+      "ratio_9p7_to_100": 14177.878738612957,
+      "ratio_db": 83.03222515145515,
+      "median_asd_5_15": 3.5873851379282746e-20,
+      "median_asd_90_110": 9.704075637201212e-24,
+      "low_high_band_ratio": 3696.7819213772386,
+      "possible_cutoff_hz": null,
+      "classification": "VERY_HIGH_LOW_FREQUENCY_NOISE"
+    }
+  },
+  "overall_technical_status": "LOW_FREQUENCY_GATE_FAIL",
+  "scientific_interpretation": "No physical interpretation is performed in this stage. The result only determines whether the selected data product is technically suitable for a subsequent low-frequency matched-filter experiment.",
+  "matched_filter_run": false,
+  "astrophysical_claim": false
+}

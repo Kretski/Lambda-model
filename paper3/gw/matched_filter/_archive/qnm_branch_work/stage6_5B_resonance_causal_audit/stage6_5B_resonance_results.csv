@@ -1,0 +1,5 @@
+C,Q,action_im,action_re,f_im_Hz,f_lr_Hz,f_re_Hz,label,light_ring,r_sp_m,reflection_abs,reflection_im,reflection_re,res_abs,res_im,res_re,root_found,solver_nfev,solver_success,status,tau_s,turning_point_im_m,turning_point_re_m
+0.0,,,,-0.0005696389388967092,8.835443157444212,8.3066307032346,C_ZERO,True,0.020087461380721258,,,,,,,False,17,False,ROOT_FAILED,,,
+0.0003845,,,,-0.0005696389388967092,8.835443157444212,8.3066307032346,C_HALF,True,0.020087461380721258,,,,,,,False,17,False,ROOT_FAILED,,,
+0.000769,,,,-0.0005696389388967092,8.835443157444212,8.3066307032346,BASELINE,True,0.020087461380721258,,,,,,,False,17,False,ROOT_FAILED,,,
+0.001538,,,,-0.0005696389388967092,8.835443157444212,8.3066307032346,C_DOUBLE,True,0.020087461380721258,,,,,,,False,17,False,ROOT_FAILED,,,
