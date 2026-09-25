@@ -69,6 +69,7 @@ Quick start:
 pip install -r requirements.txt
 python paper3/lambda_experimental_validator.py --omega data_omega.csv --k data_k.csv
 python paper3/gw/matched_filter/convention_check.py
+fits a single Λ with no medium-specific baseline; for real media use a residual test against the known dispersion, as in bec_validation/steinhauer2002/
 ```
 
 Further commands are listed in each subdirectory.
