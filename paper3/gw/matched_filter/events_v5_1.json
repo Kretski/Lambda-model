@@ -1,0 +1,191 @@
+{
+  "events": {
+    "GW150914": {
+      "type": "BBH",
+      "v5": {
+        "score": 1.0,
+        "max_corr": 0.3375329992405399,
+        "delay_ms": 8.056640625,
+        "delay_weight": 1.0,
+        "offset_ms": -100
+      },
+      "v5_1": {
+        "score": 1.0,
+        "max_corr_weighted": 0.3375329992405399,
+        "corr_at_peak": 0.3375329992405399,
+        "delay_ms": 8.056640625,
+        "offset_ms": -100
+      }
+    },
+    "GW151012": {
+      "type": "BBH",
+      "v5": {
+        "score": 0.5633955279151518,
+        "max_corr": 0.1877985093050506,
+        "delay_ms": 0.732421875,
+        "delay_weight": 1.0,
+        "offset_ms": -100
+      },
+      "v5_1": {
+        "score": 0.5732996758751611,
+        "max_corr_weighted": 0.19109989195838703,
+        "corr_at_peak": 0.21791346254497584,
+        "delay_ms": 11.23046875,
+        "offset_ms": -25
+      }
+    },
+    "GW151226": {
+      "type": "BBH",
+      "v5": {
+        "score": 0.5883486274357012,
+        "max_corr": 0.19611620914523373,
+        "delay_ms": 5.126953125,
+        "delay_weight": 1.0,
+        "offset_ms": -75
+      },
+      "v5_1": {
+        "score": 0.6733487077290574,
+        "max_corr_weighted": 0.22444956924301912,
+        "corr_at_peak": 0.22444956924301912,
+        "delay_ms": -6.34765625,
+        "offset_ms": 100
+      }
+    },
+    "GW170104": {
+      "type": "BBH",
+      "v5": {
+        "score": 0.9193734473931298,
+        "max_corr": 0.3064578157977099,
+        "delay_ms": -2.9296875,
+        "delay_weight": 1.0,
+        "offset_ms": -50
+      },
+      "v5_1": {
+        "score": 0.9193734473931298,
+        "max_corr_weighted": 0.3064578157977099,
+        "corr_at_peak": 0.3064578157977099,
+        "delay_ms": -2.9296875,
+        "offset_ms": -50
+      }
+    },
+    "GW170608": {
+      "type": "BBH",
+      "v5": {
+        "score": 0.8567470174080409,
+        "max_corr": 0.3168324109157941,
+        "delay_ms": -10.986328125,
+        "delay_weight": 0.9013671875,
+        "offset_ms": -75
+      },
+      "v5_1": {
+        "score": 0.8616797881266484,
+        "max_corr_weighted": 0.2872265960422161,
+        "corr_at_peak": 0.31025320078821655,
+        "delay_ms": -10.7421875,
+        "offset_ms": -75
+      }
+    },
+    "GW170729": {
+      "type": "BBH",
+      "v5": {
+        "score": 0.874622191243245,
+        "max_corr": 0.29154073041441503,
+        "delay_ms": 1.708984375,
+        "delay_weight": 1.0,
+        "offset_ms": 50
+      },
+      "v5_1": {
+        "score": 0.874622191243245,
+        "max_corr_weighted": 0.29154073041441503,
+        "corr_at_peak": 0.29154073041441503,
+        "delay_ms": 1.708984375,
+        "offset_ms": 50
+      }
+    },
+    "GW170809": {
+      "type": "BBH",
+      "v5": {
+        "score": 0.7840339147368214,
+        "max_corr": 0.2613446382456071,
+        "delay_ms": 9.521484375,
+        "delay_weight": 1.0,
+        "offset_ms": -50
+      },
+      "v5_1": {
+        "score": 0.7840339147368214,
+        "max_corr_weighted": 0.2613446382456071,
+        "corr_at_peak": 0.2613446382456071,
+        "delay_ms": 9.521484375,
+        "offset_ms": -50
+      }
+    },
+    "GW170814": {
+      "type": "BBH",
+      "v5": {
+        "score": 1.0,
+        "max_corr": 0.3403516039005957,
+        "delay_ms": 8.056640625,
+        "delay_weight": 1.0,
+        "offset_ms": -75
+      },
+      "v5_1": {
+        "score": 1.0,
+        "max_corr_weighted": 0.3403516039005957,
+        "corr_at_peak": 0.3403516039005957,
+        "delay_ms": 8.056640625,
+        "offset_ms": -75
+      }
+    },
+    "GW170817": {
+      "type": "BNS",
+      "v5": {
+        "score": 0.6924417199533328,
+        "max_corr": 0.23081390665111096,
+        "delay_ms": 3.173828125,
+        "delay_weight": 1.0,
+        "offset_ms": -100
+      },
+      "v5_1": {
+        "score": 0.6924417199533328,
+        "max_corr_weighted": 0.23081390665111096,
+        "corr_at_peak": 0.23081390665111096,
+        "delay_ms": 3.173828125,
+        "offset_ms": -100
+      }
+    },
+    "GW170818": {
+      "type": "BBH",
+      "v5": {
+        "score": 0.7805358039318093,
+        "max_corr": 0.2601786013106031,
+        "delay_ms": 4.39453125,
+        "delay_weight": 1.0,
+        "offset_ms": 75
+      },
+      "v5_1": {
+        "score": 0.7805358039318093,
+        "max_corr_weighted": 0.2601786013106031,
+        "corr_at_peak": 0.2601786013106031,
+        "delay_ms": 4.39453125,
+        "offset_ms": 75
+      }
+    },
+    "GW170823": {
+      "type": "BBH",
+      "v5": {
+        "score": 0.769132484768472,
+        "max_corr": 0.25637749492282397,
+        "delay_ms": -0.732421875,
+        "delay_weight": 1.0,
+        "offset_ms": -25
+      },
+      "v5_1": {
+        "score": 0.769132484768472,
+        "max_corr_weighted": 0.25637749492282397,
+        "corr_at_peak": 0.25637749492282397,
+        "delay_ms": -0.732421875,
+        "offset_ms": -25
+      }
+    }
+  }
+}
