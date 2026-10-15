@@ -169,8 +169,7 @@ July 2026).
    Hořava–Lifshitz gravity.
 3. **Observer dependence.** Whether replacing the ZAMO by another observer field changes the
    physical prediction or only the local description has not been checked.
-4. **Strong-field content.** The only candidate difference from the established theories is in
-   the strong field (unchanged Kerr metric with a ZAMO-defined local correction, e.g. the photon-ring
+4. **Strong-field content.** The most natural place to look for a difference from the established theories is the strong field; it has not been shown to be the only one (unchanged Kerr metric with a ZAMO-defined local correction, e.g. the photon-ring
    shift $\delta b = C\Lambda E^2$ of Paper 2). Its consistency for gravitational perturbations is open,
    and at the naturalness values of Section 4 its size is negligible.
 
