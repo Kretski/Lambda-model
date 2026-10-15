@@ -124,3 +124,62 @@ The current framework gives a mathematical structure for quartic dispersion in c
 and a scalar-field derivation of it. It does not yet give a derived, numerically predictive
 $\Lambda_{\rm GW}$. The next milestone is theoretical: the derivation connecting the Hamiltonian
 to the dynamics and observable phase of gravitational waves.
+
+
+## 8. T2 — Comparison with preferred-frame theories (status: comparison, not derivation)
+
+*Added October 2026. This section compares structures; it derives nothing new.*
+
+A quartic term in a dispersion relation requires a preferred time direction. Two established
+families of gravitational theories contain one: Hořava–Lifshitz gravity (a preferred foliation;
+Hořava, Phys. Rev. D 79, 084008, 2009) and Einstein-aether theory (a dynamical unit timelike
+vector; Jacobson & Mattingly, Phys. Rev. D 64, 024028, 2001). The tensor dispersion
+$\omega^2 = k^2 + \alpha k^4$ and its gravitational-wave phase correction have already been derived
+and confronted with GWTC-4.0 in Hořava–Lifshitz gravity (Araújo Filho et al., arXiv:2607.17431,
+July 2026).
+
+| Aspect | Lambda model (Papers 1–2) | Hořava–Lifshitz | Einstein-aether | Status of the comparison |
+| --- | --- | --- | --- | --- |
+| Flat-space dispersion | $\omega^2 = c^2k^2(1 + \Lambda k^2)$, ansatz (P1 Eq. 3), derived for a scalar (P1 Eqs. 7–12) | tensor $\omega^2 = k^2 + \alpha k^4$ from higher spatial derivatives | higher-derivative extensions possible | same functional form; for tensors only the HL derivation exists |
+| Preferred frame | fixed observer field $u^\mu$: static observer (P1), ZAMO (P2); defined by the background geometry, not dynamical | dynamical foliation (khronon) | dynamical unit vector (aether) | in Schwarzschild the static observer and the ZAMO coincide |
+| Background metric | Kerr kept unchanged; only propagation is modified | black-hole solutions are modified | black-hole solutions are modified | in the Lambda model this is an assumption of the effective Hamiltonian, not a result |
+| Gravitational-sector action | none | yes | yes | the Lambda model has no tensor-sector dynamics yet |
+| Coefficient | free; $\Lambda > 0$ imposed | free couplings | free couplings | no theory fixes the coefficient |
+| GW propagation phase | not derived | derived (arXiv:2607.17431) | constrained by GW170817 ($c_T$) and other tests | not new for the Lambda model unless it differs in structure |
+
+### 8.1 Established
+
+1. In flat space and for propagation over cosmological distances, the Lambda-model dispersion
+   has the same functional form as the Hořava–Lifshitz tensor dispersion. A gravitational-wave
+   phase test of this form is therefore not specific to the Lambda model.
+2. The local wavenumber is defined with respect to an observer field built from the
+   background metric (static observer, ZAMO), not with respect to an independent dynamical field.
+3. Neither paper contains a gravitational-sector action.
+
+### 8.2 Open, to be tested (hypotheses, not results)
+
+1. **Effective theory of perturbations.** Operators built from background structures (Killing
+   vectors, the ZAMO congruence) can be admissible in an effective description of perturbations
+   around a background that itself selects a frame. Whether a consistent tensor-perturbation
+   operator of this kind reproduces the Lambda correction, and in which regime, is not established.
+2. **Explicit versus spontaneous breaking.** Explicit breaking of diffeomorphism invariance in the
+   gravitational sector conflicts with the Bianchi identities (Kostelecký, Phys. Rev. D 69, 105009,
+   2004), which points toward a dynamical frame. This is a constraint on the construction; it does
+   not prove that every realisation of the Lambda model reduces to Einstein-aether or
+   Hořava–Lifshitz gravity.
+3. **Observer dependence.** Whether replacing the ZAMO by another observer field changes the
+   physical prediction or only the local description has not been checked.
+4. **Strong-field content.** The only candidate difference from the established theories is in
+   the strong field (unchanged Kerr metric with a ZAMO-defined local correction, e.g. the photon-ring
+   shift $\delta b = C\Lambda E^2$ of Paper 2). Its consistency for gravitational perturbations is open,
+   and at the naturalness values of Section 4 its size is negligible.
+
+### 8.3 Criterion for T2b
+
+Proceed to a tensor-sector derivation (T2b) only if at least one of the following can be stated
+before the derivation: (a) a mechanism that fixes the coefficient, its sign, or a relation between
+the scalar, photon and tensor coefficients; or (b) an observable that differs from the
+Hořava–Lifshitz/Einstein-aether predictions under the same assumptions. If neither exists, the
+correct conclusion is that, in the tensor sector, the Lambda model is an effective
+parametrisation within the preferred-frame class, and its gravitational-wave tests coincide with
+the existing ones.
