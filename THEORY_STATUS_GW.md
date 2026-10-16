@@ -182,3 +182,37 @@ Hořava–Lifshitz/Einstein-aether predictions under the same assumptions. If ne
 correct conclusion is that, in the tensor sector, the Lambda model is an effective
 parametrisation within the preferred-frame class, and its gravitational-wave tests coincide with
 the existing ones.
+
+
+## 9. Wave-equation checks A0–A2(a) and the current decision
+
+*Added October 2026. A0–A2(a) examine a **proposed addition** to the model (a linear wave equation
+under the ray Hamiltonian of Paper 2). They are not evidence that the corrected action is already
+part of the published theory. Papers 1–3 are not changed. Details: `notes/A0_LINEAR_ACTION.md`,
+`notes/A1_KERR_CHECKS.md`, `notes/A2a_SCHWARZSCHILD_BOUNDARY.md`, with check scripts in `notes/`.*
+
+- **A0.** The quartic term of Paper 1 (Eq. 7) does not produce the stated linear $k^4$ dispersion
+  around a vanishing background: it is quartic in the field, drops out at linear order, and has
+  mass dimension 8 rather than 6. A linear, dimension-6 action with the Laplacian of the preferred
+  slices gives $\omega^2 = k^2(1+\Lambda k^2)$ and is stable in flat space for $\Lambda > 0$. It remains a
+  **candidate**.
+- **A1.** On Kerr, with the Boyer–Lindquist slices (whose normals are the ZAMOs), the candidate's
+  eikonal limit is exactly the Paper 2 Hamiltonian, and its field equation
+  $\Box\phi - (\Lambda/N)D^2(ND^2\phi) = 0$ is confirmed; Schwarzschild separates, rotating Kerr does not in
+  the Carter sense. This supports the link to the ray dynamics; it does **not** establish a theory of
+  gravitational perturbations.
+- **A2(a).** On Schwarzschild the radial equation is fourth order. Its large-$r$ boundary conditions
+  are consistent, but near the horizon the $\Lambda$ terms dominate and all four local solutions are
+  finite and non-oscillating. With the Boyer–Lindquist/ZAMO foliation the model gives **no physical
+  criterion** for the horizon boundary conditions, so the quasinormal-mode problem is not well posed
+  in this setup. (This does not show that no quasinormal modes could exist under some additional,
+  separately justified prescription.)
+- **Paper 2.** Its quasinormal-mode results (Section 7) remain **eikonal estimates**, without a
+  completed wave-equation basis at the horizon.
+- **Future work.** A foliation regular across the horizon is a change of the physical setup, not a
+  correction: a fixed regular foliation is arbitrary and changes the local wavenumber (and hence the
+  ray results), while a dynamical one leads towards Einstein-aether-type theories (Section 8). It is
+  to be considered separately, and only with a physical motivation.
+
+**Decision (October 2026):** keep the present Lambda model, document this limitation, and do not
+start new quasinormal-mode computations.
