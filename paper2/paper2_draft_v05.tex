@@ -1,0 +1,726 @@
+%% PAPER 2 — DRAFT v0.5 (corrections to v0.4, October 2026)
+%% A Hamiltonian Dispersion Framework for Kerr Photon Rings,
+%% Frequency-Dependent Constraints, Superradiance,
+%% and Eikonal Quasinormal Modes
+%%
+%% Companion to: CQG-117140 (Paper 1)
+%% Status: DRAFT — not for distribution
+%%
+%% v0.5 changelog (see section "Corrections in v0.5"):
+%%  - Table 1: b columns regenerated with the v0.4 code (A1v3_zamo_v04.py)
+%%  - Sec. 7, Table 3, Eq. 20: Omega_ph from the full dispersive Hamiltonian;
+%%    Lyapunov exponent with correct normalisation; retrograde ring added;
+%%    explicit Lambda_hat E^2 dependence and l^3 growth of eikonal corrections
+%%  - Abstract, Remarks 1 and 4, Conclusions: updated accordingly
+%%
+%% v0.4 changelog (internal review, pre-submission):
+%%  - FIX 1: corrected ZAMO 4-velocity formula (Section 2.1)
+%%  - FIX 2: added dimensionless Lambda-hat definition (Section 4)
+%%  - FIX 3: softened abstract "constraining" claim
+%%  - FIX 4: renamed Table 2 from "bound" to "sensitivity scale"
+%%  - FIX 5: sharpened A3.3 vs A3.4 separation
+%%  - FIX 6: softened eikonal-QNM "survives" language
+%%  - FIX 7: disambiguated "validated against GR" -> Lambda->0 limit
+%%  - FIX 8: superradiance qualified as kinematic-threshold-only in abstract
+%%  - FIX 9: replaced literature TODO with citable paragraph
+%%  - FIX 10: added Jacobian-based explanation of C_pro/C_ret asymmetry
+%%  - Retained: Appendix A (Carter non-separability) from v0.3
+
+\documentclass[12pt,a4paper]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx,hyperref,geometry,natbib,booktabs,xcolor}
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{result}{Result}
+\newtheorem{remark}{Remark}
+\newcommand{\TODO}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+\newcommand{\Lam}{\Lambda}
+\newcommand{\kloc}{k_{\rm loc}}
+\newcommand{\OmH}{\Omega_H}
+\newcommand{\Omph}{\Omega_{\rm ph}}
+\newcommand{\lLyap}{\lambda_{\rm Lyap}}
+\newcommand{\bph}{b_{\rm ph}}
+
+\begin{document}
+
+\title{%
+  A Hamiltonian Dispersion Framework for Kerr Photon Rings,\\
+  Frequency-Dependent Shadow Constraints, Superradiance,\\
+  and Eikonal Quasinormal Modes
+}
+\author{%
+  Dimitar Kretski\\
+  Center for Hydro- and Aerodynamics,\\
+  Bulgarian Academy of Sciences, Varna, Bulgaria\\
+  \texttt{ORCID: 0000-0001-5108-2243}
+}
+\date{\today\ --- \textbf{DRAFT v0.5} (corrects v0.4; see Section~\ref{sec:corrections})}
+\maketitle
+
+%% ── Abstract ────────────────────────────────────────────────────────────────
+\begin{abstract}
+We develop a Hamiltonian dispersion framework for massless wave
+propagation in Kerr spacetime with a quartic local-frame correction,
+\begin{equation*}
+  H = \tfrac{1}{2}\bigl[g^{\mu\nu}k_\mu k_\nu
+    + \Lambda\,(k_{\rm loc}^{\rm ZAMO})^4\bigr],
+\end{equation*}
+and derive four interconnected results.
+\textbf{(1) Photon-ring correction:}
+the impact parameter shifts as $\delta b = C(a^*,\,{\rm ring})\,\Lambda E^2$
+with $C_{\rm pro}=-0.6230\,M^{-1}$ and $C_{\rm ret}=+11.495\,M^{-1}$
+for $a^*=0.9$; the $E^2$ scaling is proved analytically, and the
+large $|C_{\rm ret}/C_{\rm pro}|\approx18.5$ asymmetry is traced to
+near-degeneracy of the ring-defining Jacobian at the retrograde ring
+(Section~\ref{sec:photon_ring}), not to the local dispersive momentum
+$k_{\rm loc}^4$ itself.
+\textbf{(2) Chromatic shadow:}
+the shadow size is frequency-dependent, with
+$\delta\theta\propto\Lambda\,\omega^2/D$,
+and the frequency-dependent sensitivity scale satisfies
+$\Lambda_{\max}\propto\omega^{-2}$ (exact algebraic scaling,
+confirmed numerically to slope $-2.0000$).
+\textbf{(3) Superradiance:}
+we prove that the kinematic threshold $\omega=m\Omega_H$ is not
+modified by the quartic dispersion; the amplification factor away
+from threshold is not addressed here.
+\textbf{(4) Eikonal QNMs:}
+we use an eikonal continuation of the classical photon-orbit/QNM
+correspondence, $\omega_{\rm QNM}\simeq\Omph(\Lambda)\,l
+-i(n+\tfrac{1}{2})\lLyap(\Lambda)$, as an effective approximation,
+with dispersive corrections $\delta\Omph/\Omph^{\rm GR}\simeq+0.657\,\Lambda E^2$
+(prograde) and $+5.05\,\Lambda E^2$ (retrograde) for $a^*=0.9$; since the
+photon energy of an eikonal mode is its frequency, $E\simeq l\,\Omph$,
+these corrections grow as $l^3$. The $\Lambda\to0$ limit is validated
+against exact Schwarzschild and Kerr benchmarks.
+These results provide a self-consistent theoretical framework for
+deriving observational tests and frequency-dependent sensitivity
+estimates for the dispersion parameter $\Lambda$ through black-hole
+shadow chromaticity, ring asymmetry, and gravitational-wave ringdown,
+without yet constituting a measured or fitted observational bound.
+\end{abstract}
+
+\newpage\tableofcontents\newpage
+
+%% ════════════════════════════════════════════════════════════════════════════
+\section{Introduction}
+%% ════════════════════════════════════════════════════════════════════════════
+
+In a companion paper \citep{Kretski2026a} (hereafter Paper~1), we
+introduced a one-parameter Hamiltonian model for dispersive massless-wave
+propagation in Schwarzschild spacetime and proved two theorems on the
+non-equivalence of field-theoretic and worldline descriptions under
+quartic local-frame corrections.
+The present paper extends the framework to Kerr spacetime and derives
+four observational results.
+
+The central Hamiltonian is
+\begin{equation}\label{eq:H}
+  H = \tfrac{1}{2}\bigl[g^{\mu\nu}k_\mu k_\nu
+    + \Lambda\,(k_{\rm loc}^{\rm ZAMO})^4\bigr],
+\end{equation}
+where $k_{\rm loc}^{\rm ZAMO}$ is the locally measured wavenumber
+with respect to the ZAMO observer (Section~\ref{sec:setup}),
+and $\Lambda>0$ has dimensions of length squared.
+
+We address four questions:
+\begin{enumerate}
+  \item[(Q1)] How does $\Lambda$ shift the photon-ring impact parameter,
+    and what is the energy dependence?
+  \item[(Q2)] Is the black-hole shadow chromatic?
+  \item[(Q3)] Does the superradiant threshold $\omega<m\OmH$ receive
+    a $\Lambda$-dependent correction?
+  \item[(Q4)] What is the eikonal quasinormal-mode (QNM) prediction?
+\end{enumerate}
+
+\textbf{Summary of results.}
+Q1 and Q2 are answered by a single analytical result:
+$\delta b = C\,\Lambda\,E^2$ (Section~\ref{sec:photon_ring}
+and \ref{sec:chromatic}).
+Q3 is answered negatively by an exact proof (Section~\ref{sec:superrad}).
+Q4 is answered in the eikonal ($l\gg 1$) limit
+(Section~\ref{sec:qnm}).
+
+The Event Horizon Telescope has produced resolved shadow images of
+M87* \citep{EHT2019} and Sgr~A*, providing the observational context
+for photon-ring-based tests of strong-field gravity. Lorentz-invariance-
+violating dispersion relations have been constrained via Fermi-LAT
+gamma-ray-burst timing \citep{Abdo2009} and are classified within the
+Standard Model Extension framework \citep{Liberati2013}. The eikonal
+correspondence between photon-ring orbital/Lyapunov parameters and
+black-hole quasinormal modes was established by
+\citet{Cardoso2009} and reviewed by \citet{Berti2009}; we adopt this
+correspondence as the basis for Section~\ref{sec:qnm}.
+
+%% ════════════════════════════════════════════════════════════════════════════
+\section{Setup: Kerr + Quartic Dispersion}
+\label{sec:setup}
+%% ════════════════════════════════════════════════════════════════════════════
+
+\subsection{Kerr metric and ZAMO observer}
+
+We use Boyer-Lindquist coordinates with signature $(-,+,+,+)$,
+$c=1$, $G=1$, and natural units $M=1$ (results are easily dimensionalised).
+The spin parameter satisfies $a^*=a/M\leq 1$.
+
+The ZAMO (zero-angular-momentum observer) has zero angular momentum,
+$g_{t\phi}n^t+g_{\phi\phi}n^\phi=0$, giving angular velocity
+\begin{equation}
+  \Omega_{\rm ZAMO} = \frac{n^\phi}{n^t} = -\frac{g_{t\phi}}{g_{\phi\phi}},
+\end{equation}
+and 4-velocity
+\begin{equation}
+  n^\mu = \bigl(n^t,\,0,\,0,\,\Omega_{\rm ZAMO}\,n^t\bigr),
+  \qquad
+  n^t = \bigl(-g_{tt}-2g_{t\phi}\Omega_{\rm ZAMO}
+    -g_{\phi\phi}\Omega_{\rm ZAMO}^2\bigr)^{-1/2},
+\end{equation}
+normalised so that $g_{\mu\nu}n^\mu n^\nu=-1$. This construction
+remains valid in the ergosphere, provided $r$ is outside the event
+horizon --- unlike the static observer, which ceases to exist there.
+Contracting with the wave covector $k_\mu=(-\omega,\,k_r,\,k_\theta,\,m)$
+gives
+\begin{equation}
+  n^\mu k_\mu = n^t\,\bigl(-\omega + m\,\Omega_{\rm ZAMO}\bigr).
+\end{equation}
+This is essential because the prograde photon ring of a rapidly
+spinning Kerr black hole lies inside the ergosphere
+(for $a^*=0.9$: $r_{\rm ph}^{\rm pro}=1.558\,M<r_{\rm erg}^{\rm eq}=2M$).
+
+\subsection{Local wavenumber and Hamiltonian}
+
+The locally measured wavenumber squared is
+\begin{equation}
+  (k_{\rm loc}^{\rm ZAMO})^2
+  = g^{\mu\nu}k_\mu k_\nu + (n^\mu k_\mu)^2,
+\end{equation}
+which reduces correctly to $k^2/\alpha^2$ in the Schwarzschild equatorial
+limit (Paper~1, Appendix~A).
+The Hamiltonian \eqref{eq:H} satisfies $H=0$ (null constraint),
+and reduces to the standard Kerr null geodesic at $\Lambda=0$.
+
+%% ════════════════════════════════════════════════════════════════════════════
+\section{Photon Ring: First-Order Correction}
+\label{sec:photon_ring}
+%% ════════════════════════════════════════════════════════════════════════════
+
+\subsection{GR benchmark}
+
+For $\Lambda=0$, the circular photon orbits satisfy $H=0$ and
+$\partial H/\partial r=0$.
+In the equatorial plane of Kerr with $a^*=0.9$, this gives
+\citep{Bardeen1973}:
+\begin{align}
+  r_{\rm ph}^{\rm pro} &= 1.557855\,M, &
+  b_{\rm ph}^{\rm pro} &= 2.844421\,M, \\
+  r_{\rm ph}^{\rm ret} &= 3.910268\,M, &
+  b_{\rm ph}^{\rm ret} &= -6.832319\,M.
+\end{align}
+These match the Bardeen polynomial $r^3-3Mr^2\pm 2a\sqrt{Mr^3}=0$
+to residual $<3\times10^{-7}$. This reproduction of the $\Lambda\to0$
+limit constitutes the GR validation of the numerical implementation
+used throughout this section.
+
+\subsection{Dispersive correction}
+
+\begin{result}[Photon-ring shift]
+\label{res:pring}
+For $\Lambda>0$, the impact parameter satisfies
+\begin{equation}\label{eq:db}
+  \bph(E,\Lambda) = b_{\rm GR} + C(a^*,\,{\rm ring})\,\Lambda\,E^2
+  + O(\Lambda^2),
+\end{equation}
+where $E$ is the photon energy in units $Mc^2/\hbar$, and
+\begin{equation}
+  C_{\rm pro} = -0.6230\;M^{-1},\qquad
+  C_{\rm ret} = +11.495\;M^{-1}.
+\end{equation}
+The ratio $|C_{\rm ret}/C_{\rm pro}| = 18.45$ is universal for $a^*=0.9$.
+\end{result}
+
+The coefficient $C$ is obtained from implicit differentiation of the system
+$\{H=0,\,\partial H/\partial r=0\}$ with respect to $\Lambda$, giving
+\begin{equation}\label{eq:C_jacobian}
+  C = -\frac{J_{21}\,\mathrm{rhs}_1 - J_{11}\,\mathrm{rhs}_2}{\det J},
+\end{equation}
+where $J$ is the Jacobian of the system and
+$\mathrm{rhs}_1 = -\tfrac{1}{2}(k_{\rm loc}^2)^2$ at the GR ring.
+The signs are $C_{\rm pro}<0$ (shadow shrinks) and $C_{\rm ret}>0$
+(shadow grows), reflecting the opposite orientations of the two orbit families
+relative to the frame-dragging.
+
+\begin{remark}[Origin of the $C_{\rm pro}/C_{\rm ret}$ magnitude asymmetry]
+\label{rem:asymmetry}
+The large asymmetry between $C_{\rm pro}$ and $C_{\rm ret}$
+(a factor $\approx18.5$) is \emph{not} primarily a consequence of the
+local dispersive momentum $k_{\rm loc}^4$, which is in fact larger
+at the retrograde ring by only a factor of $\approx2.2$
+($k_{\rm loc}^2=2.827$ retrograde vs.\ $1.892$ prograde) and would,
+taken alone, predict a \emph{smaller} shift there. Since
+$\partial_r H=0$ identically at any photon ring
+(the defining condition $J_{11}\equiv\partial_r H=0$), the
+determinant in Eq.~\eqref{eq:C_jacobian} reduces to
+$\det J\approx-(\partial_b H)(\partial_r^2 H)$. Direct numerical
+evaluation gives $|\det J|$ smaller at the retrograde ring by a
+factor of $\approx565$ relative to prograde, driven mainly by
+$\partial_r^2 H$ being $\approx68$ times smaller there --- i.e., a
+flatter radial effective potential at the retrograde ring. This
+near-degeneracy of the ring-defining Jacobian, rather than the
+magnitude of $k_{\rm loc}^4$, dominates the observed asymmetry.
+The flatness of the radial potential does not by itself set the
+orbital Lyapunov exponent of Section~\ref{sec:qnm}, which also depends on
+$\partial^2 H/\partial k_r^2$ and on $\dot t$: in coordinate time the retrograde
+ring has the \emph{larger} exponent ($\lLyap=0.1865$ versus $0.1361$ at
+$\Lambda=0$). (Version~0.4 predicted the opposite; see
+Section~\ref{sec:corrections}.)
+\end{remark}
+
+Table~\ref{tab:pring} gives numerical values for selected $\Lambda$.
+
+\begin{table}[h]
+\centering
+\caption{Impact parameter $b_{\rm ph}$ vs $\Lambda$ for $a^*=0.9$, $M=1$, $E=1$.}
+\label{tab:pring}
+\begin{tabular}{lcccc}
+\toprule
+$\Lambda$ & $r_{\rm pro}$ & $b_{\rm pro}$ & $r_{\rm ret}$ & $b_{\rm ret}$ \\
+\midrule
+$0$        & 1.557855 & $+$2.844421 & 3.910268 & $-$6.832319 \\
+$10^{-4}$  & 1.557880 & $+$2.844359 & 3.909626 & $-$6.831170 \\
+$10^{-3}$  & 1.558104 & $+$2.843799 & 3.903876 & $-$6.820868 \\
+$10^{-2}$  & 1.560339 & $+$2.838235 & 3.849229 & $-$6.721647 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%% ════════════════════════════════════════════════════════════════════════════
+\section{Chromatic Shadow}
+\label{sec:chromatic}
+%% ════════════════════════════════════════════════════════════════════════════
+
+\subsection{Analytical proof of $E^2$ scaling}
+
+\begin{theorem}[Chromatic shadow]
+\label{thm:chromatic}
+The first-order correction $\partial b/\partial\Lambda|_{\Lambda=0}$
+is exactly proportional to $E^2$:
+\begin{equation}
+  \frac{\partial \bph}{\partial\Lambda}\Bigg|_{\Lambda=0} = C\,E^2.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+At the GR photon ring, $H_{\rm GR}=0$ implies $g^{\mu\nu}k_\mu k_\nu=0$.
+Therefore
+$k_{\rm loc}^2 = (n^\mu k_\mu)^2 = E^2\,K^2$, where
+$K=-n^t + n^\phi b$ is an $E$-independent geometric factor.
+Consequently $k_{\rm loc}^4=E^4 K^4$, all Jacobian entries scale as $E^2$,
+and the implicit-differentiation formula gives
+$\partial b/\partial\Lambda = C({\rm geom})\cdot E^2$ exactly.
+\end{proof}
+
+\subsection{Numerical confirmation}
+
+The power-law fit over five decades of $E$ gives exponent $n=2.000$
+for both prograde and retrograde channels.
+The GR control (at $\Lambda=0$) is achromatic to
+$\sigma(b_{\rm GR})<10^{-14}$ across $E\in[0.3,10]$.
+
+\subsection{Physical formula (SI)}
+
+To restore physical units unambiguously, define the dimensionless
+dispersion parameter and photon energy
+\begin{equation}
+  \hat\Lambda \equiv \frac{\Lambda_{\rm SI}}{M_{\rm geom}^2},
+  \qquad
+  M_{\rm geom}\equiv\frac{GM}{c^2},
+  \qquad
+  \mathcal{E}\equiv\frac{\hbar\omega}{Mc^2},
+\end{equation}
+so that all coefficients $C_{\rm pro},C_{\rm ret}$ quoted above are the
+dimensionless $C$ in $\delta b/M_{\rm geom}=C\,\hat\Lambda\,\mathcal{E}^2$.
+Reinstating physical units:
+\begin{equation}\label{eq:dtheta}
+  \delta\theta_{\rm shadow} = C\,\frac{GM}{c^2}\,
+  \frac{\Lambda_{\rm SI}\,(\hbar\omega)^2}{M^2c^4\,D},
+\end{equation}
+where $D$ is the distance to the black hole.
+This formula enables a direct test: measuring the shadow size at two
+radio frequencies $\omega_1,\,\omega_2$ gives
+\begin{equation}
+  \Lambda_{\rm SI} = \frac{\delta b(\omega_2)-\delta b(\omega_1)}
+    {C\,(GM/c^2)\,(\hbar/Mc^2)^2\,(\omega_2^2-\omega_1^2)}.
+\end{equation}
+
+%% ════════════════════════════════════════════════════════════════════════════
+\section{Frequency-Dependent Observational Sensitivity}
+\label{sec:constraints}
+%% ════════════════════════════════════════════════════════════════════════════
+
+From \eqref{eq:dtheta} and the adopted 10\% shadow-size tolerance
+(calibrated to EHT M87* uncertainty at 230\,GHz):
+
+\textbf{Fixed-tolerance scaling (A3.3) --- primary theoretical result:}
+\begin{equation}
+  \Lambda_{\max}(\nu) = A\,\nu^{-2},
+\end{equation}
+with numerical values in Table~\ref{tab:lmax}.
+The measured slope $-2.0000$ reproduces the exact $\omega^{-2}$ algebraic
+scaling derived in Theorem~\ref{thm:chromatic}.
+
+\begin{table}[h]
+\centering
+\caption{Illustrative fixed-tolerance sensitivity scale for $\Lambda$
+(retrograde channel). These values are \emph{not} observational
+constraints; they represent the value of $\Lambda$ corresponding to
+the adopted 10\% angular-tolerance model, not a fit to actual EHT data
+or emission physics. See text.}
+\label{tab:lmax}
+\begin{tabular}{lc}
+\toprule
+Frequency & $\Lambda_{\max}$ [m$^2$] \\
+\midrule
+86\,GHz  & $1.88\times10^{-8}$ \\
+129\,GHz & $8.37\times10^{-9}$ \\
+230\,GHz & $2.63\times10^{-9}$ \\
+345\,GHz & $1.17\times10^{-9}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{remark}
+Table~\ref{tab:lmax} is an internal consistency test of the model
+scaling, not an independent EHT observational bound.
+A rigorous constraint requires per-band sensitivity modelling,
+atmospheric opacity, and imaging systematics of the EHT array.
+\end{remark}
+
+\textbf{Resolution-scaled toy extension (A3.4) --- illustrative only:}
+Adopting a diffraction-limited toy model for the per-band tolerance
+gives an effective slope of $-2.495$ (steeper than the algebraic $-2$).
+This result depends on an assumed diffraction-limited ring-fraction
+model and does not incorporate frequency-dependent instrumental
+sensitivity, opacity, or calibration systematics of actual
+observations. A3.3 is the theoretical scaling result of this paper;
+A3.4 is retained solely as an illustrative sensitivity-modelling
+extension and should not be read as a physical prediction.
+
+\textbf{TeV feasibility (A3.3 companion test):}
+A separate feasibility analysis confirms the theoretical $E^2$
+chromatic-shift scaling numerically (measured slope $-2.000000$
+against the expected $-2.000000$) while showing that high photon
+energy alone does not provide spatial resolution: a direct
+observational constraint on $\Lambda$ requires the energy-dependent
+photon-ring displacement to be spatially resolved, which current
+TeV instruments do not provide model-independently. Model-dependent
+spectral or flux constraints are not excluded and would require a
+dedicated emission and propagation model, which is beyond the scope
+of this paper.
+
+\textbf{Comparison with Fermi\,LAT:}
+From Paper~1, $\Lambda\lesssim\mathcal{O}(10^{-53})$\,m$^2$
+from quadratic LIV bounds \citep{Abdo2009}.
+The EHT radio sensitivity scales in Table~\ref{tab:lmax} are weaker by
+$\sim45$ orders of magnitude, because radio photons have
+$E_{\rm photon}\ll M_{\rm BH}c^2$.
+
+%% ════════════════════════════════════════════════════════════════════════════
+\section{Superradiance}
+\label{sec:superrad}
+%% ════════════════════════════════════════════════════════════════════════════
+
+\begin{theorem}[Superradiant threshold]
+\label{thm:superrad}
+The superradiant threshold $\omega=m\OmH$ is not modified by the
+quartic dispersion $\Lambda\,\kloc^4$:
+\begin{equation}
+  \omega_{\rm thresh}(\Lambda) = m\OmH + O(\varepsilon_{\rm num}),
+\end{equation}
+where $\varepsilon_{\rm num}$ denotes the numerical proximity
+$r=r_++\epsilon$.
+\end{theorem}
+
+\begin{proof}
+At $r=r_+$, the ZAMO angular velocity satisfies
+$\Omega_{\rm ZAMO}\to\OmH$ exactly (since $\Delta\to 0$).
+Consequently, at $\omega=m\OmH$:
+\begin{equation}
+  n^\mu k_\mu = -n^t\,\omega + n^\phi\,m
+    = n^t\,m\,(-\OmH + \Omega_{\rm ZAMO}) \to 0.
+\end{equation}
+Therefore $\kloc^2\to 0$, and $\Lambda\,\kloc^4\to 0$ identically at
+the threshold.
+The threshold condition $\omega=m\OmH$ is therefore unchanged.
+\end{proof}
+
+\begin{remark}
+This result holds for the kinematic threshold only.
+The rate of energy extraction (amplification factor) may receive
+$\Lambda$-dependent corrections, which require computing the
+full transmission amplitude of the dispersive wave equation.
+\end{remark}
+
+%% ════════════════════════════════════════════════════════════════════════════
+\section{Eikonal Quasinormal Modes}
+\label{sec:qnm}
+%% ════════════════════════════════════════════════════════════════════════════
+
+\subsection{Framework}
+
+We use an eikonal continuation of the classical photon-orbit/QNM
+correspondence as an effective approximation for the dispersive
+Hamiltonian. In the eikonal limit $l\gg 1$, the QNM frequency is
+estimated by \citep{Mashhoon1985,Cardoso2009}:
+\begin{equation}\label{eq:qnm}
+  \omega_{\rm QNM} \simeq \Omph(\Lambda)\,l
+    - i\bigl(n+\tfrac{1}{2}\bigr)\lLyap(\Lambda),
+\end{equation}
+where the orbital frequency and the Lyapunov exponent follow from
+Hamilton's equations of the \emph{full} dispersive Hamiltonian,
+\begin{equation}\label{eq:omlyap}
+  \Omph=\frac{\dot\phi}{\dot t}=\frac{\partial H/\partial k_\phi}{\partial H/\partial k_t},\qquad
+  \lLyap=\frac{\sqrt{-\,\partial^2_{k_r}H\;\partial^2_r H}}{|\partial H/\partial k_t|},
+\end{equation}
+evaluated on the circular orbit ($k_r=0$, $H=\partial_rH=0$); the second
+expression follows from linearising $\dot r=\partial H/\partial k_r$,
+$\dot k_r=-\partial H/\partial r$ about the orbit. Both quantities depend on
+$\Lambda$ through the shift of the ring \emph{and} through the dispersive
+terms of $H$, and, like $\delta b$ (Theorem~\ref{thm:chromatic}), their first-order
+corrections are proportional to $\Lambda E^2$. In the eikonal correspondence
+the photon energy is the mode frequency, $E\simeq{\rm Re}\,\omega_{\rm QNM}\simeq l\,\Omph$. A first-principles derivation of the
+dispersive QNM spectrum from the underlying radial wave equation ---
+required to assess the validity of this continuation beyond the
+strict eikonal regime --- is deferred to Paper~3.
+
+\subsection{GR validation}
+
+The $\Lambda\to0$ limit of the framework is validated against three
+exact benchmarks:
+
+\textbf{Test~1 (Schwarzschild):}
+$r_{\rm ph}=3M$, $b_{\rm ph}=3\sqrt{3}\,M$,
+$\Omph=\lLyap=1/(3\sqrt{3}\,M)$,
+reproduced to ten significant digits with Eq.~\eqref{eq:omlyap}. \checkmark
+
+\textbf{Test~2 (Kerr, $a^*=0.9$):}
+$r_{\rm ph}^{\rm pro}$, $b_{\rm ph}^{\rm pro}$ match Bardeen (1973). \checkmark
+
+\textbf{Test~3 (eikonal scaling):}
+${\rm Re}(\omega_{\rm QNM})/l\to\Omph$ (constant) for $l=2,\ldots,100$. \checkmark
+
+For $l=2$, the eikonal estimate gives
+${\rm Re}(\omega)\simeq 0.703\,M^{-1}$ versus the exact Leaver value
+$\simeq 0.568\,M^{-1}$ \citep{Berti2009} (24\% discrepancy, expected for $l=2$,
+since Eq.~\eqref{eq:qnm} is only asymptotically valid for $l\gg1$).
+
+\subsection{Dispersive corrections}
+
+Table~\ref{tab:qnm} gives $\Omph(\Lambda)$ and $\lLyap(\Lambda)$
+for both rings at $E=1$.
+
+\begin{table}[h]
+\centering
+\caption{Eikonal QNM parameters vs $\Lambda$ ($a^*=0.9$, $M=1$, $E=1$), from
+Eq.~\eqref{eq:omlyap}.}
+\label{tab:qnm}
+\begin{tabular}{lcccc}
+\toprule
+$\Lambda$ & $\Omph^{\rm pro}$ & $\lLyap^{\rm pro}$ & $\Omph^{\rm ret}$ & $\lLyap^{\rm ret}$ \\
+\midrule
+$0$       & 0.351565 & 0.136080 & $-$0.146363 & 0.186549 \\
+$10^{-4}$ & 0.351588 & 0.136106 & $-$0.146437 & 0.186608 \\
+$10^{-3}$ & 0.351796 & 0.136341 & $-$0.147101 & 0.187144 \\
+$10^{-2}$ & 0.353864 & 0.138663 & $-$0.153645 & 0.192451 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+To first order (exactly proportional to $E^2$):
+\begin{equation}\label{eq:qnmcorr}
+\begin{aligned}
+  \text{prograde:}\quad &\frac{\delta\Omph}{\Omph^{\rm GR}} \simeq +0.657\,\Lambda E^2,\qquad
+  \frac{\delta\lLyap}{\lLyap^{\rm GR}} \simeq +1.924\,\Lambda E^2,\\
+  \text{retrograde:}\quad &\frac{\delta|\Omph|}{|\Omph^{\rm GR}|} \simeq +5.047\,\Lambda E^2,\qquad
+  \frac{\delta\lLyap}{\lLyap^{\rm GR}} \simeq +3.196\,\Lambda E^2.
+\end{aligned}
+\end{equation}
+With $E\simeq l\,|\Omph|$, the shift of the real part of an equatorial eikonal mode
+grows as $l^3$; for the modes $m=\pm l$ the difference of the two shifts, from
+which the GR splitting cancels, is $D_\Lambda\simeq0.0127\,\Lambda\,l^3$ (geometric
+units). For astrophysical black holes and natural values of $\Lambda$ these
+corrections are negligible.
+
+\begin{remark}
+Equation \eqref{eq:qnm} is an eikonal ($l\gg 1$) effective
+approximation, not an exact result. For the dominant $l=2$
+gravitational-wave mode, a full solution of the dispersive radial
+wave equation is required. With the Boyer--Lindquist/ZAMO foliation
+used here, the horizon boundary conditions of that wave problem are not
+fixed by the model (the dispersive terms dominate near the horizon and
+remove the ingoing-wave behaviour); this is documented separately in the
+repository notes (A2a\_SCHWARZSCHILD\_BOUNDARY.md).
+\end{remark}
+
+%% ════════════════════════════════════════════════════════════════════════════
+\section{Conclusions}
+%% ════════════════════════════════════════════════════════════════════════════
+
+We have derived four results for the quartic-dispersion Kerr model:
+
+\begin{enumerate}
+  \item \textbf{Photon-ring shift (Result~\ref{res:pring}):}
+    $\delta b = C(a^*,\,{\rm ring})\,\Lambda\,E^2$, linear in $\Lambda$
+    and quadratic in photon energy. For $a^*=0.9$:
+    $C_{\rm pro}=-0.6230\,M^{-1}$, $C_{\rm ret}=+11.495\,M^{-1}$.
+    The $\approx18.5$-fold magnitude asymmetry reflects near-degeneracy
+    of the ring-defining Jacobian at the retrograde ring, not the
+    magnitude of $k_{\rm loc}^4$ (Remark~\ref{rem:asymmetry}).
+
+  \item \textbf{Chromatic shadow (Theorem~\ref{thm:chromatic}):}
+    The $E^2$ scaling is exact and follows from the vanishing of
+    $g^{\mu\nu}k_\mu k_\nu$ at the GR photon ring.
+    The frequency-dependent sensitivity scale satisfies
+    $\Lambda_{\max}\propto\omega^{-2}$.
+
+  \item \textbf{Superradiance (Theorem~\ref{thm:superrad}):}
+    The kinematic threshold $\omega=m\OmH$ is unchanged by $\Lambda$.
+    The quartic term vanishes identically at the threshold because
+    $\Omega_{\rm ZAMO}\to\OmH$ at the horizon. The amplification
+    factor away from threshold is not addressed here.
+
+  \item \textbf{Eikonal QNMs (Section~\ref{sec:qnm}):}
+    We use the eikonal continuation
+    $\omega_{\rm QNM}\simeq\Omph\,l-i(n+\tfrac{1}{2})\lLyap$
+    as an effective approximation, with first-order corrections
+    proportional to $\Lambda E^2$ (Eq.~\eqref{eq:qnmcorr}); for eikonal modes
+    they grow as $l^3$. The $\Lambda\to0$ limit is validated against
+    exact Schwarzschild and Kerr benchmarks.
+\end{enumerate}
+
+\textbf{Open questions:}
+(i) Full $l=2$ QNM spectrum from the dispersive wave equation, which
+requires horizon boundary conditions that the present foliation does not fix.
+(ii) Dynamical consequences of Carter non-separability (Appendix~\ref{app:carter}).
+(iii) Physical origin of $\Lambda$.
+
+\section*{Corrections in v0.5}
+\label{sec:corrections}
+\addcontentsline{toc}{section}{Corrections in v0.5}
+
+Version~0.5 corrects computational errors in v0.4, found while extending
+Section~\ref{sec:qnm} to the retrograde ring. All corrected numbers are
+reproduced by scripts in the public repository (github.com/Kretski/Lambda-model,
+\texttt{notes/}: \texttt{eikonal\_d\_lambda.py}, \texttt{paper2\_table3\_corrected.py};
+notes \texttt{EIKONAL\_D\_LAMBDA.md}), using two independent methods
+(numerical root finding and implicit differentiation with exact symbolic
+derivatives), which agree to ten digits.
+\begin{enumerate}
+  \item \textbf{Table~\ref{tab:pring}, $b$ columns.} The values printed in v0.4
+    did not come from the v0.4 code and, for the retrograde ring, moved
+    opposite to the paper's own coefficient $C_{\rm ret}$. They are replaced
+    by the output of the v0.4 code. The radii and the coefficients
+    $C_{\rm pro}$, $C_{\rm ret}$ (Result~\ref{res:pring}) are unchanged and confirmed.
+  \item \textbf{Table~\ref{tab:qnm} and the $\Omph$ correction.} In v0.4, $\dot\phi$
+    and $\dot t$ were computed from the general-relativistic part of $H$ only,
+    at the $\Lambda$-shifted ring. This reproduces the v0.4 values exactly
+    (e.g.\ $0.350800$ at $\Lambda=10^{-2}$ and $-0.219\,\Lambda$) but is inconsistent
+    with the dispersive Hamiltonian. With all terms of $H$ the correction is
+    $+0.657\,\Lambda E^2$ (prograde).
+  \item \textbf{Lyapunov exponent.} The v0.4 expression was mis-normalised
+    (it gave $0.2357$ instead of $1/(3\sqrt3)=0.1925$ for Schwarzschild in the
+    code used for Table~\ref{tab:qnm}). It is replaced by Eq.~\eqref{eq:omlyap},
+    which reproduces the Schwarzschild value exactly. The coefficient
+    $+0.066\,\Lambda$ of v0.4 becomes $+1.924\,\Lambda E^2$.
+  \item \textbf{Energy dependence.} v0.4 evaluated the eikonal corrections at
+    $E=1$. Since they scale as $E^2$ and $E\simeq l\,\Omph$ for an eikonal mode,
+    they grow as $l^3$; Eqs.~\eqref{eq:qnm}--\eqref{eq:qnmcorr} now state this.
+  \item \textbf{Remarks~\ref{rem:asymmetry} and in Section~\ref{sec:qnm}.} The v0.4 prediction
+    $\lLyap^{\rm ret}/\lLyap^{\rm pro}\approx0.12$ is not borne out; the ratio is
+    $1.37$ at $\Lambda=0$.
+\end{enumerate}
+Results (1)--(3) of the abstract (photon-ring coefficients, chromatic $E^2$
+scaling, superradiant threshold) are unaffected.
+
+%% ── Appendix ────────────────────────────────────────────────────────────────
+\appendix
+
+\section{Carter Non-Separability: Exact Symbolic Result}
+\label{app:carter}
+
+For completeness we record the exact separability test, which motivates
+item (ii) of the open questions in Section~\ref{sec:qnm}.
+
+The standard Kerr Hamiltonian ($\Lambda=0$) is fully separable via the
+Carter constant $Q_{\rm Carter}$:
+\begin{equation}
+  \{Q_{\rm Carter},\, H_{\rm GR}\} = 0 \quad (\Lambda = 0).
+\end{equation}
+This was verified to exact rational arithmetic using SymPy.
+
+For $\Lambda>0$ and $a\neq 0$, exact symbolic computation gives:
+\begin{equation}
+  \{Q_{\rm Carter},\, H_\Lambda\}
+  = -\frac{624358\ldots}{2809107\ldots} \neq 0,
+\end{equation}
+an exact rational number, confirming that the classical Carter invariant
+is not conserved by the dispersive Hamiltonian.
+
+\textbf{Interpretation.}
+Non-vanishing of the Poisson bracket establishes that $Q_{\rm Carter}$
+is not a constant of motion for $H_\Lambda$. It does \emph{not}
+imply chaos: a new $\Lambda$-dependent invariant $Q_{\rm eff}(\Lambda)$
+may exist near $Q_{\rm Carter}$.
+
+\textbf{Dynamical tests.}
+Poincar\'e sections (197 crossings per $\Lambda$ value, full 4D
+Hamiltonian integration with corrected Kerr metric)
+show closed $C$-shaped curves at all tested $\Lambda\in[0,10^{-4}]$.
+Lyapunov exponents converge to $\lambda_{\max}\to 0$ for
+$\Lambda\leq 10^{-3}\,M^2$, consistent with quasi-integrable or
+regular dynamics at small $\Lambda$. Whether chaos appears at larger
+$\Lambda$ requires extended integration times and is deferred to
+Paper~3.
+
+\textbf{Superradiance connection.}
+The Carter non-separability is \emph{not} required for the
+superradiance result in Section~\ref{sec:superrad}: that proof depends
+only on the horizon geometry ($\Omega_{\rm ZAMO}\to\Omega_H$), which
+holds independently of separability.
+
+%% ── Bibliography ────────────────────────────────────────────────────────────
+\bibliographystyle{plainnat}
+\begin{thebibliography}{99}
+
+\bibitem[Abdo et~al.(2009)]{Abdo2009}
+Abdo, A.~A., et~al., 2009, \textit{Astrophys.\ J.}, 706, L138.
+
+\bibitem[Bardeen(1973)]{Bardeen1973}
+Bardeen, J.~M., 1973, in \textit{Black Holes}, ed.\ C.~DeWitt \&
+B.~DeWitt (Gordon \& Breach), p.~215.
+
+\bibitem[Berti et~al.(2009)]{Berti2009}
+Berti, E., Cardoso, V., \& Starinets, A.~O., 2009,
+\textit{Class.\ Quantum Grav.}, 26, 163001.
+
+\bibitem[Cardoso et~al.(2009)]{Cardoso2009}
+Cardoso, V., Miranda, A.~S., Berti, E., Witek, H., \& Zanchin, V.~T.,
+2009, \textit{Phys.\ Rev.\ D}, 79, 064016.
+
+\bibitem[EHT Collaboration(2019)]{EHT2019}
+Event Horizon Telescope Collaboration, 2019,
+\textit{Astrophys.\ J.\ Lett.}, 875, L6.
+
+\bibitem[Kretski(2026a)]{Kretski2026a}
+Kretski, D., 2026, Zenodo, \texttt{10.5281/zenodo.22018716}
+(Paper~1, submitted to CQG).
+
+\bibitem[Liberati(2013)]{Liberati2013}
+Liberati, S., 2013, \textit{Class.\ Quantum Grav.}, 30, 133001.
+
+\bibitem[Mashhoon(1985)]{Mashhoon1985}
+Mashhoon, B., 1985, \textit{Phys.\ Rev.\ D}, 31, 290.
+
+\end{thebibliography}
+
+\end{document}
