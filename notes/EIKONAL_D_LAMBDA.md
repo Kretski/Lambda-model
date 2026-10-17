@@ -40,7 +40,7 @@ D_\Lambda^{\rm eik} = \delta\omega_{+l} - \delta\omega_{-l} = 0.0127\,\hat\Lambd
 (geometric units; $\omega_{\rm phys} = \omega\,c^3/GM$). The general-relativistic splitting cancels in this
 difference by construction.
 
-## Points of disagreement with Paper 2 (to be checked against the Paper 2 code)
+## Points of disagreement with Paper 2
 
 1. **Table 1, retrograde $b$ for $\Lambda > 0$.** The tabulated values move opposite to Paper 2's own
    coefficient $C_{\rm ret} = +11.495$ (e.g. $-6.946$ at $\Lambda = 10^{-2}$, whereas $C_{\rm ret}$ and the full
@@ -51,6 +51,26 @@ difference by construction.
 3. **Energy dependence in the eikonal QNM estimate.** Paper 2 evaluates the correction at $E = 1$. Since
    it scales as $E^2$ and $E = \omega \simeq l\Omega$, the dispersive correction to an eikonal mode grows as $l^3$,
    not linearly in $l$; Eqs. 18–20 as written omit this.
+
+## Check against the Paper 2 code (added after inspection)
+
+The Paper 2 scripts were run as written (`A1v3_zamo_v04.py`, identical by SHA-256 to the copy in
+`paper3/gw/matched_filter/`; `A5v2_qnm_validated.py`):
+
+1. **Table 1.** `A1v3_zamo_v04.py` reproduces the values of this note exactly (e.g. at $\Lambda = 10^{-2}$:
+   $b_{\rm pro} = 2.838235$, $b_{\rm ret} = -6.721647$) and the coefficients $C_{\rm pro} = -0.62296$, $C_{\rm ret} = +11.49525$.
+   The $b$ columns printed in Paper 2, Table 1 do not come from this version of the code.
+2. **Table 3 and Eq. 20.** `omega_orbital` in `A5v2_qnm_validated.py` evaluates $\dot\phi$ and $\dot t$ from the
+   general-relativistic part of $H$ only, omitting the derivatives of the $\Lambda$ term. Applied to the
+   $\Lambda$-shifted ring it gives $\Omega_{\rm ph} = 0.3507997$ at $\Lambda = 10^{-2}$, i.e. exactly Table 3, and
+   $-0.2178$ per unit $\Lambda$, i.e. Eq. 20. With the full Hamiltonian the shift is $+0.657\,\hat\Lambda E^2$.
+3. **Lyapunov exponent.** As uploaded, `A5v2_qnm_validated.py` fails its own Schwarzschild test:
+   $\lambda_{\rm Lyap} = 0.23569$ instead of $1/(3\sqrt3) = 0.19245$ (ratio $\sqrt{3/2}$), whereas Paper 2 reports
+   this limit validated to $2\times10^{-7}$. The $\lambda_{\rm Lyap}$ entries of Table 3 and the coefficient
+   $+0.066\,\Lambda$ in Eq. 20 therefore need to be re-derived.
+
+Consequence: Paper 2, Tables 1 and 3 and Eqs. 18–20 need revision before any submission; the impact-
+parameter coefficients $C_{\rm pro}$, $C_{\rm ret}$ (Eq. 9) and the photon-ring radii are confirmed.
 
 ## Size of the effect
 
