@@ -31,8 +31,9 @@ Only **superluminal** bounds apply. For gravitational waves, $\Lambda = A_4(\hba
 
 1. **If Λ is universal** (the same for photons, neutrinos and gravitational waves), the photon
    channels dominate by 50–53 orders of magnitude, and the strongest one (photon splitting,
-   LHAASO) is already **below the GUT-scale natural value**: a universal Λ with $c_6\sim1$ at the GUT
-   scale is excluded, a Planck-scale one is not reached by any channel.
+   LHAASO) is already **below the GUT-scale natural value**: if that bound and its assumptions (the
+   splitting rate, the conventions) hold, a universal Λ with $c_6\sim1$ at the GUT scale is excluded;
+   a Planck-scale one is not reached by any channel.
 2. **Blind spot 1 — gravity-only Λ.** If only gravitational perturbations disperse, the only probe is
    gravitational waves, which reach $\sim10^{-11}\ {\rm m^2}$, about 58 orders above the Planck-scale
    value. This is where the model is effectively untested, and where future detectors (Einstein

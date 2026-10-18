@@ -16,7 +16,8 @@ gravitational sector only, the gravitational-wave bound ($\sim7\times10^{-12}\ {
    (Collins, Perez, Sudarsky, Urrutia, Vucetich, Phys. Rev. Lett. 93, 191301 (2004)) [source]. An
    explicit calculation shows that Lorentz violation in the quantum-gravity sector percolates into
    the matter sector, so that matter bounds constrain the gravitational couplings (Eichhorn,
-   Platania, Schiffer, arXiv:1911.10066) [source].
+   Platania, Schiffer, arXiv:1911.10066) [source]. These results motivate the transfer problem;
+   they do not by themselves prove that the coefficients of the Lambda model must be equal.
 2. **Protection mechanisms exist but are model-specific.** Non-relativistic supersymmetry can make
    low-energy Lorentz invariance emergent (Groot Nibbelink and Pospelov; realised dynamically in the
    "Supersymmetric Aether" of Pujolàs and Sibiryakov, JHEP 01 (2012) 062) [source]. For
@@ -35,7 +36,9 @@ gravitational sector only, the gravitational-wave bound ($\sim7\times10^{-12}\ {
   higher-derivative operators; universality would need a common origin (for example a single
   effective spatial operator shared by all fields), which the model does not yet provide.
 - [model] A gravity-only Λ would have to explain why the transfer of U1.1 is suppressed, i.e. it
-  would need a protection mechanism of the kind in U1.2. None is part of the model.
+  would need a protection mechanism of the kind in U1.2. None is part of the model, and a mechanism
+  that works in another theory is not sufficient: it would have to be shown for the specific
+  structure of the Lambda model (its preferred foliation and operator).
 
 ## U3. Conditional consequences
 
@@ -45,11 +48,17 @@ gravitational sector only, the gravitational-wave bound ($\sim7\times10^{-12}\ {
 | Gravity-only Λ, with transfer to matter | matter bounds constrain it indirectly (U1.1) | effectively as constrained as the universal case, unless protected |
 | Gravity-only Λ, protected, scale $\sim10^{10}$ GeV (U1.2) | $\Lambda_{\rm GW}\sim(\hbar c/10^{10}\,{\rm GeV})^2\approx4\times10^{-52}\ {\rm m^2}$ [estimate] | about 40 orders below the gravitational-wave bound |
 
-[estimate] The gravitational-wave bound $\Lambda\lesssim7\times10^{-12}\ {\rm m^2}$ corresponds to a Lorentz-violation
-scale of only $\hbar c/\sqrt\Lambda\approx0.07$ eV. Gravitational waves therefore test the quartic term only for
-violation scales below about 0.1 eV, far below any scale discussed in U1.
+[estimate] Through $E_{\rm QG,2} = \hbar c/\sqrt{\Lambda_{\rm GW}}$, the gravitational-wave bound $\Lambda\lesssim7\times10^{-12}\ {\rm m^2}$
+corresponds to a scale of about 0.07 eV: under the applicable assumptions (Route A, the quartic
+parametrisation), it excludes phenomenological models whose violation scale is below about 0.07 eV.
+It does not mean that gravitational-wave detectors probe physics at that energy directly, and it is
+not a general bound on every form of Lorentz violation. All scales discussed in U1 lie far above it.
 
 ## Conclusion
+
+Three conclusions are kept separate: (i) universality is not derived in the model; (ii) natural
+values of the coefficient may lie far below gravitational-wave sensitivity; (iii) neither of these
+means that the model is falsified.
 
 The model does not yet decide universality. In every case considered, a theoretically motivated Λ
 lies tens of orders of magnitude below gravitational-wave sensitivity, and only a protected,
