@@ -1,3 +1,5 @@
+﻿> **Correction (October 2026):** the 'experimental' q=2 values in this document are the authors' model predictions, not measured peaks. See paper3/CORRECTION_QNMS_CSV.md.
+
 # Stage 5J–5K: QNM Branch Continuation, Classification, and Observable Recovery
 
 **Status: frozen (Root B adopted as primary working branch).** This document
