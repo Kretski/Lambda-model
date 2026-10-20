@@ -1,3 +1,10 @@
+﻿> **Status in one paragraph (October 2026).** Papers 1 and 2 derive the quartic dispersion for a
+> scalar field only; no dispersion equation for gravitational waves is derived from them. Such an
+> equation requires additional tensor dynamics (notes/COMMON_GEOMETRIC_OPERATOR.md); without a
+> principle that fixes it, its coefficient Λ_g is independent of the scalar Λ. Gravitational-wave
+> observations can then constrain Λ_g, but that tests the extended model, not the original one.
+> The giant-vortex work reproduces the authors' resonance model (implementation check) and is not a
+> test of the fundamental Λ. Details: Sections 3, 8 and 9 below, and notes/.
 # Status of the Lambda model as a gravitational-wave propagation theory
 
 **Status note — October 2026.** A statement of the current theoretical status, not a claim
